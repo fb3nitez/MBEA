@@ -191,7 +191,7 @@
           </div>
           <div class="demo-info">
             <span class="demo-email">test1</span>
-            <span class="demo-role-name">Psychiatrist Dashboard</span>
+            <span class="demo-role-name">Psychiatrist Dashboard · Dr. Maria Santos</span>
           </div>
         </div>
         <div class="demo-row">
@@ -200,7 +200,7 @@
           </div>
           <div class="demo-info">
             <span class="demo-email">test2</span>
-            <span class="demo-role-name">Life Coach Dashboard</span>
+            <span class="demo-role-name">Life Coach Dashboard · Michael Chen</span>
           </div>
         </div>
         <hr class="demo-divider" />

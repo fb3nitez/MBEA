@@ -126,8 +126,14 @@ document.addEventListener('DOMContentLoaded', function () {
      Role detection
   ---------------------------------------------------------- */
   var ACCOUNTS = {
-    'test1':       { role: 'Psychiatrist', name: 'Dr. Maria Santos',  url: '/psychiatrist/dashboard' },
-    'test2':       { role: 'Life Coach',   name: 'Michael Chen',      url: '/lifecoach/dashboard'    }
+    // Short test credentials
+    'test1':                   { role: 'Psychiatrist', name: 'Dr. Maria Santos', url: '/psychiatrist/dashboard' },
+    'test2':                   { role: 'Life Coach',   name: 'Michael Chen',     url: '/lifecoach/dashboard'    },
+    // Full email credentials
+    'doctor@medcare.ph':       { role: 'Psychiatrist', name: 'Dr. Maria Santos', url: '/psychiatrist/dashboard' },
+    'psychiatrist@medcare.ph': { role: 'Psychiatrist', name: 'Dr. Maria Santos', url: '/psychiatrist/dashboard' },
+    'coach@medcare.ph':        { role: 'Life Coach',   name: 'Michael Chen',     url: '/lifecoach/dashboard'    },
+    'lifecoach@medcare.ph':    { role: 'Life Coach',   name: 'Emily Roberts',    url: '/lifecoach/dashboard'    },
   };
 
   function detectRole(email) {

@@ -16,4 +16,7 @@ Route::get('/intake_form', function () {
 
 Route::get('/staff',  fn() => view('staff_login'));
 Route::get('/login',  fn() => view('staff_login'));
+
 Route::get('/psychiatrist/dashboard', fn() => view('psychiatrist'));
+
+Route::get('/lifecoach/dashboard', fn() => view('lifecoach'));
