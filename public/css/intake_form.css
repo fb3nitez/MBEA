@@ -385,6 +385,7 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
 /* ---- STYLED SLIDER ---- */
 .styled-slider {
   -webkit-appearance: none;
+  appearance: none;   
   width: 100%; height: 6px; border-radius: 9999px;
   background: var(--border); outline: none; cursor: pointer;
   border: none; padding: 0;
