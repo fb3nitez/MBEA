@@ -14,11 +14,11 @@
                 <p class="text-sm text-base-content/70">Have you been diagnosed with a mental health condition?</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-200/60">
-                        <input type="radio" name="diagnosed-mh" value="yes" id="diagnosed-yes" class="radio radio-sm" />
+                        <input type="radio" wire:model="diagnosedMH" value="yes" id="diagnosed-yes" class="radio radio-sm" />
                         <span class="label-text">Yes</span>
                     </label>
                     <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-200/60">
-                        <input type="radio" name="diagnosed-mh" value="no" id="diagnosed-no" class="radio radio-sm" />
+                        <input type="radio" wire:model="diagnosedMH" value="no" id="diagnosed-no" class="radio radio-sm" />
                         <span class="label-text">No</span>
                     </label>
                 </div>
@@ -28,7 +28,7 @@
                         <label class="label" for="diagnosis-specify">
                             <span class="label-text">Please specify the diagnosis</span>
                         </label>
-                        <input type="text" id="diagnosis-specify" placeholder="e.g., Depression, Anxiety, etc." class="input input-bordered w-full" />
+                        <input type="text" wire:model="diagnosisSpecify" id="diagnosis-specify" placeholder="e.g., Depression, Anxiety, etc." class="input input-bordered w-full" />
                     </div>
                 </div>
             </div>
@@ -37,11 +37,11 @@
                 <p class="text-sm text-base-content/70">Have you been hospitalized for psychiatric reasons?</p>
                 <div class="grid gap-3 md:grid-cols-2">
                     <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-200/60">
-                        <input type="radio" name="hospitalized" value="yes" id="hospitalized-yes" class="radio radio-sm" />
+                        <input type="radio" wire:model="hospitalized" value="yes" id="hospitalized-yes" class="radio radio-sm" />
                         <span class="label-text">Yes</span>
                     </label>
                     <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-200/60">
-                        <input type="radio" name="hospitalized" value="no" id="hospitalized-no" class="radio radio-sm" />
+                        <input type="radio" wire:model="hospitalized" value="no" id="hospitalized-no" class="radio radio-sm" />
                         <span class="label-text">No</span>
                     </label>
                 </div>
@@ -52,13 +52,13 @@
                             <label class="label" for="hosp-times">
                                 <span class="label-text">Number of times</span>
                             </label>
-                            <input type="number" id="hosp-times" placeholder="Enter number" class="input input-bordered w-full" />
+                            <input type="number" wire:model="hospTimes" id="hosp-times" placeholder="Enter number" class="input input-bordered w-full" />
                         </div>
                         <div class="form-control">
                             <label class="label" for="hosp-when">
                                 <span class="label-text">When (approximate date/year)</span>
                             </label>
-                            <input type="text" id="hosp-when" placeholder="e.g., 2020, January 2023" class="input input-bordered w-full" />
+                            <input type="text" wire:model="hospWhen" id="hosp-when" placeholder="e.g., 2020, January 2023" class="input input-bordered w-full" />
                         </div>
                     </div>
                 </div>
@@ -75,10 +75,10 @@
 
             @php
             $traumaGroups = [
-            ['id' => 'physical', 'label' => 'Physical Abuse', 'checkId' => 'trauma-physical-check', 'expandId' => 'trauma-physical-expand', 'detailsId' => 'tp-details', 'prefix' => 'tp'],
-            ['id' => 'emotional', 'label' => 'Emotional Abuse', 'checkId' => 'trauma-emotional-check', 'expandId' => 'trauma-emotional-expand', 'detailsId' => 'te-details', 'prefix' => 'te'],
-            ['id' => 'sexual', 'label' => 'Sexual Abuse', 'checkId' => 'trauma-sexual-check', 'expandId' => 'trauma-sexual-expand', 'detailsId' => 'ts-details', 'prefix' => 'ts'],
-            ['id' => 'neglect', 'label' => 'Neglect', 'checkId' => 'trauma-neglect-check', 'expandId' => 'trauma-neglect-expand', 'detailsId' => 'tn-details', 'prefix' => 'tn'],
+                ['id' => 'physical', 'label' => 'Physical Abuse', 'checkId' => 'trauma-physical-check', 'expandId' => 'trauma-physical-expand', 'detailsId' => 'tp-details', 'prefix' => 'tp'],
+                ['id' => 'emotional', 'label' => 'Emotional Abuse', 'checkId' => 'trauma-emotional-check', 'expandId' => 'trauma-emotional-expand', 'detailsId' => 'te-details', 'prefix' => 'te'],
+                ['id' => 'sexual', 'label' => 'Sexual Abuse', 'checkId' => 'trauma-sexual-check', 'expandId' => 'trauma-sexual-expand', 'detailsId' => 'ts-details', 'prefix' => 'ts'],
+                ['id' => 'neglect', 'label' => 'Neglect', 'checkId' => 'trauma-neglect-check', 'expandId' => 'trauma-neglect-expand', 'detailsId' => 'tn-details', 'prefix' => 'tn'],
             ];
             @endphp
 
@@ -86,26 +86,26 @@
                 @foreach ($traumaGroups as $group)
                 <div class="rounded-box border border-base-content/10 bg-base-200/40 p-4" id="trauma-{{ $group['id'] }}">
                     <label class="label cursor-pointer justify-start gap-3 px-0 pt-0">
-                        <input type="checkbox" id="{{ $group['checkId'] }}" data-expands="{{ $group['expandId'] }}" class="checkbox checkbox-sm" />
+                        <input type="checkbox" wire:model="{{ $group['id'] === 'physical' ? 'traumaPhysical' : ($group['id'] === 'emotional' ? 'traumaEmotional' : ($group['id'] === 'sexual' ? 'traumaSexual' : 'traumaNeglect')) }}" class="checkbox checkbox-sm" data-expands="{{ $group['expandId'] }}" />
                         <span class="label-text text-base font-medium">{{ $group['label'] }}</span>
                     </label>
                     <div class="expand-target hidden mt-4 space-y-4 pl-8" id="{{ $group['expandId'] }}">
                         <p class="text-sm font-medium text-base-content/70">When did this occur?</p>
                         <div class="grid gap-3 md:grid-cols-2">
                             <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-100">
-                                <input type="checkbox" id="{{ $group['prefix'] }}-child" value="As a child" class="checkbox checkbox-sm" />
+                                <input type="checkbox" wire:model="{{ $group['prefix'] }}Child" value="As a child" class="checkbox checkbox-sm" />
                                 <span class="label-text">As a child</span>
                             </label>
                             <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-100">
-                                <input type="checkbox" id="{{ $group['prefix'] }}-adult" value="As an adult" class="checkbox checkbox-sm" />
+                                <input type="checkbox" wire:model="{{ $group['prefix'] }}Adult" value="As an adult" class="checkbox checkbox-sm" />
                                 <span class="label-text">As an adult</span>
                             </label>
                             <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-100">
-                                <input type="checkbox" id="{{ $group['prefix'] }}-ongoing" value="Ongoing" class="checkbox checkbox-sm" />
+                                <input type="checkbox" wire:model="{{ $group['prefix'] }}Ongoing" value="Ongoing" class="checkbox checkbox-sm" />
                                 <span class="label-text">Ongoing</span>
                             </label>
                             <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-content/10 px-4 py-3 hover:bg-base-100">
-                                <input type="checkbox" id="{{ $group['prefix'] }}-past" value="Past experience" class="checkbox checkbox-sm" />
+                                <input type="checkbox" wire:model="{{ $group['prefix'] }}Past" value="Past experience" class="checkbox checkbox-sm" />
                                 <span class="label-text">Past experience</span>
                             </label>
                         </div>
@@ -114,7 +114,7 @@
                             <label class="label" for="{{ $group['detailsId'] }}">
                                 <span class="label-text">Additional details (optional)</span>
                             </label>
-                            <textarea id="{{ $group['detailsId'] }}" rows="2" placeholder="You may provide additional context if comfortable" class="textarea textarea-bordered w-full"></textarea>
+                            <textarea wire:model="{{ $group['prefix'] }}Details" id="{{ $group['detailsId'] }}" rows="2" placeholder="You may provide additional context if comfortable" class="textarea textarea-bordered w-full"></textarea>
                         </div>
                     </div>
                 </div>
