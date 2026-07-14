@@ -200,7 +200,7 @@
                         following?</p>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-4 overflow-x-auto">
                     <table class="table">
                         <!-- head -->
                         <thead>

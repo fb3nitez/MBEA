@@ -9,7 +9,7 @@
 </head>
 
 <body class="min-h-screen bg-base-200 text-base-content">
-    <main class="mx-auto w-full max-w-4xl px-5 pb-10 pt-2">
+    <main class="mx-auto w-full max-w-5xl px-5 pb-10 pt-2">
         <div class="card-body gap-6">
             <div class="text-center">
                 <h1 class="text-3xl font-bold">Patient Intake Form</h1>
