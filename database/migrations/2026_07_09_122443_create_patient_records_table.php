@@ -29,7 +29,7 @@ return new class extends Migration
 
         Schema::create('medical_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_records')->constrained()->cascadeOnDelete();
+            $table->foreignId('patient_record_id')->constrained()->cascadeOnDelete();
 
             /* Personal Medical History */
             $table->boolean('hypertension')->default(false);
@@ -82,7 +82,7 @@ return new class extends Migration
 
         Schema::create('psychiatric_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_records')->constrained()->cascadeOnDelete();
+            $table->foreignId('patient_record_id')->constrained()->cascadeOnDelete();
 
             /* Past psychiatric diagnosis */
 
