@@ -11,7 +11,7 @@ Route::get('/test', function () {
 });
 
 Route::get('/intake_form', function () {
-    return view('intake_form');
+    return view('intake-form');
 });
 
 Route::get('/staff',  fn() => view('staff_login'));

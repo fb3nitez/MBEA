@@ -1,6 +1,6 @@
 <x-forms.form-container {{ $attributes }}>
     <div class="mb-6">
-        <h2 class="card-title text-2xl">Patient Information</h2>
+        <h2 class="card-title font-bold text-2xl">Patient Information</h2>
         <p class="text-base-content/70">
             Please provide your basic information
         </p>
@@ -17,18 +17,11 @@
                 class="input input-bordered w-full" />
         </div>
 
-        <!-- Age -->
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Age *</span>
-            </label>
-            <input type="number" id="age" placeholder="Your age" class="input input-bordered w-full" />
-        </div>
-
         <!-- Birthday -->
         <div class="form-control">
-            <label class="label">
+            <label class="label flex">
                 <span class="label-text">Birthday *</span>
+                <span id="age" class="label-text ml-auto text-success"></span>
             </label>
             <input type="date" id="birthday" class="input input-bordered w-full" />
         </div>
@@ -59,8 +52,14 @@
             <label class="label">
                 <span class="label-text">Gender</span>
             </label>
-            <input type="text" id="gender" placeholder="Your gender identity"
-                class="input input-bordered w-full" />
+            <select id="genderSelector" class="select select-bordered w-full">
+                <option value="Straight">Straight</option>
+                <option value="Lesbian">Lesbian</option>
+                <option value="Gay">Gay</option>
+                <option value="Bisexual">Bisexual</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" id="genderInput" placeholder="Enter Gender" class="input input-bordered w-full mt-2 hidden" />
         </div>
 
         <!-- Marital Status -->
@@ -88,7 +87,7 @@
         </div>
 
         <!-- Course -->
-        <div class="form-control md:col-span-2">
+        <div class="form-control">
             <label class="label">
                 <span class="label-text">Course</span>
             </label>

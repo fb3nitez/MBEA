@@ -1,6 +1,6 @@
 <x-forms.form-container {{ $attributes }}>
     <div class="mb-6">
-        <h2 class="card-title text-2xl">Medical History</h2>
+        <h2 class="card-title font-bold text-2xl">Medical History</h2>
         <p class="text-base-content/70">
             Please indicate any relevant medical conditions
         </p>
@@ -15,52 +15,52 @@
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-hypertension" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-hypertension" class="checkbox checkbox-sm" />
                 <span class="label-text">Hypertension</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-stroke" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-stroke" class="checkbox checkbox-sm" />
                 <span class="label-text">Stroke or TIA</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-tuberculosis" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-tuberculosis" class="checkbox checkbox-sm" />
                 <span class="label-text">Tuberculosis</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-thyroid" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-thyroid" class="checkbox checkbox-sm" />
                 <span class="label-text">Thyroid Disorders</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-diabetes" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-diabetes" class="checkbox checkbox-sm" />
                 <span class="label-text">Diabetes Mellitus</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-chronic-pain" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-chronic-pain" class="checkbox checkbox-sm" />
                 <span class="label-text">Chronic Pain / Fibromyalgia</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-asthma" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-asthma" class="checkbox checkbox-sm" />
                 <span class="label-text">Bronchial Asthma</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-epilepsy" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="pmh-epilepsy" class="checkbox checkbox-sm" />
                 <span class="label-text">Epilepsy / Seizure Disorder</span>
             </label>
 
         </div>
 
         <!-- Autoimmune -->
-        <div class="mt-4">
+        <div class="mt-4 border border-base-content/20 p-3 rounded">
             <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-autoimmune" class="checkbox" data-expands="autoimmune-expand" />
+                <input type="checkbox" id="pmh-autoimmune" class="checkbox checkbox-sm" data-expands="autoimmune-expand" />
                 <span class="label-text">Autoimmune Disease</span>
             </label>
 
@@ -73,9 +73,9 @@
         </div>
 
         <!-- Cancer -->
-        <div class="mt-4">
+        <div class="mt-4 border border-base-content/20 p-3 rounded">
             <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-cancer" class="checkbox" data-expands="cancer-expand" />
+                <input type="checkbox" id="pmh-cancer" class="checkbox checkbox-sm" data-expands="cancer-expand" />
                 <span class="label-text">Cancer</span>
             </label>
 
@@ -88,9 +88,9 @@
         </div>
 
         <!-- Other -->
-        <div class="mt-4">
+        <div class="mt-4 border border-base-content/20 p-3 rounded">
             <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="pmh-other" class="checkbox" data-expands="pmh-other-expand" />
+                <input type="checkbox" id="pmh-other" class="checkbox checkbox-sm" data-expands="pmh-other-expand" />
                 <span class="label-text">Other</span>
             </label>
 
@@ -130,32 +130,32 @@
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="fh-hypertension" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="fh-hypertension" class="checkbox checkbox-sm" />
                 <span class="label-text">Hypertension</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="fh-stroke" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="fh-stroke" class="checkbox checkbox-sm" />
                 <span class="label-text">Stroke</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="fh-diabetes" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="fh-diabetes" class="checkbox checkbox-sm" />
                 <span class="label-text">Diabetes Mellitus</span>
             </label>
 
-            <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="fh-substance" class="checkbox" />
+            <label class="label cursor-pointer justify-start gap-3 border border-base-content/20 p-3 rounded">
+                <input type="checkbox" id="fh-substance" class="checkbox checkbox-sm" />
                 <span class="label-text">Substance Use Disorder</span>
             </label>
 
         </div>
 
         <!-- Cancer -->
-        <div class="mt-4">
+        <div class="mt-4 border border-base-content/20 p-3 rounded">
             <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="fh-cancer" class="checkbox" data-expands="fh-cancer-expand" />
+                <input type="checkbox" id="fh-cancer" class="checkbox checkbox-sm" data-expands="fh-cancer-expand" />
                 <span class="label-text">Cancer</span>
             </label>
 
@@ -173,9 +173,9 @@
         </div>
 
         <!-- Psychiatric Disorders -->
-        <div class="mt-4">
+        <div class="mt-4 border border-base-content/20 p-3 rounded">
             <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="fh-psychiatric" class="checkbox" data-expands="fh-psychiatric-expand" />
+                <input type="checkbox" id="fh-psychiatric" class="checkbox checkbox-sm" data-expands="fh-psychiatric-expand" />
                 <span class="label-text">
                     Psychiatric Disorders (Depression / Bipolar / Schizophrenia)
                 </span>
@@ -195,9 +195,9 @@
         </div>
 
         <!-- Other -->
-        <div class="mt-4">
+        <div class="mt-4 border border-base-content/20 p-3 rounded">
             <label class="label cursor-pointer justify-start gap-3">
-                <input type="checkbox" id="fh-other" class="checkbox" data-expands="fh-other-expand" />
+                <input type="checkbox" id="fh-other" class="checkbox checkbox-sm" data-expands="fh-other-expand" />
                 <span class="label-text">Other</span>
             </label>
 

@@ -1,42 +1,71 @@
-/* ==========================================================================
-   Patient Intake Form — Logic
-   MedCare Integrated Psychiatric & Lifestyle Medicine Clinic
-   ========================================================================== */
+const formState = {
+  currentStep: 1,
+  totalSteps: 5,
+};
 
-let currentStep = 1;
-const TOTAL_STEPS = 5;
+function $(selector, root = document) {
+  return root.querySelector(selector);
+}
 
-/* --------------------------------------------------------------------------
-   Step Navigation
-   -------------------------------------------------------------------------- */
+function $all(selector, root = document) {
+  return Array.from(root.querySelectorAll(selector));
+}
 
-function goToStep(step) {
-  // Hide current step panel
-  document.getElementById('step-' + currentStep).classList.remove('active');
-  currentStep = step;
-  // Show new step panel
-  document.getElementById('step-' + currentStep).classList.add('active');
-  // Update progress bar
-  const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('step-label').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS;
-  document.getElementById('percent-label').textContent = pct + '% Complete';
-  // Update nav buttons
-  document.getElementById('btn-back').classList.toggle('hidden', currentStep === 1);
-  document.getElementById('btn-next').classList.toggle('hidden', currentStep === TOTAL_STEPS);
-  document.getElementById('btn-submit').classList.toggle('hidden', currentStep !== TOTAL_STEPS);
-  // Scroll to top
+function setStep(step) {
+  const previousPanel = $('#step-' + formState.currentStep);
+  if (previousPanel) {
+    previousPanel.classList.add('hidden');
+    previousPanel.classList.remove('active');
+  }
+
+  formState.currentStep = step;
+
+  const nextPanel = $('#step-' + formState.currentStep);
+  if (nextPanel) {
+    nextPanel.classList.remove('hidden');
+    nextPanel.classList.add('active');
+  }
+
+  const percent = Math.round((formState.currentStep / formState.totalSteps) * 100);
+  const progress = $('#progress-fill');
+  if (progress) {
+    progress.value = percent;
+  }
+
+  const stepLabel = $('#step-label');
+  if (stepLabel) {
+    stepLabel.textContent = String(formState.currentStep);
+  }
+
+  const percentLabel = $('#percent-label');
+  if (percentLabel) {
+    percentLabel.textContent = percent + '%';
+  }
+
+  const backButton = $('#btn-back');
+  const nextButton = $('#btn-next');
+  const submitButton = $('#btn-submit');
+  if (backButton) backButton.classList.toggle('hidden', formState.currentStep === 1);
+  if (nextButton) nextButton.classList.toggle('hidden', formState.currentStep === formState.totalSteps);
+  if (submitButton) submitButton.classList.toggle('hidden', formState.currentStep !== formState.totalSteps);
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // If step 5, render summary
-  if (currentStep === 5) renderSummary();
+
+  if (formState.currentStep === formState.totalSteps) {
+    renderSummary();
+  }
 }
 
 function nextStep() {
-  if (currentStep < TOTAL_STEPS) goToStep(currentStep + 1);
+  if (formState.currentStep < formState.totalSteps) {
+    setStep(formState.currentStep + 1);
+  }
 }
 
 function prevStep() {
-  if (currentStep > 1) goToStep(currentStep - 1);
+  if (formState.currentStep > 1) {
+    setStep(formState.currentStep - 1);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -44,7 +73,7 @@ function prevStep() {
    -------------------------------------------------------------------------- */
 
 function attachExpandListeners() {
-  document.querySelectorAll('[data-expands]').forEach(function (input) {
+  $all('[data-expands]').forEach(function (input) {
     input.addEventListener('change', function () {
       const target = document.getElementById(this.dataset.expands);
       if (!target) return;
@@ -54,13 +83,13 @@ function attachExpandListeners() {
     });
   });
 
-  document.querySelectorAll('input[name="diagnosed-mh"]').forEach(function (r) {
+  $all('input[name="diagnosed-mh"]').forEach(function (r) {
     r.addEventListener('change', function () {
       document.getElementById('diagnosed-expand').classList.toggle('hidden', this.value !== 'yes');
     });
   });
 
-  document.querySelectorAll('input[name="hospitalized"]').forEach(function (r) {
+  $all('input[name="hospitalized"]').forEach(function (r) {
     r.addEventListener('change', function () {
       document.getElementById('hospitalized-expand').classList.toggle('hidden', this.value !== 'yes');
     });
@@ -72,16 +101,17 @@ function attachExpandListeners() {
    -------------------------------------------------------------------------- */
 
 function attachSliderListeners() {
-  const healthScore = document.getElementById('health-score');
+  const healthScore = $('#health-score');
   if (healthScore) {
     healthScore.addEventListener('input', function () {
-      document.getElementById('health-score-display').textContent = this.value;
+      const display = $('#health-score-display');
+      if (display) display.textContent = this.value;
     });
   }
 
-  document.querySelectorAll('input[type="range"].concern-slider').forEach(function (slider) {
+  $all('input[type="range"].concern-slider').forEach(function (slider) {
     slider.addEventListener('input', function () {
-      const display = document.querySelector('.concern-display[data-for="' + this.id + '"]');
+      const display = $('.concern-display[data-for="' + this.id + '"]');
       if (display) display.textContent = this.value;
     });
   });
@@ -111,7 +141,8 @@ function getRadioValue(name) {
 }
 
 function renderPatientSummary() {
-  const container = document.getElementById('summary-patient');
+  const container = $('#summary-patient');
+  if (!container) return;
   let html = '';
   html += makeRow('Name', getVal('name'));
   html += makeRow('Age', getVal('age'));
@@ -121,7 +152,8 @@ function renderPatientSummary() {
 }
 
 function renderMedicalSummary() {
-  const container = document.getElementById('summary-medical');
+  const container = $('#summary-medical');
+  if (!container) return;
   let html = '';
 
   const pmhFields = [
@@ -160,7 +192,8 @@ function renderMedicalSummary() {
 }
 
 function renderPsychiatricSummary() {
-  const container = document.getElementById('summary-psychiatric');
+  const container = $('#summary-psychiatric');
+  if (!container) return;
   let html = '';
 
   const diagnosed = getRadioValue('diagnosed-mh');
@@ -176,7 +209,8 @@ function renderPsychiatricSummary() {
 }
 
 function renderLifestyleSummary() {
-  const container = document.getElementById('summary-lifestyle');
+  const container = $('#summary-lifestyle');
+  if (!container) return;
   let html = '';
 
   const healthScore = getVal('health-score');
@@ -209,7 +243,34 @@ function submitForm() {
    -------------------------------------------------------------------------- */
 
 document.addEventListener('DOMContentLoaded', function () {
+  $all('[data-go-step]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      setStep(Number(this.dataset.goStep));
+    });
+  });
+
+  $all('[data-action="next"]').forEach(function (button) {
+    button.addEventListener('click', nextStep);
+  });
+
+  $all('[data-action="prev"]').forEach(function (button) {
+    button.addEventListener('click', prevStep);
+  });
+
+  $all('[data-action="submit"]').forEach(function (button) {
+    button.addEventListener('click', submitForm);
+  });
+
+  $all('.step-panel').forEach(function (panel) {
+    panel.classList.add('hidden');
+    panel.classList.remove('active');
+  });
   attachExpandListeners();
   attachSliderListeners();
-  goToStep(1); // initialize display state
+  setStep(4);
 });
+
+window.goToStep = setStep;
+window.nextStep = nextStep;
+window.prevStep = prevStep;
+window.submitForm = submitForm;
