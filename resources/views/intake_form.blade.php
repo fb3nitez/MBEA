@@ -75,7 +75,6 @@
               <option value="">Select sex</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-              <option value="intersex">Intersex</option>
             </select>
           </div>
           <!-- Gender -->

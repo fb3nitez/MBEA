@@ -22,7 +22,7 @@ new class extends Component
 
     public $religion = '';
 
-    #[Validate('required|in:male,female,intersex')]
+    #[Validate('required|in:male,female')]
     public $sex = '';
 
     public $gender = 'Straight';
@@ -302,7 +302,7 @@ new class extends Component
             1 => [
                 'name' => 'required|string|max:255',
                 'birthday' => 'required|date|before:today',
-                'sex' => 'required|in:male,female,intersex',
+                'sex' => 'required|in:male,female',
                 'chiefComplaint' => 'required|string',
             ],
             2 => [],
