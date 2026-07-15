@@ -65,13 +65,15 @@
 
                     <!-- Navigation -->
                     <div class="flex flex-col gap-3 border-t border-base-content/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                        <button class="btn btn-error" onclick="start_over_dialog.showModal()">Start Over</button>
+
                         @if($currentStep > 1)
-                            <button type="button" wire:click="prevStep" class="btn btn-outline" id="btn-back">
+                            <button type="button" wire:click="prevStep" class="ml-auto btn btn-outline" id="btn-back">
                                 Back
                             </button>
                         @endif
 
-                        <div class="ml-auto flex w-full gap-3 sm:w-auto sm:justify-end">
+                        <div class="flex w-full gap-3 sm:w-auto sm:justify-end">
                             @if($currentStep < $totalSteps)
                                 <button type="button" wire:click="nextStep" class="btn btn-primary" id="btn-next">
                                     Next
@@ -95,4 +97,6 @@
             </div>
         </main>
     </div>
+
+    <x-dialog.start-over-dialog />
 </div>

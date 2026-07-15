@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('student_year_level')->nullable();
             $table->string('course')->nullable();
             $table->string('occupation')->nullable();
-            $table->text('cheif_complaint')->nullable();
+            $table->text('chief_complaint')->nullable();
             $table->string('primary_diagnosis')->nullable();
             $table->timestamps();
         });
