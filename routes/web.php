@@ -20,6 +20,3 @@ Route::get('/psychiatrist/dashboard', fn() => view('psychiatrist'));
 
 Route::get('/intake-form', fn() => view('intake-form'));
 
-Route::get('/patient-intake-form', function () {
-    return view('patient-intake-form');
-})->name('patient.intake.form');
