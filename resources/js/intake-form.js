@@ -33,6 +33,8 @@ class PatientIntakeForm {
             successText: document.getElementById('success-text'),
             form: document.getElementById('intake-form'),
         };
+
+        this.currentStep = this.getStepFromUrl();
     }
 
     loadFromStorage() {
@@ -41,12 +43,25 @@ class PatientIntakeForm {
             if (saved) {
                 const data = JSON.parse(saved);
                 this.formData = data;
-                this.currentStep = data._currentStep || 1;
                 this.populateForm(data);
             }
         } catch (e) {
             console.error('Failed to load from storage:', e);
         }
+    }
+
+    getStepFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const stepParam = urlParams.get('step');
+
+        if (stepParam) {
+            const step = parseInt(stepParam);
+            if (step >= 1 && step <= this.totalSteps) {
+                return step;
+            }
+        }
+
+        return 1;
     }
 
     saveToStorage() {
@@ -126,10 +141,10 @@ class PatientIntakeForm {
         }
 
         // Update gender display
-        if (data.gender && data.gender !== 'Straight') {
+        if (data.gender.toLowerCase() === 'other') {
             const genderInput = document.getElementById('genderInput');
             if (genderInput) {
-                genderInput.value = data.gender;
+                genderInput.value = data.gender_other;
                 genderInput.classList.remove('hidden');
             }
         }
@@ -186,11 +201,6 @@ class PatientIntakeForm {
                     this.nextStep();
                 }
             }
-        });
-
-        // Start over button
-        document.querySelector('[onclick="startOver()"]')?.addEventListener('click', () => {
-            document.getElementById('start-over-dialog').showModal();
         });
     }
 
@@ -391,69 +401,42 @@ class PatientIntakeForm {
     // FORM SUBMISSION
     // ============================================================
     async submitForm() {
-        const allErrors = this.validateAllSteps();
-        if (Object.keys(allErrors).length > 0) {
-            this.showFieldErrors(allErrors);
-            // Scroll to first error
-            const firstErrorField = document.querySelector('.input-error, .select-error, .textarea-error');
-            if (firstErrorField) {
-                firstErrorField.focus();
-                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return;
-        }
+        const form = document.getElementById('intake-form');
+        const formData = new FormData(form);
 
-        this.clearFieldErrors();
-        this.setLoading(true);
+        // Show loading state
+        const submitLoading = document.getElementById('pageLoading');
+        submitLoading.classList.remove('hidden');
 
         try {
-            const data = this.collectFormData();
-            const formData = new FormData();
-
-            for (const [key, value] of Object.entries(data)) {
-                if (value !== null && value !== undefined) {
-                    if (Array.isArray(value)) {
-                        value.forEach(item => formData.append(`${key}[]`, item));
-                    } else {
-                        formData.append(key, value);
-                    }
-                }
-            }
-
             const response = await fetch('/submit-intake', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
                     'Accept': 'application/json',
                 },
-                body: formData,
+                body: formData
             });
 
-            const result = await response.json();
+            const data = await response.json();
 
-            if (result.success) {
-                localStorage.removeItem('intake_form_data');
-                this.showSuccess(result.message);
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 3000);
+            if (response.ok && data.success) {
+                // Show success modal
+                document.getElementById('success_message').textContent = data.message;
+                document.getElementById('success_modal').showModal();
             } else {
-                if (result.errors) {
-                    // Map server errors to field errors
-                    const fieldErrors = {};
-                    Object.keys(result.errors).forEach(key => {
-                        fieldErrors[key] = result.errors[key][0];
-                    });
-                    this.showFieldErrors(fieldErrors);
-                } else {
-                    this.showFieldErrors({ form: result.message || 'An error occurred. Please try again.' });
-                }
+                // Show error modal with specific message
+                document.getElementById('error_message').textContent = data.message || 'An error occurred. Please try again.';
+                document.getElementById('error_modal').showModal();
             }
         } catch (error) {
-            console.error('Submission error:', error);
-            this.showFieldErrors({ form: 'Network error. Please check your connection and try again.' });
+            // Show error modal
+            document.getElementById('error_message').textContent = 'Network error. Please check your connection and try again.';
+            document.getElementById('error_modal').showModal();
+            console.error(error);
         } finally {
-            this.setLoading(false);
+            // Reset button state
+            submitLoading.classList.add('hidden');
         }
     }
 
@@ -567,18 +550,9 @@ class PatientIntakeForm {
 
     startOver() {
         localStorage.removeItem('intake_form_data');
-        document.getElementById('start-over-dialog').close();
-        this.formData = {};
-        this.currentStep = 1;
-        document.querySelectorAll('input, textarea, select').forEach(el => {
-            if (el.type === 'checkbox' || el.type === 'radio') {
-                el.checked = false;
-            } else {
-                el.value = '';
-            }
-        });
-        this.updateUI();
-        window.location.reload();
+        const url = new URL(window.location.href);
+        url.searchParams.delete('step');
+        window.location.href = url;
     }
 
     showFieldErrors(errors) {
@@ -651,13 +625,14 @@ class PatientIntakeForm {
 
     populateSummary() {
         const data = this.collectFormData();
+        const gender = data.gender.toLowerCase() === 'other'? data.gender_other : data.gender;
 
         // Patient Information
         document.getElementById('summary-name').textContent = data.name || 'Not provided';
         document.getElementById('summary-birthday').textContent = data.birthday || 'Not provided';
         document.getElementById('summary-sex').textContent = data.sex || 'Not provided';
         document.getElementById('summary-religion').textContent = data.religion || 'Not provided';
-        document.getElementById('summary-gender').textContent = data.gender || 'Not provided';
+        document.getElementById('summary-gender').textContent = gender || 'Not provided';
         document.getElementById('summary-marital').textContent = data.maritalStatus || 'Not provided';
         document.getElementById('summary-year').textContent = data.yearLevel || 'Not provided';
         document.getElementById('summary-course').textContent = data.course || 'Not provided';
@@ -760,10 +735,6 @@ window.toggleReviewCard = function(cardId) {
 // ============================================================
 // GLOBAL FUNCTIONS
 // ============================================================
-function startOver() {
-    document.getElementById('start-over-dialog').showModal();
-}
-
 // Initialize the form
 document.addEventListener('DOMContentLoaded', () => {
     window.intakeForm = new PatientIntakeForm();

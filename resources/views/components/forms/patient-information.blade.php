@@ -48,7 +48,7 @@
             <option value="Bisexual">Bisexual</option>
             <option value="Other">Other</option>
         </select>
-        <input type="text" name="gender" id="genderInput" placeholder="Enter Gender" class="input input-bordered w-full mt-2 hidden" />
+        <input type="text" name="gender_other" id="genderInput" placeholder="Enter Gender" class="input input-bordered w-full mt-2 hidden" />
     </div>
 
     <div class="form-control">

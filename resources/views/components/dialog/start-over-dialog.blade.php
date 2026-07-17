@@ -11,7 +11,7 @@
             <form method="dialog">
                 <button class="btn">Cancel</button>
             </form>
-            <button class="btn btn-error" onclick="startOver()">Sure</button>
+            <button class="btn btn-error" onclick="window.intakeForm.startOver()">Sure</button>
         </div>
     </div>
     <form method="dialog" class="modal-backdrop">
