@@ -191,14 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* ============================================================
-     LOGOUT / PROFILE
-  ============================================================ */
-  var logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) logoutBtn.addEventListener('click', function () {
-    window.location.href = ROUTES.logout || '/';
-  });
-
   var profileBtn = document.getElementById('profile-btn');
   if (profileBtn) profileBtn.addEventListener('click', function () { openModal('profile-modal'); });
 
@@ -1209,6 +1201,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var scheduleConsultBtn = document.getElementById('schedule-consult-btn');
   if (scheduleConsultBtn) scheduleConsultBtn.addEventListener('click', function () { openModal('schedule-consult-modal'); });
+
+  var logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) logoutBtn.addEventListener('click', function () { openModal('logout-modal'); });
 
   // Close buttons (data-close attribute)
   document.addEventListener('click', function (e) {

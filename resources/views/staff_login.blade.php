@@ -126,7 +126,7 @@
       </div>
 
       <!-- Login Form -->
-      <form id="login-form" class="login-form" novalidate>
+      <form action="{{ route('auth.login') }}" method="post" id="login-form" class="login-form" novalidate>
 
         <!-- Email -->
         <div class="field-group">
@@ -179,34 +179,6 @@
 
       </form>
 
-      <!-- Demo Credentials -->
-      <div class="demo-box">
-        <div class="demo-header">
-          <span class="demo-dot"></span>
-          <span class="demo-label">DEMO CREDENTIALS</span>
-        </div>
-        <div class="demo-row">
-          <div class="demo-role-icon blue-sm">
-            <i data-feather="cpu"></i>
-          </div>
-          <div class="demo-info">
-            <span class="demo-email">test1</span>
-            <span class="demo-role-name">Psychiatrist Dashboard · Dr. Maria Santos</span>
-          </div>
-        </div>
-        <div class="demo-row">
-          <div class="demo-role-icon green-sm">
-            <i data-feather="heart"></i>
-          </div>
-          <div class="demo-info">
-            <span class="demo-email">test2</span>
-            <span class="demo-role-name">Life Coach Dashboard · Michael Chen</span>
-          </div>
-        </div>
-        <hr class="demo-divider" />
-        <p class="demo-note">Password: any value · Role is detected automatically</p>
-      </div>
-
       <!-- Footer Note -->
       <p class="form-footer-note">
         Not a staff member? <a href="/" class="blue-link">Go to Patient Portal</a>
@@ -257,9 +229,6 @@
     Preparing your dashboard...
   </p>
 </div>
-
-
-
 
 <script src="{{ asset('js/staff_login.js') }}"></script>
 </body>

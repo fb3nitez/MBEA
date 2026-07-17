@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IntakeFormController;
 
@@ -11,22 +12,30 @@ Route::get('/test', function () {
     return view('test');
 });
 
-Route::prefix('psychiatrist')->name('psychiatrist.')->group(function () {
-    Route::get('dashboard', fn () => view('psychiatrist.dashboard'))->name('dashboard');
-    Route::get('patients', fn () => view('psychiatrist.patients'))->name('patients');
-    Route::get('consultations', fn () => view('psychiatrist.consultations'))->name('consultations');
-    Route::get('records', fn () => view('psychiatrist.records'))->name('records');
-    Route::get('lifestyle', fn () => view('psychiatrist.lifestyle'))->name('lifestyle');
-    Route::get('assessments', fn () => view('psychiatrist.assessments'))->name('assessments');
-    Route::get('prescriptions', fn () => view('psychiatrist.prescriptions'))->name('prescriptions');
+Route::middleware(['auth', 'role:psychiatrist'])
+    ->prefix('psychiatrist')
+    ->name('psychiatrist.')
+    ->group(function () {
+
+        Route::get('dashboard', fn () => view('psychiatrist.dashboard'))->name('dashboard');
+        Route::get('patients', fn () => view('psychiatrist.patients'))->name('patients');
+        Route::get('consultations', fn () => view('psychiatrist.consultations'))->name('consultations');
+        Route::get('records', fn () => view('psychiatrist.records'))->name('records');
+        Route::get('lifestyle', fn () => view('psychiatrist.lifestyle'))->name('lifestyle');
+        Route::get('assessments', fn () => view('psychiatrist.assessments'))->name('assessments');
+        Route::get('prescriptions', fn () => view('psychiatrist.prescriptions'))->name('prescriptions');
 });
 
-Route::get('/intake', fn () => view('intake_form'));
+Route::middleware(['auth', 'role:lifecoach'])
+    ->name('lifecoach.')
+    ->group(function () {
 
-Route::get('/staff', fn () => view('staff_login'));
-Route::get('/login', fn () => view('staff_login'));
+    Route::get('/dashboard', fn () => view('lifecoach'))->name('dashboard');
+});
 
-Route::get('/lifecoach/dashboard', fn () => view('lifecoach'));
+Route::middleware('guest')->get('/login', fn () => view('staff_login'));
+Route::post('/auth/login',[AuthController::class, 'login'])->name('auth.login');
+Route::post('/auth/logout',[AuthController::class, 'logout'])->name('auth.logout');
 
 Route::get('/intake-form', [IntakeFormController::class, 'create'])->name('intake');
 Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');

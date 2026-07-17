@@ -277,3 +277,23 @@
         <button class="btn-blue" id="ec-save-btn">Save Changes</button>
       </div>
     </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="logout-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Logout</h3>
+        <button class="modal-close" data-close="logout-modal"><i data-feather="x"></i></button>
+      </div>
+      <div class="modal-body">
+          <p>Are you sure want to end your session?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" data-close="logout-modal">Cancel</button>
+        <form action="{{ route('auth.logout') }}" method="post">
+            <button class="btn-red-sm">Sure</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
