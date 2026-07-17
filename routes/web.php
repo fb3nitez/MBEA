@@ -11,15 +11,22 @@ Route::get('/test', function () {
     return view('test');
 });
 
-Route::get('/intake', fn() => view('intake_form'));
+Route::prefix('psychiatrist')->name('psychiatrist.')->group(function () {
+    Route::get('dashboard', fn () => view('psychiatrist.dashboard'))->name('dashboard');
+    Route::get('patients', fn () => view('psychiatrist.patients'))->name('patients');
+    Route::get('consultations', fn () => view('psychiatrist.consultations'))->name('consultations');
+    Route::get('records', fn () => view('psychiatrist.records'))->name('records');
+    Route::get('lifestyle', fn () => view('psychiatrist.lifestyle'))->name('lifestyle');
+    Route::get('assessments', fn () => view('psychiatrist.assessments'))->name('assessments');
+    Route::get('prescriptions', fn () => view('psychiatrist.prescriptions'))->name('prescriptions');
+});
 
-Route::get('/staff',  fn() => view('staff_login'));
-Route::get('/login',  fn() => view('staff_login'));
+Route::get('/intake', fn () => view('intake_form'));
 
-Route::get('/psychiatrist/dashboard', fn() => view('psychiatrist'));
+Route::get('/staff', fn () => view('staff_login'));
+Route::get('/login', fn () => view('staff_login'));
 
-Route::get('/lifecoach/dashboard', fn() => view('lifecoach'));
+Route::get('/lifecoach/dashboard', fn () => view('lifecoach'));
 
-Route::get('/intake-form', [IntakeFormController::class, 'create']);
+Route::get('/intake-form', [IntakeFormController::class, 'create'])->name('intake');
 Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
-

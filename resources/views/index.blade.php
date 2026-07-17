@@ -61,7 +61,7 @@
           </div>
           <h2>New Patient? Start Here</h2>
           <p>Complete your intake form on this kiosk before your consultation. It only takes about 10&ndash;15 minutes.</p>
-          <a href="/intake_form" class="btn-primary btn-lg hero-cta-btn">
+          <a href="{{ route('intake') }}" class="btn-primary btn-lg hero-cta-btn">
             Begin Intake Form
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </a>
@@ -174,7 +174,7 @@
       <div class="section-inner reveal">
         <h2>Ready to take the first step?</h2>
         <p>Begin your intake form now — you can pause and pick up any time from our home page.</p>
-        <a href="/intake_form" class="btn-primary btn-lg">
+        <a href="{{ route('intake') }}" class="btn-primary btn-lg">
           Begin Intake Form
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </a>
@@ -209,7 +209,7 @@
         <h4>Quick Links</h4>
         <p><a href="#services">Services</a></p>
         <p><a href="#how-it-works">How It Works</a></p>
-        <p><a href="/intake_form">Begin Intake Form</a></p>
+        <p><a href="{{ route('intake') }}">Begin Intake Form</a></p>
       </div>
     </div>
     <div class="footer-bottom">

@@ -151,38 +151,34 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ============================================================
-     SECTION SWITCHING
+     MULTI-PAGE NAVIGATION
   ============================================================ */
-  var SECTION_TITLES = {
-    dashboard: 'Dashboard', patients: 'Patient Management', consultations: 'Consultations',
-    records: 'Medical Records', lifestyle: 'Lifestyle Monitoring', assessments: 'Biopsychosociospiritual Assessments', prescriptions: 'Prescriptions'
-  };
+  var ROUTES = window.PSYCH_ROUTES || {};
 
-  function switchSection(key) {
-    qsa('.psych-section').forEach(function (s) { s.classList.remove('active'); });
-    qsa('.nav-item').forEach(function (n) { n.classList.remove('active'); });
-    var sec = document.getElementById('section-' + key);
-    if (sec) sec.classList.add('active');
-    var btn = qs('[data-section="' + key + '"]');
-    if (btn) btn.classList.add('active');
-    var title = document.getElementById('page-title');
-    if (title) title.textContent = SECTION_TITLES[key] || key;
-
-    // Close mobile sidebar
-    document.getElementById('sidebar').classList.remove('open');
+  function goToPage(key, query) {
+    var url = ROUTES[key];
+    if (!url) return;
+    if (query) {
+      url += (url.indexOf('?') >= 0 ? '&' : '?') + query;
+    }
+    window.location.href = url;
   }
 
-  qsa('.nav-item[data-section]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      switchSection(this.getAttribute('data-section'));
-    });
-  });
-
-  // "View All" / "goto" buttons
+  // Legacy data-goto attributes → real page navigation
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-goto]');
-    if (el) switchSection(el.getAttribute('data-goto'));
+    if (!el) return;
+    e.preventDefault();
+    goToPage(el.getAttribute('data-goto'));
   });
+
+  // Topbar date
+  var topbarDate = document.getElementById('topbar-date');
+  if (topbarDate) {
+    topbarDate.textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+    });
+  }
 
   /* ============================================================
      MOBILE HAMBURGER
@@ -199,7 +195,9 @@ document.addEventListener('DOMContentLoaded', function () {
      LOGOUT / PROFILE
   ============================================================ */
   var logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) logoutBtn.addEventListener('click', function () { window.location.href = '/'; });
+  if (logoutBtn) logoutBtn.addEventListener('click', function () {
+    window.location.href = ROUTES.logout || '/';
+  });
 
   var profileBtn = document.getElementById('profile-btn');
   if (profileBtn) profileBtn.addEventListener('click', function () { openModal('profile-modal'); });
@@ -315,18 +313,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (pmBtnRx) pmBtnRx.addEventListener('click', function () {
     var modal = document.getElementById('patient-detail-modal');
     var id = modal ? modal.getAttribute('data-current-patient') : null;
-    var p = id ? PATIENTS.find(function (x) { return x.id === id; }) : null;
     closeModal('patient-detail-modal');
-    switchSection('prescriptions');
-    if (p) {
-      var sel = document.getElementById('rx-patient');
-      if (sel) {
-        var targetVal = p.name + ' (' + p.id + ')';
-        for (var i = 0; i < sel.options.length; i++) {
-          if (sel.options[i].value === targetVal) { sel.selectedIndex = i; break; }
-        }
-      }
-    }
+    goToPage('prescriptions', id ? ('patient=' + encodeURIComponent(id)) : null);
   });
 
   var pmBtnAssess = document.getElementById('pm-btn-assess');
@@ -334,10 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var modal = document.getElementById('patient-detail-modal');
     var id = modal ? modal.getAttribute('data-current-patient') : null;
     closeModal('patient-detail-modal');
-    switchSection('assessments');
-    if (id) {
-      setTimeout(function () { openAssessDetail(id); }, 50);
-    }
+    goToPage('assessments', id ? ('patient=' + encodeURIComponent(id)) : null);
   });
 
   // Patient search + filter
@@ -1295,6 +1280,37 @@ document.addEventListener('DOMContentLoaded', function () {
   buildDxTemplates();
   initAccordion();
   initEditConsultModal();
+
+  // Deep-link support from other pages (?patient=P001)
+  (function applyPatientQuery() {
+    var params = new URLSearchParams(window.location.search);
+    var patientId = params.get('patient');
+    if (!patientId) return;
+
+    var page = document.body.getAttribute('data-page');
+    var p = PATIENTS.find(function (x) { return x.id === patientId; });
+
+    if (page === 'prescriptions' && p) {
+      var sel = document.getElementById('rx-patient');
+      if (sel) {
+        var targetVal = p.name + ' (' + p.id + ')';
+        for (var i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value === targetVal) { sel.selectedIndex = i; break; }
+        }
+      }
+      var ageEl = document.getElementById('rx-age');
+      if (ageEl) ageEl.value = p.age;
+    }
+
+    if (page === 'assessments') {
+      setTimeout(function () { openAssessDetail(patientId); }, 50);
+    }
+
+    if (page === 'records') {
+      setTimeout(function () { openRecord(patientId); }, 50);
+    }
+  })();
+
   ri();
 
 });
