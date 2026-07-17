@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IntakeFormController;
 
 Route::get('/', function () {
     return view('index');
@@ -18,3 +19,7 @@ Route::get('/login',  fn() => view('staff_login'));
 Route::get('/psychiatrist/dashboard', fn() => view('psychiatrist'));
 
 Route::get('/lifecoach/dashboard', fn() => view('lifecoach'));
+
+Route::get('/intake-form', [IntakeFormController::class, 'create']);
+Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
+
