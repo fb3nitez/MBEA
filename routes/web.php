@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IntakeFormController;
 
 //public
 Route::get('/', function () {
@@ -22,28 +23,8 @@ Route::get('/login', function () {
 });
 
 
-//psychiatrist
-Route::get('/psychiatrist/dashboard', function () {
-    return view('psychiatrist');
-});
+Route::get('/lifecoach/dashboard', fn() => view('lifecoach'));
 
-//lifecoach
-Route::get('/lifecoach/dashboard', function () {
-    return view('lifecoach_dashboard');
-});
+Route::get('/intake-form', [IntakeFormController::class, 'create']);
+Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
 
-Route::get('/lifecoach/patients', function () {
-    return view('lifecoach_patients');
-});
-
-Route::get('/lifecoach/notes', function () {
-    return view('lifecoach_notes');
-});
-
-Route::get('/lifecoach/tasks', function () {
-    return view('lifecoach_tasks');
-});
-
-Route::get('/lifecoach/profile', function () {
-    return view('lifecoach_profile');
-});
