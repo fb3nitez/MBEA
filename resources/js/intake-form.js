@@ -184,7 +184,7 @@ class PatientIntakeForm {
                     this.handleGenderToggle(e.target);
                 }
                 // Handle expandable sections
-                if (e.target.hasAttribute('data-expands') || e.target.name === 'diagnosed-mh' || e.target.name === 'hospitalized') {
+                if (e.target.hasAttribute('data-expands') || e.target.name === 'diagnosedMH' || e.target.name === 'hospitalized') {
                     this.handleExpandable(e.target);
                 }
                 this.debounceSave();
@@ -510,27 +510,29 @@ class PatientIntakeForm {
 
     handleExpandable(input) {
         const targetId = input.dataset?.expands;
-        if (!targetId) {
-            // Handle radio button groups
-            if (input.name === 'diagnosed-mh') {
-                const target = document.getElementById('diagnosed-expand');
-                if (target) {
-                    target.classList.toggle('hidden', input.value !== 'yes');
-                }
-            }
-            if (input.name === 'hospitalized') {
-                const target = document.getElementById('hospitalized-expand');
-                if (target) {
-                    target.classList.toggle('hidden', input.value !== 'yes');
-                }
+
+        if (targetId) {
+            const target = document.getElementById(targetId);
+
+            if (target) {
+                const isChecked = input.type === 'checkbox' ? input.checked : input.value === 'yes';
+                target.classList.toggle('hidden', !isChecked);
             }
             return;
         }
 
-        const target = document.getElementById(targetId);
-        if (target) {
-            const isChecked = input.type === 'checkbox' ? input.checked : input.value === 'yes';
-            target.classList.toggle('hidden', !isChecked);
+        if (input.name === 'diagnosedMH') {
+            const target = document.getElementById('diagnosed-expand');
+            if (target) {
+                target.classList.toggle('hidden', input.value !== 'yes');
+            }
+        }
+
+        if (input.name === 'hospitalized') {
+            const target = document.getElementById('hospitalized-expand');
+            if (target) {
+                target.classList.toggle('hidden', input.value !== 'yes');
+            }
         }
     }
 
@@ -541,7 +543,7 @@ class PatientIntakeForm {
         });
 
         // Radio button expandables
-        document.querySelectorAll('input[name="diagnosed-mh"], input[name="hospitalized"]').forEach(radio => {
+        document.querySelectorAll('input[name="diagnosedMH"], input[name="hospitalized"]').forEach(radio => {
             if (radio.checked) {
                 this.handleExpandable(radio);
             }
