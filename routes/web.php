@@ -32,11 +32,11 @@ Route::middleware(['auth', 'role:lifecoach'])
     ->name('lifecoach.')
     ->group(function () {
 
-    Route::get('/dashboard', fn () => view('lifecoach'))->name('lifecoach.dashboard');
-    Route::get('/patients', fn () => view('lifecoach'))->name('lifecoach.patients');
-    Route::get('/notes', fn () => view('lifecoach'))->name('lifecoach.notes');
-    Route::get('/tasks', fn () => view('lifecoach'))->name('lifecoach.tasks');
-    Route::get('/profile', fn () => view('lifecoach'))->name('lifecoach.profile');
+    Route::get('/dashboard', fn () => view('lifecoach.dashboard'))->name('dashboard');
+    Route::get('/patients', fn () => view('lifecoach.patients'))->name('patients');
+    Route::get('/notes', fn () => view('lifecoach.notes'))->name('notes');
+    Route::get('/tasks', fn () => view('lifecoach.tasks'))->name('tasks');
+    Route::get('/profile', fn () => view('lifecoach.profile'))->name('profile');
 });
 
 Route::middleware('guest')->get('/login', fn () => view('staff_login'));
