@@ -8,9 +8,8 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/css/dashboard.css',
                 'resources/js/app.js',
-                'resources/js/dashboard.js',
+                'resources/js/intake-form.js',
             ],
             refresh: true,
             fonts: [
