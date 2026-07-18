@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IntakeFormController;
 
+//public
 Route::get('/', function () {
     return view('index');
 });
@@ -27,10 +28,15 @@ Route::middleware(['auth', 'role:psychiatrist'])
 });
 
 Route::middleware(['auth', 'role:lifecoach'])
+    ->prefix('lifecoach')
     ->name('lifecoach.')
     ->group(function () {
 
-    Route::get('/dashboard', fn () => view('lifecoach'))->name('dashboard');
+    Route::get('/dashboard', fn () => view('lifecoach'))->name('lifecoach.dashboard');
+    Route::get('/patients', fn () => view('lifecoach'))->name('lifecoach.patients');
+    Route::get('/notes', fn () => view('lifecoach'))->name('lifecoach.notes');
+    Route::get('/tasks', fn () => view('lifecoach'))->name('lifecoach.tasks');
+    Route::get('/profile', fn () => view('lifecoach'))->name('lifecoach.profile');
 });
 
 Route::middleware('guest')->get('/login', fn () => view('staff_login'));
@@ -39,3 +45,9 @@ Route::post('/auth/logout',[AuthController::class, 'logout'])->name('auth.logout
 
 Route::get('/intake-form', [IntakeFormController::class, 'create'])->name('intake');
 Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
+
+Route::get('/login', function () {
+    return view('staff_login');
+});
+
+
