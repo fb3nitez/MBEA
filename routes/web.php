@@ -9,9 +9,8 @@ Route::get('/', function () {
 });
 
 //intake form
-Route::get('/intake', function () {
-    return view('intake_form');
-});
+Route::get('/intake-form', [IntakeFormController::class, 'create']);
+Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
 
 //login
 Route::get('/staff', function () {
@@ -23,8 +22,7 @@ Route::get('/login', function () {
 });
 
 
-Route::get('/intake-form', [IntakeFormController::class, 'create']);
-Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
+
 
 //psychiatrist
 Route::get('/psychiatrist/dashboard', function () {
