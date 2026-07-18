@@ -10,41 +10,30 @@ class PatientRecord extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $guarded = ['id'];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'birthday' => 'date',
     ];
 
-    /**
-     * A patient record has one medical history intake.
-     */
+    protected static function booted()
+    {
+        static::created(function ($patient) {
+            $patient->patient_id = date('Y') . '-' . str_pad($patient->id, 6, '0', STR_PAD_LEFT);
+            $patient->saveQuietly();
+        });
+    }
+
     public function medicalHistory(): HasOne
     {
         return $this->hasOne(MedicalHistory::class);
     }
 
-    /**
-     * A patient record has one psychiatric history intake.
-     */
     public function psychiatricHistory(): HasOne
     {
         return $this->hasOne(PsychiatricHistory::class);
     }
 
-    /**
-     * A patient record has one lifestyle assessment intake.
-     */
     public function lifestyleAssessment(): HasOne
     {
         return $this->hasOne(LifestyleAssessment::class);

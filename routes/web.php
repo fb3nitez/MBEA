@@ -39,15 +39,9 @@ Route::middleware(['auth', 'role:lifecoach'])
     Route::get('/profile', fn () => view('lifecoach.profile'))->name('profile');
 });
 
-Route::middleware('guest')->get('/login', fn () => view('staff_login'));
+Route::middleware('guest')->get('/login', fn () => view('staff_login'))->name('login');
 Route::post('/auth/login',[AuthController::class, 'login'])->name('auth.login');
 Route::post('/auth/logout',[AuthController::class, 'logout'])->name('auth.logout');
 
 Route::get('/intake-form', [IntakeFormController::class, 'create'])->name('intake');
 Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
-
-Route::get('/login', function () {
-    return view('staff_login');
-});
-
-
