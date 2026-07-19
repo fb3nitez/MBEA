@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -19,9 +21,17 @@ class PatientRecord extends Model
     protected static function booted()
     {
         static::created(function ($patient) {
-            $patient->patient_id = date('Y') . '-' . str_pad($patient->id, 6, '0', STR_PAD_LEFT);
-            $patient->saveQuietly();
+            $patient->updateQuietly([
+                'patient_id' => sprintf('%s-%06d', now()->year, $patient->id),
+            ]);
         });
+    }
+
+    protected function age(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => Carbon::parse($this->birthday)->age
+        );
     }
 
     public function medicalHistory(): HasOne

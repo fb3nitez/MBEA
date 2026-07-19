@@ -32,9 +32,12 @@ class PatientIntakeForm {
             successMessage: document.getElementById('success-message'),
             successText: document.getElementById('success-text'),
             form: document.getElementById('intake-form'),
+            healthScoreInput: document.getElementById('health-score'),
+            healthScoreDisplay: document.getElementById('health-score-display'),
         };
 
         this.currentStep = this.getStepFromUrl();
+        this.elements.healthScoreDisplay.textContent = this.elements.healthScoreInput.value;
     }
 
     loadFromStorage() {
@@ -186,6 +189,10 @@ class PatientIntakeForm {
                 // Handle expandable sections
                 if (e.target.hasAttribute('data-expands') || e.target.name === 'diagnosedMH' || e.target.name === 'hospitalized') {
                     this.handleExpandable(e.target);
+                }
+                // Handle health score range
+                if (e.target.id === 'health-score') {
+                    this.elements.healthScoreDisplay.textContent = e.target.value;
                 }
                 this.debounceSave();
             }

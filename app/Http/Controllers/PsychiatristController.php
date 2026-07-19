@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\PatientService;
 
 class PsychiatristController extends Controller
 {
-    public function dashboard()
+    public function dashboard(PatientService $patientService)
     {
-        return view('psychiatrist.dashboard');
+        $patients = $patientService->getTodayPatients();
+        return view('psychiatrist.dashboard', [
+            'patients' => $patients,
+        ]);
     }
 
     public function patients()

@@ -4,6 +4,21 @@
 @section('page', 'dashboard')
 @section('page_title', 'Dashboard')
 
+@php
+    $statusMap = [
+        'Active' => 'badge-active',
+        'Critical' => 'badge-critical',
+        'Inactive' => 'badge-inactive',
+        'Pending' => 'badge-pending',
+        'Completed' => 'badge-completed',
+        'Scheduled' => 'badge-scheduled',
+        'Emergency' => 'badge-emergency',
+        'Stable' => 'badge-stable',
+        'Monitoring' => 'badge-monitoring',
+        'Maintenance' => 'badge-maintenance'
+    ];
+@endphp
+
 @section('content')
 <section class="psych-section active" id="section-dashboard">
 <!-- Stats -->
@@ -11,7 +26,7 @@
             <div class="stat-card">
               <div class="stat-text">
                 <div class="stat-label">Total Patients Today</div>
-                <div class="stat-value">4</div>
+                <div class="stat-value">{{ $patients->count() }}</div>
                 <div class="stat-trend trend-up">From kiosk intake</div>
               </div>
               <div class="stat-icon si-blue"><i data-feather="users"></i></div>
@@ -114,7 +129,18 @@
                   </tr>
                 </thead>
                 <tbody id="intakes-tbody">
-                  <!-- Filled by JS -->
+                    @foreach ($patients as $patient)
+                        <td class="td-name">{{ $patient->fullname }}</td>
+                        <td>{{ $patient->age }} / {{ $patient->sex }}</td>
+                        <td>{{ $patient->chief_complaint }}</td>
+                        <td>{{ $patient->updated_at->format('h:i A') }}</td>
+                        <td>
+                            <span class="badge {{ $statusMap[$patient->status] }}">
+                            {{ $patient->status }}
+                            </span>
+                        </td>
+                        <td><button class="btn-outline-sm" >View Details</button></td>
+                    @endforeach
                 </tbody>
               </table>
             </div>

@@ -199,25 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
   ============================================================ */
   var intakeTime = now();
 
-  /* ============================================================
-     BUILD INTAKES TABLE
-  ============================================================ */
-  function buildIntakes() {
-    var tbody = document.getElementById('intakes-tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    INTAKES.forEach(function (p) {
-      var tr = document.createElement('tr');
-      tr.innerHTML = '<td class="td-name">' + p.name + '</td>' +
-        '<td>' + p.age + ' / ' + p.sex + '</td>' +
-        '<td>' + p.complaint + '</td>' +
-        '<td>' + intakeTime + '</td>' +
-        '<td>' + statusBadge(p.status) + '</td>' +
-        '<td><button class="btn-outline-sm" onclick="openPatientDetail(\'' + p.id + '\')">View Details</button></td>';
-      tbody.appendChild(tr);
-    });
-  }
-
   window.openPatientDetail = function (id) {
     var p = PATIENTS.find(function (x) { return x.id === id; });
     if (!p) return;
@@ -1231,7 +1212,6 @@ document.addEventListener('DOMContentLoaded', function () {
       PATIENTS.push({ id: newId, name: name, age: parseInt(age) || 0, sex: '—', status: 'Active', coach: coach, complaint: complaint });
       INTAKES.push({ id: newId, name: name, age: parseInt(age) || 0, sex: '—', complaint: complaint, status: 'Active' });
       buildPatients(PATIENTS);
-      buildIntakes();
       closeModal('add-patient-modal');
       showToast('Patient "' + name + '" added successfully.');
       // Clear form
@@ -1264,7 +1244,6 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ============================================================
      INITIAL RENDER
   ============================================================ */
-  buildIntakes();
   buildPatients(PATIENTS);
   buildConsultations(CONSULTATIONS);
   buildRecords();
