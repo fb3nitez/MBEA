@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setVal('pr-status', p.status || 'Submitted');
     setVal('pr-complaint', p.chief_complaint || p.complaint);
     setVal('pr-diagnosis', p.primary_diagnosis);
-    setVal('pr-clinical-notes', p.primary_diagnosis);
+    setVal('pr-clinical-notes', p.clinical_notes);
     setVal('pm-coach-select', p.life_coach_id || '');
 
     // Medical history
@@ -506,9 +506,8 @@ document.addEventListener('DOMContentLoaded', function () {
           occupation: getVal('pr-occupation') || null,
           status: getVal('pr-status'),
           chief_complaint: getVal('pr-complaint'),
-          clinical_notes: getVal('pr-clinical-notes') || null,
           primary_diagnosis: getVal('pr-diagnosis') || null,
-          clinical_notes: getVal('pr-clinical_notes') || null,
+          clinical_notes: getVal('pr-clinical-notes') || null,
         }),
       }).then(function (data) {
         upsertPatientLocal(data.patient);

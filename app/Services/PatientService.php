@@ -285,6 +285,7 @@ class PatientService
             'life_coach_id' => $patient->life_coach_id,
             'coach' => $patient->lifeCoach?->name ?? 'Unassigned',
             'complaint' => $patient->chief_complaint,
+            'clinical_notes' => $patient->clinical_notes,
             'medical_history' => $patient->medicalHistory,
             'psychiatric_history' => $patient->psychiatricHistory,
             'lifestyle_assessment' => $patient->lifestyleAssessment,
