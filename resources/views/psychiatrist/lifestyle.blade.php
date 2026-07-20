@@ -12,3 +12,10 @@
           </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+  window.PSYCH_DATA = window.PSYCH_DATA || {};
+  window.PSYCH_DATA.lifestyle = @json($lifestylePatients);
+</script>
+@endpush

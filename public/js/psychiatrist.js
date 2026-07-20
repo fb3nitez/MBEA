@@ -5,31 +5,15 @@
 document.addEventListener('DOMContentLoaded', function () {
 
   /* ============================================================
-     DATA
+     DATA (from server via window.PSYCH_DATA)
   ============================================================ */
 
-  var PATIENTS = [
-    { id: 'P001', name: 'Sarah Johnson', age: 34, sex: 'Female', status: 'Active', coach: 'Michael Chen', complaint: 'Sleep disturbances, anxiety, lifestyle imbalance' },
-    { id: 'P002', name: 'Robert Martinez', age: 45, sex: 'Male', status: 'Critical', coach: 'Emily Roberts', complaint: 'Depression symptoms and suicidal ideation' },
-    { id: 'P003', name: 'Emily Thompson', age: 28, sex: 'Female', status: 'Active', coach: 'Michael Chen', complaint: 'Chronic anxiety and stress management' },
-    { id: 'P004', name: 'David Lee', age: 52, sex: 'Male', status: 'Active', coach: 'Emily Roberts', complaint: 'Bipolar disorder management' },
-    { id: 'P005', name: 'Maria Garcia', age: 31, sex: 'Female', status: 'Active', coach: 'Michael Chen', complaint: 'PTSD following workplace trauma' },
-  ];
-
-  var CONSULTATIONS = [
-    { patient: 'Sarah Johnson', date: '2026-06-07', time: '9:00 AM', type: 'Follow-up', status: 'Scheduled', notes: 'Follow-up for medication review' },
-    { patient: 'Robert Martinez', date: '2026-06-07', time: '10:30 AM', type: 'Emergency', status: 'Scheduled', notes: 'Crisis intervention — suicidal ideation reported' },
-    { patient: 'Emily Thompson', date: '2026-06-06', time: '2:00 PM', type: 'Initial', status: 'Completed', notes: 'Initial psychiatric assessment completed' },
-    { patient: 'David Lee', date: '2026-06-05', time: '11:00 AM', type: 'Follow-up', status: 'Completed', notes: 'Medication adjustment for mood stabilization' },
-  ];
-
-  var RECORDS = [
-    { id: 'P001', name: 'Sarah Johnson', diag: 'Anxiety Disorder, Insomnia', updated: 'Jun 5, 2026', complaint: 'Persistent insomnia and anxiety related to work stress.' },
-    { id: 'P002', name: 'Robert Martinez', diag: 'Major Depressive Disorder', updated: 'Jun 7, 2026', complaint: 'Depression with passive suicidal ideation.' },
-    { id: 'P003', name: 'Emily Thompson', diag: 'Generalized Anxiety Disorder', updated: 'Jun 4, 2026', complaint: 'Chronic anxiety and panic attacks.' },
-    { id: 'P004', name: 'David Lee', diag: 'Bipolar I Disorder', updated: 'Jun 3, 2026', complaint: 'Mood swings, manic and depressive episodes.' },
-    { id: 'P005', name: 'Maria Garcia', diag: 'Post-Traumatic Stress Disorder', updated: 'Jun 1, 2026', complaint: 'Flashbacks and hyperarousal following workplace trauma.' },
-  ];
+  var DATA = window.PSYCH_DATA || {};
+  var PATIENTS = Array.isArray(DATA.patients) ? DATA.patients.slice() : [];
+  var CONSULTATIONS = Array.isArray(DATA.consultations) ? DATA.consultations.slice() : [];
+  var RECORDS = Array.isArray(DATA.records) ? DATA.records.slice() : [];
+  var LIFE_COACHES = Array.isArray(DATA.lifeCoaches) ? DATA.lifeCoaches.slice() : [];
+  var CURRENT_PATIENT = null;
 
   var LIFESTYLE = [
     {
@@ -49,22 +33,12 @@ document.addEventListener('DOMContentLoaded', function () {
       ]
     },
   ];
-
   var ASSESSMENTS = [
     { id: 'P001', name: 'Sarah Johnson', age: '34y', sex: 'Female', diag: 'Major Depressive Disorder (F32.1)', status: 'Stable', prog: 85, lastDate: '2026-05-28', tag: 'Cognitive Behavioral Coaching', provider: 'Dr. Maria Santos · Psychiatrist' },
     { id: 'P002', name: 'David Martinez', age: '42y', sex: 'Male', diag: 'Generalized Anxiety Disorder (F41.1)', status: 'Maintenance', prog: 70, lastDate: '2026-05-20', tag: 'Stress Management', provider: 'Emily Roberts · Life Coach' },
     { id: 'P003', name: 'Emily Thompson', age: '28y', sex: 'Female', diag: 'Panic Disorder with Agoraphobia (F40.01)', status: 'Critical', prog: 60, lastDate: '2026-06-08', tag: null, provider: 'Dr. Maria Santos · Psychiatrist' },
     { id: 'P004', name: 'James Wilson', age: '55y', sex: 'Male', diag: 'Insomnia Disorder (G47.00)', status: 'Life Coaching', prog: 50, lastDate: '2026-05-15', tag: 'Sleep Wellness & Lifestyle Medicine', provider: 'Michael Chen · Life Coach' },
   ];
-
-  var INTAKES = [
-    { id: 'P001', name: 'Sarah Johnson', age: 34, sex: 'Female', complaint: 'Sleep disturbances, anxiety', status: 'Active' },
-    { id: 'P002', name: 'Robert Martinez', age: 45, sex: 'Male', complaint: 'Depression symptoms and suicidal ideation', status: 'Pending' },
-    { id: 'P003', name: 'Emily Thompson', age: 28, sex: 'Female', complaint: 'Chronic anxiety, stress management', status: 'Active' },
-    { id: 'P004', name: 'David Lee', age: 52, sex: 'Male', complaint: 'Bipolar disorder management', status: 'Active' },
-    { id: 'P005', name: 'Maria Garcia', age: 31, sex: 'Female', complaint: 'PTSD following trauma', status: 'Active' },
-  ];
-
   var RX_TEMPLATES = [
     { name: 'MDD — First Line SSRI', tag: 'Depression', tagClass: 'tag-depression', desc: 'Sertraline 50mg', meds: [{ name: 'Sertraline', dose: '50mg', freq: ['Morning'], qty: 30 }], diag: 'F32.1 Major Depressive Disorder' },
     { name: 'GAD — Sertraline + PRN Clonazepam', tag: 'Anxiety', tagClass: 'tag-anxiety', desc: 'Sertraline 50mg · Clonazepam 0.5mg', meds: [{ name: 'Sertraline', dose: '50mg', freq: ['Morning'], qty: 30 }, { name: 'Clonazepam', dose: '0.5mg', freq: ['Bedtime'], qty: 10 }], diag: 'F41.1 Generalized Anxiety Disorder' },
@@ -123,6 +97,33 @@ document.addEventListener('DOMContentLoaded', function () {
   function show(el) { if (el) el.classList.remove('hidden'); }
   function hide(el) { if (el) el.classList.add('hidden'); }
 
+  function csrfToken() {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+  }
+
+  function apiFetch(url, options) {
+    options = options || {};
+    options.headers = Object.assign({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-CSRF-TOKEN': csrfToken(),
+      'X-Requested-With': 'XMLHttpRequest',
+    }, options.headers || {});
+    return fetch(url, options).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) {
+          var msg = (body && body.message) || 'Request failed.';
+          if (body && body.errors) {
+            msg = Object.values(body.errors).flat().join(' ');
+          }
+          throw new Error(msg);
+        }
+        return body;
+      });
+    });
+  }
+
   function now() {
     var d = new Date();
     var h = d.getHours(); var m = d.getMinutes();
@@ -146,8 +147,49 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   function statusBadge(s) {
-    var map = { Active: 'badge-active', Critical: 'badge-critical', Inactive: 'badge-inactive', Pending: 'badge-pending', Completed: 'badge-completed', Scheduled: 'badge-scheduled', Emergency: 'badge-emergency', Stable: 'badge-stable', Monitoring: 'badge-monitoring', Maintenance: 'badge-maintenance' };
+    var map = { Active: 'badge-active', Critical: 'badge-critical', Inactive: 'badge-inactive', Pending: 'badge-pending', Submitted: 'badge-pending', Completed: 'badge-completed', Scheduled: 'badge-scheduled', Emergency: 'badge-emergency', Stable: 'badge-stable', Monitoring: 'badge-monitoring', Maintenance: 'badge-maintenance', Cancelled: 'badge-inactive' };
     return '<span class="badge ' + (map[s] || 'badge-outline') + '">' + s + '</span>';
+  }
+
+  function setVal(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.value = val == null ? '' : val;
+  }
+
+  function getVal(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+
+  function setChecked(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.checked = !!val;
+  }
+
+  function findPatientLocal(id) {
+    id = String(id);
+    return PATIENTS.find(function (p) {
+      return String(p.id) === id || String(p.patient_id) === id;
+    });
+  }
+
+  function upsertPatientLocal(patient) {
+    var idx = PATIENTS.findIndex(function (p) { return String(p.id) === String(patient.id); });
+    if (idx >= 0) PATIENTS[idx] = Object.assign({}, PATIENTS[idx], patient);
+    else PATIENTS.push(patient);
+  }
+
+  function populateConsultPatientSelect(selectedId) {
+    var sel = document.getElementById('consult-patient');
+    if (!sel) return;
+    sel.innerHTML = '';
+    PATIENTS.forEach(function (p) {
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = (p.name || 'Patient') + (p.patient_id ? ' (' + p.patient_id + ')' : '');
+      if (selectedId && String(p.id) === String(selectedId)) opt.selected = true;
+      sel.appendChild(opt);
+    });
   }
 
   /* ============================================================
@@ -200,9 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var intakeTime = now();
 
   window.openPatientDetail = function (id) {
-    var p = PATIENTS.find(function (x) { return x.id === id; });
-    if (!p) return;
-    showToast('Viewing ' + p.name + ' — ' + p.id);
+    viewPatient(id);
   };
 
   /* ============================================================
@@ -212,65 +252,154 @@ document.addEventListener('DOMContentLoaded', function () {
     var tbody = document.getElementById('patients-tbody');
     if (!tbody) return;
     tbody.innerHTML = '';
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748b;">No patients found.</td></tr>';
+      return;
+    }
     list.forEach(function (p) {
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td class="td-id">' + p.id + '</td>' +
-        '<td class="td-name">' + p.name + '</td>' +
-        '<td>' + p.age + '</td>' +
-        '<td>' + statusBadge(p.status) + '</td>' +
-        '<td>' + p.coach + '</td>' +
-        '<td class="td-complaint">' + p.complaint + '</td>' +
-        '<td><button class="btn-outline-sm" onclick="viewPatient(\'' + p.id + '\')"><i data-feather="eye" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;"></i>View</button></td>';
+      tr.innerHTML = '<td class="td-id">' + (p.patient_id || p.id) + '</td>' +
+        '<td class="td-name">' + (p.name || '—') + '</td>' +
+        '<td>' + (p.age != null ? p.age : '—') + '</td>' +
+        '<td>' + statusBadge(p.status || 'Submitted') + '</td>' +
+        '<td>' + (p.coach || 'Unassigned') + '</td>' +
+        '<td class="td-complaint">' + (p.complaint || p.chief_complaint || '—') + '</td>' +
+        '<td><button class="btn-outline-sm" onclick="viewPatient(' + p.id + ')"><i data-feather="eye" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;"></i>View</button></td>';
       tbody.appendChild(tr);
     });
     ri();
   }
 
-  window.viewPatient = function (id) {
-    var p = PATIENTS.find(function (x) { return x.id === id; });
-    if (!p) return;
+  function switchPmTab(tab) {
+    qsa('#pm-tabs .tab-btn').forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-pm-tab') === tab);
+    });
+    qsa('.pm-tab-panel').forEach(function (panel) {
+      panel.classList.toggle('active', panel.getAttribute('data-pm-panel') === tab);
+    });
+  }
 
-    // Avatar initials
-    var initials = p.name.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+  function populatePatientModal(p) {
+    CURRENT_PATIENT = p;
+    var initials = (p.name || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
     var avatarEl = document.getElementById('pm-avatar');
     if (avatarEl) avatarEl.textContent = initials;
 
-    // Populate fields
-    var set = function (id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-    set('pm-name', p.name);
-    set('pm-sub', p.id + ' · ' + p.status);
-    set('pm-id', p.id);
-    set('pm-age', p.age);
-    set('pm-sex', p.sex);
-    set('pm-coach', p.coach);
-    set('pm-complaint', p.complaint);
+    var setText = function (id, val) { var el = document.getElementById(id); if (el) el.textContent = val == null || val === '' ? '—' : val; };
+    setText('pm-name', p.name);
+    setText('pm-sub', (p.patient_id || p.id) + ' · ' + (p.status || 'Submitted'));
+    setText('pm-id', p.patient_id || p.id);
+    setText('pm-age', p.age);
+    setText('pm-sex', p.sex);
+    setText('pm-coach', p.coach || 'Unassigned');
+    setText('pm-complaint', p.complaint || p.chief_complaint);
 
-    // Status badge
     var statusEl = document.getElementById('pm-status');
-    if (statusEl) statusEl.innerHTML = statusBadge(p.status);
+    if (statusEl) statusEl.innerHTML = statusBadge(p.status || 'Submitted');
 
-    // Store current patient ID on modal for action buttons
+    // Patient record form
+    setVal('pr-fullname', p.name);
+    setVal('pr-birthday', p.birthday);
+    setVal('pr-sex', (p.sex || 'female').toLowerCase());
+    setVal('pr-gender', p.gender);
+    setVal('pr-marital', p.marital_status || 'single');
+    setVal('pr-religion', p.religion);
+    setVal('pr-year', p.student_year_level);
+    setVal('pr-course', p.course);
+    setVal('pr-occupation', p.occupation);
+    setVal('pr-status', p.status || 'Submitted');
+    setVal('pr-complaint', p.chief_complaint || p.complaint);
+    setVal('pr-diagnosis', p.primary_diagnosis);
+    setVal('pr-clinical-notes', p.primary_diagnosis);
+    setVal('pm-coach-select', p.life_coach_id || '');
+
+    // Medical history
+    var mh = p.medical_history || {};
+    qsa('.mh-check').forEach(function (cb) {
+      var field = cb.getAttribute('data-field');
+      cb.checked = !!mh[field];
+    });
+    setVal('mh-autoimmune_specify', mh.autoimmune_specify);
+    setVal('mh-cancer_specify', mh.cancer_specify);
+    setVal('mh-other_medical_specify', mh.other_medical_specify);
+    setVal('mh-current_medications', mh.current_medications);
+    setVal('mh-family_cancer_type', mh.family_cancer_type);
+    setVal('mh-family_cancer_relation', mh.family_cancer_relation);
+    setVal('mh-family_psychiatric_relation', mh.family_psychiatric_relation);
+    setVal('mh-family_other_specify', mh.family_other_specify);
+
+    // Psychiatric history
+    var ph = p.psychiatric_history || {};
+    setChecked('ph-diagnosed_mental_condition', ph.diagnosed_mental_condition);
+    setChecked('ph-psychiatric_hospitalized', ph.psychiatric_hospitalized);
+    setVal('ph-mental_condition', ph.mental_condition);
+    setVal('ph-hospitalization_count', ph.hospitalization_count);
+    setVal('ph-hospitalization_when', ph.hospitalization_when);
+    ['physical', 'emotional', 'sexual', 'neglect'].forEach(function (key) {
+      var mainId = key === 'neglect' ? 'ph-neglect' : ('ph-' + key + '_abuse');
+      // IDs in blade: ph-physical_abuse, ph-emotional_abuse, ph-sexual_abuse, ph-neglect_abuse
+      setChecked('ph-' + key + '_abuse', ph[key === 'neglect' ? 'neglect' : (key + '_abuse')]);
+      setChecked('ph-' + key + '_child', ph[key + '_child']);
+      setChecked('ph-' + key + '_adult', ph[key + '_adult']);
+      setChecked('ph-' + key + '_ongoing', ph[key + '_ongoing']);
+      setChecked('ph-' + key + '_past', ph[key + '_past']);
+      setVal('ph-' + key + '_notes', ph[key + '_notes']);
+    });
+    // fix neglect main flag (field is "neglect" not "neglect_abuse")
+    setChecked('ph-neglect_abuse', ph.neglect);
+
+    // Lifestyle
+    var ls = p.lifestyle_assessment || {};
+    ['health_score', 'sleep_hours', 'tired_frequency', 'weight_perception', 'fast_food_frequency',
+      'fruits_veg_servings', 'exercise_frequency', 'motivation_level', 'lifestyle_motivation',
+      'phq_little_interest', 'phq_feeling_down', 'phq_trouble_sleeping', 'phq_feeling_tired',
+      'phq_poor_appetite', 'phq_feeling_bad', 'phq_trouble_concentrating', 'phq_moving_slow',
+      'phq_thoughts_hurting'].forEach(function (f) {
+      setVal('ls-' + f, ls[f]);
+    });
+    qsa('.ls-sub-check').forEach(function (cb) {
+      cb.checked = !!ls[cb.getAttribute('data-field')];
+    });
+
     var modal = document.getElementById('patient-detail-modal');
-    if (modal) modal.setAttribute('data-current-patient', id);
+    if (modal) modal.setAttribute('data-current-patient', p.id);
 
+    switchPmTab('overview');
     openModal('patient-detail-modal');
+    ri();
+  }
+
+  window.viewPatient = function (id) {
+    var local = findPatientLocal(id);
+    if (local && local.medical_history !== undefined) {
+      populatePatientModal(local);
+    }
+
+    var base = (window.PSYCH_ROUTES || {}).patientsShow || '/psychiatrist/patients';
+    apiFetch(base + '/' + id)
+      .then(function (data) {
+        upsertPatientLocal(data.patient);
+        populatePatientModal(data.patient);
+      })
+      .catch(function (err) {
+        if (!local) showToast(err.message || 'Unable to load patient.');
+      });
   };
+
+  // Patient modal tabs
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-pm-tab]');
+    if (!btn) return;
+    switchPmTab(btn.getAttribute('data-pm-tab'));
+  });
 
   // Patient modal quick-action buttons
   var pmBtnConsult = document.getElementById('pm-btn-consult');
   if (pmBtnConsult) pmBtnConsult.addEventListener('click', function () {
     var modal = document.getElementById('patient-detail-modal');
     var id = modal ? modal.getAttribute('data-current-patient') : null;
-    var p = id ? PATIENTS.find(function (x) { return x.id === id; }) : null;
     closeModal('patient-detail-modal');
-    if (p) {
-      var sel = document.getElementById('consult-patient');
-      if (sel) {
-        for (var i = 0; i < sel.options.length; i++) {
-          if (sel.options[i].value === p.name) { sel.selectedIndex = i; break; }
-        }
-      }
-    }
+    populateConsultPatientSelect(id);
     openModal('schedule-consult-modal');
   });
 
@@ -286,24 +415,175 @@ document.addEventListener('DOMContentLoaded', function () {
   if (pmBtnRx) pmBtnRx.addEventListener('click', function () {
     var modal = document.getElementById('patient-detail-modal');
     var id = modal ? modal.getAttribute('data-current-patient') : null;
+    var p = id ? findPatientLocal(id) : null;
     closeModal('patient-detail-modal');
-    goToPage('prescriptions', id ? ('patient=' + encodeURIComponent(id)) : null);
+    goToPage('prescriptions', id ? ('patient=' + encodeURIComponent(p ? (p.patient_id || p.id) : id)) : null);
   });
 
   var pmBtnAssess = document.getElementById('pm-btn-assess');
   if (pmBtnAssess) pmBtnAssess.addEventListener('click', function () {
     var modal = document.getElementById('patient-detail-modal');
     var id = modal ? modal.getAttribute('data-current-patient') : null;
+    var p = id ? findPatientLocal(id) : null;
     closeModal('patient-detail-modal');
-    goToPage('assessments', id ? ('patient=' + encodeURIComponent(id)) : null);
+    goToPage('assessments', id ? ('patient=' + encodeURIComponent(p ? (p.patient_id || p.id) : id)) : null);
   });
+
+  function collectMedicalHistory() {
+    var data = {};
+    qsa('.mh-check').forEach(function (cb) {
+      data[cb.getAttribute('data-field')] = cb.checked;
+    });
+    data.autoimmune_specify = getVal('mh-autoimmune_specify');
+    data.cancer_specify = getVal('mh-cancer_specify');
+    data.other_medical_specify = getVal('mh-other_medical_specify');
+    data.current_medications = getVal('mh-current_medications');
+    data.family_cancer_type = getVal('mh-family_cancer_type');
+    data.family_cancer_relation = getVal('mh-family_cancer_relation');
+    data.family_psychiatric_relation = getVal('mh-family_psychiatric_relation');
+    data.family_other_specify = getVal('mh-family_other_specify');
+    return data;
+  }
+
+  function collectPsychiatricHistory() {
+    var data = {
+      diagnosed_mental_condition: !!qs('#ph-diagnosed_mental_condition') && qs('#ph-diagnosed_mental_condition').checked,
+      psychiatric_hospitalized: !!qs('#ph-psychiatric_hospitalized') && qs('#ph-psychiatric_hospitalized').checked,
+      mental_condition: getVal('ph-mental_condition'),
+      hospitalization_count: getVal('ph-hospitalization_count'),
+      hospitalization_when: getVal('ph-hospitalization_when'),
+    };
+    ['physical', 'emotional', 'sexual', 'neglect'].forEach(function (key) {
+      var mainField = key === 'neglect' ? 'neglect' : (key + '_abuse');
+      data[mainField] = !!qs('#ph-' + key + '_abuse') && qs('#ph-' + key + '_abuse').checked;
+      data[key + '_child'] = !!qs('#ph-' + key + '_child') && qs('#ph-' + key + '_child').checked;
+      data[key + '_adult'] = !!qs('#ph-' + key + '_adult') && qs('#ph-' + key + '_adult').checked;
+      data[key + '_ongoing'] = !!qs('#ph-' + key + '_ongoing') && qs('#ph-' + key + '_ongoing').checked;
+      data[key + '_past'] = !!qs('#ph-' + key + '_past') && qs('#ph-' + key + '_past').checked;
+      data[key + '_notes'] = getVal('ph-' + key + '_notes');
+    });
+    return data;
+  }
+
+  function collectLifestyle() {
+    var data = {};
+    ['health_score', 'sleep_hours', 'tired_frequency', 'weight_perception', 'fast_food_frequency',
+      'fruits_veg_servings', 'exercise_frequency', 'motivation_level', 'lifestyle_motivation',
+      'phq_little_interest', 'phq_feeling_down', 'phq_trouble_sleeping', 'phq_feeling_tired',
+      'phq_poor_appetite', 'phq_feeling_bad', 'phq_trouble_concentrating', 'phq_moving_slow',
+      'phq_thoughts_hurting'].forEach(function (f) {
+      data[f] = getVal('ls-' + f);
+    });
+    qsa('.ls-sub-check').forEach(function (cb) {
+      data[cb.getAttribute('data-field')] = cb.checked;
+    });
+    return data;
+  }
+
+  function currentPatientId() {
+    var modal = document.getElementById('patient-detail-modal');
+    return modal ? modal.getAttribute('data-current-patient') : null;
+  }
+
+  function bindPatientSaves() {
+    var base = (window.PSYCH_ROUTES || {}).patientsUpdate || '/psychiatrist/patients';
+
+    var saveRecord = document.getElementById('pm-save-record');
+    if (saveRecord) saveRecord.addEventListener('click', function () {
+      var id = currentPatientId();
+      if (!id) return;
+      apiFetch(base + '/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: getVal('pr-fullname'),
+          birthday: getVal('pr-birthday') || null,
+          sex: getVal('pr-sex'),
+          gender: getVal('pr-gender') || null,
+          marital_status: getVal('pr-marital'),
+          religion: getVal('pr-religion') || null,
+          student_year_level: getVal('pr-year') || null,
+          course: getVal('pr-course') || null,
+          occupation: getVal('pr-occupation') || null,
+          status: getVal('pr-status'),
+          chief_complaint: getVal('pr-complaint'),
+          clinical_notes: getVal('pr-clinical-notes') || null,
+          primary_diagnosis: getVal('pr-diagnosis') || null,
+          clinical_notes: getVal('pr-clinical_notes') || null,
+        }),
+      }).then(function (data) {
+        upsertPatientLocal(data.patient);
+        populatePatientModal(data.patient);
+        buildPatients(PATIENTS);
+        showToast(data.message || 'Patient record updated.');
+      }).catch(function (err) { showToast(err.message); });
+    });
+
+    var saveMedical = document.getElementById('pm-save-medical');
+    if (saveMedical) saveMedical.addEventListener('click', function () {
+      var id = currentPatientId();
+      if (!id) return;
+      apiFetch(base + '/' + id + '/medical-history', {
+        method: 'PUT',
+        body: JSON.stringify(collectMedicalHistory()),
+      }).then(function (data) {
+        if (CURRENT_PATIENT) CURRENT_PATIENT.medical_history = data.medical_history;
+        showToast(data.message || 'Medical history updated.');
+      }).catch(function (err) { showToast(err.message); });
+    });
+
+    var savePsych = document.getElementById('pm-save-psychiatric');
+    if (savePsych) savePsych.addEventListener('click', function () {
+      var id = currentPatientId();
+      if (!id) return;
+      apiFetch(base + '/' + id + '/psychiatric-history', {
+        method: 'PUT',
+        body: JSON.stringify(collectPsychiatricHistory()),
+      }).then(function (data) {
+        if (CURRENT_PATIENT) CURRENT_PATIENT.psychiatric_history = data.psychiatric_history;
+        showToast(data.message || 'Psychiatric history updated.');
+      }).catch(function (err) { showToast(err.message); });
+    });
+
+    var saveLifestyle = document.getElementById('pm-save-lifestyle');
+    if (saveLifestyle) saveLifestyle.addEventListener('click', function () {
+      var id = currentPatientId();
+      if (!id) return;
+      apiFetch(base + '/' + id + '/lifestyle', {
+        method: 'PUT',
+        body: JSON.stringify(collectLifestyle()),
+      }).then(function (data) {
+        if (CURRENT_PATIENT) CURRENT_PATIENT.lifestyle_assessment = data.lifestyle_assessment;
+        showToast(data.message || 'Lifestyle assessment updated.');
+      }).catch(function (err) { showToast(err.message); });
+    });
+
+    var saveCoach = document.getElementById('pm-save-coach');
+    if (saveCoach) saveCoach.addEventListener('click', function () {
+      var id = currentPatientId();
+      if (!id) return;
+      var coachId = getVal('pm-coach-select') || null;
+      apiFetch(base + '/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ life_coach_id: coachId }),
+      }).then(function (data) {
+        upsertPatientLocal(data.patient);
+        populatePatientModal(data.patient);
+        buildPatients(PATIENTS);
+        showToast('Life coach assignment saved.');
+      }).catch(function (err) { showToast(err.message); });
+    });
+  }
 
   // Patient search + filter
   function filterPatients() {
-    var q = (document.getElementById('patient-search').value || '').toLowerCase();
-    var st = document.getElementById('patient-status-filter').value;
+    var searchEl = document.getElementById('patient-search');
+    var filterEl = document.getElementById('patient-status-filter');
+    if (!searchEl || !filterEl) return;
+    var q = (searchEl.value || '').toLowerCase();
+    var st = filterEl.value;
     var list = PATIENTS.filter(function (p) {
-      var matchQ = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
+      var pid = String(p.patient_id || p.id || '').toLowerCase();
+      var matchQ = !q || (p.name || '').toLowerCase().includes(q) || pid.includes(q);
       var matchS = !st || p.status === st;
       return matchQ && matchS;
     });
@@ -322,39 +602,40 @@ document.addEventListener('DOMContentLoaded', function () {
     var tbody = document.getElementById('consults-tbody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    list.forEach(function (c, i) {
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748b;">No consultations scheduled.</td></tr>';
+      return;
+    }
+    list.forEach(function (c) {
       var typeBadge = c.type === 'Emergency' ? '<span class="badge badge-emergency">Emergency</span>' :
         c.type === 'Initial' ? '<span class="badge badge-outline">Initial</span>' :
           '<span class="badge badge-outline">Follow-up</span>';
       var statBadge = c.status === 'Completed' ? '<span class="badge badge-completed">Completed</span>' :
+        c.status === 'Cancelled' ? '<span class="badge badge-inactive">Cancelled</span>' :
         '<span class="badge badge-scheduled">Scheduled</span>';
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td class="td-name">' + c.patient + '</td>' +
-        '<td>' + c.date + '</td>' +
-        '<td>' + c.time + '</td>' +
+      tr.innerHTML = '<td class="td-name">' + (c.patient || '—') + '</td>' +
+        '<td>' + (c.date || '—') + '</td>' +
+        '<td>' + (c.time || '—') + '</td>' +
         '<td>' + typeBadge + '</td>' +
         '<td>' + statBadge + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + c.notes + '">' + (c.notes || '—') + '</td>' +
-        '<td><button class="btn-outline-sm" onclick="editConsult(' + i + ')">Edit</button></td>';
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (c.notes || '') + '">' + (c.notes || '—') + '</td>' +
+        '<td><button class="btn-outline-sm" onclick="editConsult(' + c.id + ')">Edit</button></td>';
       tbody.appendChild(tr);
     });
   }
 
-  window.editConsult = function (i) {
-    var c = CONSULTATIONS[i];
+  window.editConsult = function (id) {
+    var c = CONSULTATIONS.find(function (x) { return String(x.id) === String(id); });
     if (!c) return;
 
-    // Store index on modal for save
-    var modal = document.getElementById('edit-consult-modal');
-    if (modal) modal.setAttribute('data-consult-index', i);
+    setVal('ec-id', c.id);
 
-    // Header
     var titleEl = document.getElementById('ec-modal-title');
     var subEl = document.getElementById('ec-modal-sub');
     if (titleEl) titleEl.textContent = 'Edit Consultation';
     if (subEl) subEl.textContent = c.patient + ' · ' + c.type;
 
-    // Patient strip
     var nameEl = document.getElementById('ec-patient-name');
     if (nameEl) nameEl.textContent = c.patient;
 
@@ -366,45 +647,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var statBadgeEl = document.getElementById('ec-status-badge');
     if (statBadgeEl) {
-      var sc = c.status === 'Completed' ? 'badge-completed' : 'badge-scheduled';
+      var sc = c.status === 'Completed' ? 'badge-completed' : (c.status === 'Cancelled' ? 'badge-inactive' : 'badge-scheduled');
       statBadgeEl.innerHTML = '<span class="badge ' + sc + '">' + c.status + '</span>';
     }
 
-    // Fill editable fields
-    var dateEl = document.getElementById('ec-date');
-    var timeEl = document.getElementById('ec-time');
-    var typeEl = document.getElementById('ec-type');
-    var statusEl = document.getElementById('ec-status');
-    var notesEl = document.getElementById('ec-notes');
+    setVal('ec-date', c.date || '');
+    setVal('ec-time', c.time_24 || '');
+    setVal('ec-type', c.type || 'Follow-up');
+    setVal('ec-status', c.status || 'Scheduled');
+    setVal('ec-notes', c.notes || '');
+    setVal('ec-diagnosis', c.diagnosis || '');
+    setVal('ec-treatment', c.treatment || '');
 
-    if (dateEl) dateEl.value = c.date || '';
-    if (notesEl) notesEl.value = c.notes || '';
-
-    // Convert "9:00 AM" → "09:00" for time input
-    if (timeEl && c.time) {
-      var tp = c.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
-      if (tp) {
-        var hh = parseInt(tp[1]);
-        var mm = tp[2];
-        var ap = tp[3].toUpperCase();
-        if (ap === 'PM' && hh !== 12) hh += 12;
-        if (ap === 'AM' && hh === 12) hh = 0;
-        timeEl.value = (hh < 10 ? '0' : '') + hh + ':' + mm;
-      }
-    }
-
-    if (typeEl) {
-      for (var i2 = 0; i2 < typeEl.options.length; i2++) {
-        if (typeEl.options[i2].value === c.type) { typeEl.selectedIndex = i2; break; }
-      }
-    }
-    if (statusEl) {
-      for (var i3 = 0; i3 < statusEl.options.length; i3++) {
-        if (statusEl.options[i3].value === c.status) { statusEl.selectedIndex = i3; break; }
-      }
-    }
-
-    // Show/hide outcome section
     var outcomeSection = document.getElementById('ec-outcome-section');
     if (outcomeSection) {
       if (c.status === 'Completed') outcomeSection.classList.remove('hidden');
@@ -416,7 +670,6 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   function initEditConsultModal() {
-    // Toggle outcome section when status changes
     var ecStatus = document.getElementById('ec-status');
     var ecOutcome = document.getElementById('ec-outcome-section');
     if (ecStatus && ecOutcome) {
@@ -427,96 +680,51 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    // Save changes
     var ecSaveBtn = document.getElementById('ec-save-btn');
     if (ecSaveBtn) {
       ecSaveBtn.addEventListener('click', function () {
-        var modal = document.getElementById('edit-consult-modal');
-        var idx = modal ? parseInt(modal.getAttribute('data-consult-index')) : -1;
-        if (idx < 0 || !CONSULTATIONS[idx]) return;
-
-        var dateVal = document.getElementById('ec-date').value;
-        var timeInput = document.getElementById('ec-time').value;
-        var typeVal = document.getElementById('ec-type').value;
-        var statusVal = document.getElementById('ec-status').value;
-        var notesVal = document.getElementById('ec-notes').value;
-
-        // Convert 24h "09:00" → "9:00 AM"
-        var displayTime = timeInput;
-        if (timeInput) {
-          var parts = timeInput.split(':');
-          var h = parseInt(parts[0]);
-          var m = parts[1];
-          var ap = h >= 12 ? 'PM' : 'AM';
-          h = h % 12 || 12;
-          displayTime = h + ':' + m + ' ' + ap;
-        }
-
-        CONSULTATIONS[idx].date = dateVal;
-        CONSULTATIONS[idx].time = displayTime;
-        CONSULTATIONS[idx].type = typeVal;
-        CONSULTATIONS[idx].status = statusVal;
-        CONSULTATIONS[idx].notes = notesVal;
-
-        buildConsultations(CONSULTATIONS);
-        closeModal('edit-consult-modal');
-        showToast('Consultation updated for ' + CONSULTATIONS[idx].patient + '.');
+        var id = getVal('ec-id');
+        if (!id) return;
+        var base = (window.PSYCH_ROUTES || {}).consultationsUpdate || '/psychiatrist/consultations';
+        apiFetch(base + '/' + id, {
+          method: 'PUT',
+          body: JSON.stringify({
+            date: getVal('ec-date'),
+            time: getVal('ec-time'),
+            type: getVal('ec-type'),
+            status: getVal('ec-status'),
+            notes: getVal('ec-notes'),
+            diagnosis: getVal('ec-diagnosis'),
+            treatment: getVal('ec-treatment'),
+          }),
+        }).then(function (data) {
+          var idx = CONSULTATIONS.findIndex(function (x) { return String(x.id) === String(id); });
+          if (idx >= 0) CONSULTATIONS[idx] = data.consultation;
+          buildConsultations(CONSULTATIONS);
+          closeModal('edit-consult-modal');
+          showToast(data.message || 'Consultation updated.');
+        }).catch(function (err) { showToast(err.message); });
       });
     }
 
-    // Delete consultation
     var ecDeleteBtn = document.getElementById('ec-delete-btn');
     if (ecDeleteBtn) {
       ecDeleteBtn.addEventListener('click', function () {
-        var modal = document.getElementById('edit-consult-modal');
-        var idx = modal ? parseInt(modal.getAttribute('data-consult-index')) : -1;
-        if (idx < 0) return;
-        var name = CONSULTATIONS[idx].patient;
-        if (confirm('Delete consultation for ' + name + '? This cannot be undone.')) {
-          CONSULTATIONS.splice(idx, 1);
-          buildConsultations(CONSULTATIONS);
-          closeModal('edit-consult-modal');
-          showToast('Consultation deleted.');
-        }
+        var id = getVal('ec-id');
+        if (!id) return;
+        var c = CONSULTATIONS.find(function (x) { return String(x.id) === String(id); });
+        if (!confirm('Delete consultation for ' + (c ? c.patient : 'this patient') + '? This cannot be undone.')) return;
+        var base = (window.PSYCH_ROUTES || {}).consultationsUpdate || '/psychiatrist/consultations';
+        apiFetch(base + '/' + id, { method: 'DELETE' })
+          .then(function (data) {
+            CONSULTATIONS = CONSULTATIONS.filter(function (x) { return String(x.id) !== String(id); });
+            buildConsultations(CONSULTATIONS);
+            closeModal('edit-consult-modal');
+            showToast(data.message || 'Consultation deleted.');
+          }).catch(function (err) { showToast(err.message); });
       });
     }
   }
-
-  /* ============================================================
-     BUILD RECORDS GRID
-  ============================================================ */
-  function buildRecords() {
-    var grid = document.getElementById('records-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    RECORDS.forEach(function (r) {
-      var div = document.createElement('div');
-      div.className = 'record-card';
-      div.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-        '<span class="record-card-name">' + r.name + '</span>' +
-        '<span class="record-card-id">' + r.id + '</span>' +
-        '</div>' +
-        '<div class="record-card-diag">Dx: ' + r.diag + '</div>' +
-        '<div class="record-card-date">Last updated: ' + r.updated + '</div>' +
-        '<button class="btn-outline-sm" style="margin-top:4px;width:100%;" onclick="openRecord(\'' + r.id + '\')">View Records</button>';
-      grid.appendChild(div);
-    });
-  }
-
-  window.openRecord = function (id) {
-    var r = RECORDS.find(function (x) { return x.id === id; });
-    if (!r) return;
-    document.getElementById('record-modal-title').textContent = r.name + ' — Medical Record';
-    document.getElementById('record-complaint').value = r.complaint;
-    document.getElementById('record-diagnosis').value = r.diag;
-    openModal('record-modal');
-  };
-
-  var saveRecordBtn = document.getElementById('save-record-btn');
-  if (saveRecordBtn) saveRecordBtn.addEventListener('click', function () {
-    closeModal('record-modal');
-    showToast('Medical record saved.');
-  });
 
   /* ============================================================
      BUILD LIFESTYLE
@@ -1181,7 +1389,10 @@ document.addEventListener('DOMContentLoaded', function () {
   if (addPatientBtn) addPatientBtn.addEventListener('click', function () { openModal('add-patient-modal'); });
 
   var scheduleConsultBtn = document.getElementById('schedule-consult-btn');
-  if (scheduleConsultBtn) scheduleConsultBtn.addEventListener('click', function () { openModal('schedule-consult-modal'); });
+  if (scheduleConsultBtn) scheduleConsultBtn.addEventListener('click', function () {
+    populateConsultPatientSelect();
+    openModal('schedule-consult-modal');
+  });
 
   var logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) logoutBtn.addEventListener('click', function () { openModal('logout-modal'); });
@@ -1203,22 +1414,27 @@ document.addEventListener('DOMContentLoaded', function () {
   var savePatientBtn = document.getElementById('save-patient-btn');
   if (savePatientBtn) {
     savePatientBtn.addEventListener('click', function () {
-      var name = document.getElementById('new-name').value.trim();
+      var name = getVal('new-name').trim();
       if (!name) { showToast('Please enter patient name.'); return; }
-      var age = document.getElementById('new-age').value;
-      var complaint = document.getElementById('new-complaint').value;
-      var coach = document.getElementById('new-coach').value;
-      var newId = 'P00' + (PATIENTS.length + 1);
-      PATIENTS.push({ id: newId, name: name, age: parseInt(age) || 0, sex: '—', status: 'Active', coach: coach, complaint: complaint });
-      INTAKES.push({ id: newId, name: name, age: parseInt(age) || 0, sex: '—', complaint: complaint, status: 'Active' });
-      buildPatients(PATIENTS);
-      closeModal('add-patient-modal');
-      showToast('Patient "' + name + '" added successfully.');
-      // Clear form
-      ['new-name', 'new-age', 'new-email', 'new-phone', 'new-complaint'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) el.value = '';
-      });
+      var payload = {
+        name: name,
+        age: getVal('new-age') ? parseInt(getVal('new-age'), 10) : null,
+        sex: getVal('new-sex') || 'female',
+        chief_complaint: getVal('new-complaint'),
+        status: getVal('new-status') || 'Active',
+        life_coach_id: getVal('new-coach') || null,
+      };
+      apiFetch((window.PSYCH_ROUTES || {}).patientsStore || '/psychiatrist/patients', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }).then(function (data) {
+        upsertPatientLocal(data.patient);
+        buildPatients(PATIENTS);
+        populateConsultPatientSelect();
+        closeModal('add-patient-modal');
+        showToast(data.message || ('Patient "' + name + '" added successfully.'));
+        ['new-name', 'new-age', 'new-complaint'].forEach(function (id) { setVal(id, ''); });
+      }).catch(function (err) { showToast(err.message); });
     });
   }
 
@@ -1228,25 +1444,38 @@ document.addEventListener('DOMContentLoaded', function () {
   var saveConsultBtn = document.getElementById('save-consult-btn');
   if (saveConsultBtn) {
     saveConsultBtn.addEventListener('click', function () {
-      var patient = document.getElementById('consult-patient').value;
-      var date = document.getElementById('consult-date').value;
-      var time = document.getElementById('consult-time').value;
-      var type = document.getElementById('consult-type').value;
-      var notes = document.getElementById('consult-notes').value;
+      var patientId = getVal('consult-patient');
+      var date = getVal('consult-date');
+      var time = getVal('consult-time');
+      var type = getVal('consult-type');
+      var notes = getVal('consult-notes');
+      if (!patientId) { showToast('Please select a patient.'); return; }
       if (!date || !time) { showToast('Please select date and time.'); return; }
-      CONSULTATIONS.unshift({ patient: patient, date: date, time: time, type: type, status: 'Scheduled', notes: notes });
-      buildConsultations(CONSULTATIONS);
-      closeModal('schedule-consult-modal');
-      showToast('Consultation scheduled for ' + patient + '.');
+      apiFetch((window.PSYCH_ROUTES || {}).consultationsStore || '/psychiatrist/consultations', {
+        method: 'POST',
+        body: JSON.stringify({
+          patient_record_id: parseInt(patientId, 10),
+          date: date,
+          time: time,
+          type: type,
+          notes: notes,
+        }),
+      }).then(function (data) {
+        CONSULTATIONS.unshift(data.consultation);
+        buildConsultations(CONSULTATIONS);
+        closeModal('schedule-consult-modal');
+        showToast(data.message || 'Consultation scheduled.');
+      }).catch(function (err) { showToast(err.message); });
     });
   }
 
   /* ============================================================
      INITIAL RENDER
   ============================================================ */
+  populateConsultPatientSelect();
+  bindPatientSaves();
   buildPatients(PATIENTS);
   buildConsultations(CONSULTATIONS);
-  buildRecords();
   buildLifestyle();
   buildAssessments(ASSESSMENTS);
   buildRxTemplates();
@@ -1262,7 +1491,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!patientId) return;
 
     var page = document.body.getAttribute('data-page');
-    var p = PATIENTS.find(function (x) { return x.id === patientId; });
+    var p = findPatientLocal(patientId);
 
     if (page === 'prescriptions' && p) {
       var sel = document.getElementById('rx-patient');

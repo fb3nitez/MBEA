@@ -17,15 +17,11 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->string('type', 20)->default('Initial');
+            $table->string('status', 20)->default('Scheduled');
+            $table->string('diagnosis')->nullable();
             $table->text('notes')->nullable();
-        });
-
-        Schema::create('medical_records', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('patient_record_id')->constrained()->cascadeOnDelete();
-            $table->text('chief_complaint');
-            $table->text('diagnosis');
-            $table->text('clinical_notes');
+            $table->text('treatment')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -35,6 +31,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('consultation_schedule');
-        Schema::dropIfExists('medical_records');
     }
 };

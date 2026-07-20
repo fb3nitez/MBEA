@@ -30,10 +30,20 @@ Route::middleware(['auth', 'role:psychiatrist'])
     Route::get('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/patients', 'patients')->name('patients');
     Route::get('/consultations', 'consultations')->name('consultations');
-    Route::get('/records', 'records')->name('records');
     Route::get('/lifestyle', 'lifestyle')->name('lifestyle');
     Route::get('/assessments', 'assessments')->name('assessments');
     Route::get('/prescriptions', 'prescriptions')->name('prescriptions');
+
+    Route::get('/patients/{id}', 'showPatient')->name('patients.show');
+    Route::post('/patients', 'storePatient')->name('patients.store');
+    Route::put('/patients/{id}', 'updatePatient')->name('patients.update');
+    Route::put('/patients/{id}/medical-history', 'updateMedicalHistory')->name('patients.medical-history');
+    Route::put('/patients/{id}/psychiatric-history', 'updatePsychiatricHistory')->name('patients.psychiatric-history');
+    Route::put('/patients/{id}/lifestyle', 'updateLifestyle')->name('patients.lifestyle');
+
+    Route::post('/consultations', 'storeConsultation')->name('consultations.store');
+    Route::put('/consultations/{id}', 'updateConsultation')->name('consultations.update');
+    Route::delete('/consultations/{id}', 'destroyConsultation')->name('consultations.destroy');
 });
 
 

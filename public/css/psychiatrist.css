@@ -902,6 +902,32 @@ a.nav-item { box-sizing: border-box; }
 }
 
 .modal-box-lg { max-width: 680px; }
+.modal-box-xl { max-width: 920px; width: 95%; }
+
+.pm-tab-panel { display: none; }
+.pm-tab-panel.active { display: block; }
+
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px 12px;
+}
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-700);
+  cursor: pointer;
+}
+.check-item input { width: 15px; height: 15px; accent-color: var(--blue-600); }
+.trauma-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: #f8fafc;
+}
 
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;

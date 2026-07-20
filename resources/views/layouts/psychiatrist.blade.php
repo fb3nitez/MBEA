@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>MedCare — @yield('title')</title>
   <link rel="stylesheet" href="{{ asset('css/psychiatrist.css') }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
@@ -37,10 +38,6 @@
         <a href="{{ route('psychiatrist.consultations') }}"
           class="nav-item {{ $page === 'consultations' ? 'active' : '' }}">
           <i data-feather="calendar"></i><span>Consultations</span>
-        </a>
-        <a href="{{ route('psychiatrist.records') }}"
-          class="nav-item {{ $page === 'records' ? 'active' : '' }}">
-          <i data-feather="file-text"></i><span>Medical Records</span>
         </a>
         <a href="{{ route('psychiatrist.lifestyle') }}"
           class="nav-item {{ $page === 'lifestyle' ? 'active' : '' }}">
@@ -93,16 +90,22 @@
       dashboard: @json(route('psychiatrist.dashboard')),
       patients: @json(route('psychiatrist.patients')),
       consultations: @json(route('psychiatrist.consultations')),
-      records: @json(route('psychiatrist.records')),
       lifestyle: @json(route('psychiatrist.lifestyle')),
       assessments: @json(route('psychiatrist.assessments')),
       prescriptions: @json(route('psychiatrist.prescriptions')),
-      logout: @json(url('/')),
+      logout: @json(route('auth.logout')),
+      patientsStore: @json(route('psychiatrist.patients.store')),
+      patientsShow: @json(url('/psychiatrist/patients')),
+      patientsUpdate: @json(url('/psychiatrist/patients')),
+      consultationsStore: @json(route('psychiatrist.consultations.store')),
+      consultationsUpdate: @json(url('/psychiatrist/consultations')),
+      recordsUpdate: @json(url('/psychiatrist/records')),
     };
+    window.PSYCH_DATA = window.PSYCH_DATA || {};
   </script>
+  @stack('scripts')
   <script src="{{ asset('js/psychiatrist.js') }}"></script>
   <script>feather.replace();</script>
-  @stack('scripts')
 </body>
 
 </html>

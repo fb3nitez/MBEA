@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PatientRecord extends Model
@@ -13,6 +15,8 @@ class PatientRecord extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    protected $appends = ['age'];
 
     protected $casts = [
         'birthday' => 'date',
@@ -30,7 +34,7 @@ class PatientRecord extends Model
     protected function age(): Attribute
     {
         return Attribute::make(
-            get: fn() => Carbon::parse($this->birthday)->age
+            get: fn () => $this->birthday ? Carbon::parse($this->birthday)->age : null
         );
     }
 
@@ -47,5 +51,15 @@ class PatientRecord extends Model
     public function lifestyleAssessment(): HasOne
     {
         return $this->hasOne(LifestyleAssessment::class);
+    }
+
+    public function lifeCoach(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'life_coach_id');
+    }
+
+    public function consultations(): HasMany
+    {
+        return $this->hasMany(ConsultationSchedule::class);
     }
 }
