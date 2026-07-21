@@ -185,7 +185,7 @@ class PsychiatristController extends Controller
         $history = $this->patientService->updatePsychiatricHistory($patient, $request->all());
 
         return response()->json([
-            'message' => 'Psychiatric history updated.',
+            'message' => 'Personal history updated.',
             'psychiatric_history' => $history,
         ]);
     }

@@ -116,7 +116,7 @@ $lifeCoaches = collect();
       <button type="button" class="tab-btn active" data-pm-tab="overview">Overview</button>
       <button type="button" class="tab-btn" data-pm-tab="record">Patient Record</button>
       <button type="button" class="tab-btn" data-pm-tab="medical">Medical History</button>
-      <button type="button" class="tab-btn" data-pm-tab="psychiatric">Psychiatric History</button>
+      <button type="button" class="tab-btn" data-pm-tab="psychiatric">Personal History</button>
       <button type="button" class="tab-btn" data-pm-tab="lifestyle">Lifestyle</button>
       <button type="button" class="tab-btn" data-pm-tab="coach">Life Coach</button>
     </div>
@@ -364,7 +364,7 @@ $lifeCoaches = collect();
           @endforeach
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
-          <button class="btn-blue" id="pm-save-psychiatric">Save Psychiatric History</button>
+          <button class="btn-blue" id="pm-save-psychiatric">Save Personal History</button>
         </div>
       </div>
 
@@ -494,7 +494,7 @@ $lifeCoaches = collect();
           </select>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
-          <button class="btn-blue" id="pm-save-lifestyle">Save Lifestyle Assessment</button>
+          <button class="btn-blue" id="pm-save-lifestyle">Save Lifestyle Related Behaviors</button>
         </div>
       </div>
 

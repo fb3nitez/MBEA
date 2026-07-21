@@ -697,7 +697,7 @@ document.addEventListener('DOMContentLoaded', function () {
         body: JSON.stringify(collectPsychiatricHistory()),
       }).then(function (data) {
         if (CURRENT_PATIENT) CURRENT_PATIENT.psychiatric_history = data.psychiatric_history;
-        showToast(data.message || 'Psychiatric history updated.');
+        showToast(data.message || 'Personal history updated.');
       }).catch(function (err) { showToast(err.message); });
     });
 

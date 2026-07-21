@@ -137,7 +137,7 @@
                     <svg class="w-5 h-5 transition-transform" id="psychiatric-review-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
-                    <h3 class="card-title text-lg">Psychiatric History</h3>
+                    <h3 class="card-title text-lg">Personal History</h3>
                 </button>
                 <button type="button" onclick="goToStep(3)" class="btn btn-outline btn-sm">Edit</button>
             </div>
@@ -190,7 +190,7 @@
                     <svg class="w-5 h-5 transition-transform rotate-180" id="lifestyle-review-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
-                    <h3 class="card-title text-lg">Lifestyle Assessment</h3>
+                    <h3 class="card-title text-lg">Lifestyle Related Behaviors</h3>
                 </button>
                 <button type="button" onclick="goToStep(4)" class="btn btn-outline btn-sm">Edit</button>
             </div>

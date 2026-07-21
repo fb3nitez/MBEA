@@ -96,7 +96,7 @@
 
 <!-- B. Family Medical and Psychiatric History -->
 <div>
-    <h3 class="mb-1 text-lg font-semibold">B. Family Medical and Psychiatric History</h3>
+    <h3 class="mb-1 text-lg font-semibold">B. Family Medical and Personal History</h3>
     <p class="mb-4 text-sm text-base-content/70">Check all that apply to family members:</p>
 
     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">

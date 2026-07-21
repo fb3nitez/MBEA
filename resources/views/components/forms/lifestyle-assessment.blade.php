@@ -1,5 +1,5 @@
 <div class="mb-6">
-    <h2 class="card-title font-bold text-2xl">Lifestyle Medicine Assessment</h2>
+    <h2 class="card-title font-bold text-2xl">Lifestyle Related Behaviors</h2>
     <p class="text-base-content/70">Help us understand your current lifestyle and wellness</p>
 </div>
 

@@ -192,7 +192,7 @@
           <div class="assess-two-col">
             <div class="assess-rich-field">
               <div class="assess-rich-label">
-                <span class="assess-rich-dot amber-dot"></span>Past Psychiatric History
+                <span class="assess-rich-dot amber-dot"></span>Past Personal History
               </div>
               <textarea class="assess-rich-textarea"
                 id="bio-pph"></textarea>

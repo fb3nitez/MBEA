@@ -202,7 +202,7 @@ class IntakeFormRequest extends FormRequest
             'fhCancerType.required_if' => 'Please specify the type of cancer in family history.',
             'fhCancerRelation.required_if' => 'Please specify the relation for family cancer history.',
             'fhPsychiatricType.required_if' => 'Please specify the psychiatric disorder in family history.',
-            'fhPsychiatricRelation.required_if' => 'Please specify the relation for family psychiatric history.',
+            'fhPsychiatricRelation.required_if' => 'Please specify the relation for family personal history.',
             'fhOtherSpecify.required_if' => 'Please specify the other condition in family history.',
             'fhOtherRelation.required_if' => 'Please specify the relation for family other history.',
 

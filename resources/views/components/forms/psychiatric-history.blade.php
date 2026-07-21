@@ -1,5 +1,5 @@
 <div class="mb-6">
-    <h2 class="card-title font-bold text-2xl">Psychiatric History</h2>
+    <h2 class="card-title font-bold text-2xl">Personal History</h2>
     <p class="text-base-content/70">Your responses are confidential and help us provide better care</p>
 </div>
 
