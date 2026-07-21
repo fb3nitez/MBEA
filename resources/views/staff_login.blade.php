@@ -127,6 +127,7 @@
 
       <!-- Login Form -->
       <form action="{{ route('auth.login') }}" method="post" id="login-form" class="login-form" novalidate>
+        @csrf
 
         <!-- Email -->
         <div class="field-group">
