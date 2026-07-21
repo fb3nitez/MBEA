@@ -16,7 +16,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::firstOrCreate(['name' => 'admin']);
+        $roles = [
+            "admin",
+            "psychiatrist",
+            "lifecoach"
+        ];
+
+        foreach ($roles as $role) {
+            Role::firstOrCreate(['name' => $role]);
+        }
 
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
