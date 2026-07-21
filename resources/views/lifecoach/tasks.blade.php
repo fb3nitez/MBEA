@@ -6,6 +6,7 @@
   <title>MedCare — Tasks</title>
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+  @include('lifecoach.partials.boot')
 </head>
 <body>
 <div class="app-shell">
@@ -19,7 +20,7 @@
         <h1 class="page-title">Tasks</h1>
       </div>
       <div class="topbar-right">
-        <span class="topbar-date">Sunday, June 7, 2026</span>
+        <span class="topbar-date" id="topbar-date"></span>
       </div>
     </header>
 
@@ -32,7 +33,6 @@
           </button>
         </div>
 
-        <!-- Filter pills -->
         <div class="tasks-filter-row">
           <div class="task-filter-pills">
             <button class="task-filter-pill active" data-filter="all">All</button>
@@ -43,7 +43,6 @@
           </div>
         </div>
 
-        <!-- Summary row -->
         <div class="tasks-summary-row" id="tasks-summary"></div>
 
         <div class="tasks-full-list" id="tasks-full-list"></div>
@@ -52,7 +51,6 @@
   </div>
 </div>
 
-<!-- Add Task Modal -->
 <div class="modal-overlay hidden" id="task-modal">
   <div class="modal-box">
     <div class="modal-header">
@@ -65,11 +63,7 @@
     <div class="modal-body">
       <div class="field-group">
         <label class="field-label">Patient</label>
-        <select class="field-input" id="task-patient">
-          <option value="Sarah Johnson">Sarah Johnson</option>
-          <option value="Emily Thompson">Emily Thompson</option>
-          <option value="David Martinez">David Martinez</option>
-        </select>
+        <select class="field-input" id="task-patient"></select>
       </div>
       <div class="field-group">
         <label class="field-label">Task Description</label>

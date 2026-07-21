@@ -72,4 +72,24 @@ class PatientRecord extends Model
     {
         return $this->hasMany(Prescription::class);
     }
+
+    public function coachingNotes(): HasMany
+    {
+        return $this->hasMany(CoachingNote::class);
+    }
+
+    public function coachingTasks(): HasMany
+    {
+        return $this->hasMany(CoachingTask::class);
+    }
+
+    public function coachingSchedules(): HasMany
+    {
+        return $this->hasMany(CoachingSchedule::class);
+    }
+
+    public function coachingGoals(): HasMany
+    {
+        return $this->hasMany(CoachingGoal::class);
+    }
 }

@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  @include('lifecoach.partials.boot')
 </head>
 <body>
 <div class="app-shell">
@@ -20,34 +21,32 @@
         <h1 class="page-title" id="page-title">Assigned Patients</h1>
       </div>
       <div class="topbar-right">
-        <span class="topbar-date">Sunday, June 7, 2026</span>
+        <span class="topbar-date" id="topbar-date"></span>
       </div>
     </header>
 
     <div class="content-wrap">
 
-      <!-- Patient List View -->
       <div id="patient-list-view">
         <div class="card">
           <div class="card-header">
             <span class="card-title">My Patients</span>
-            <span class="patient-count-badge" id="patient-count-badge">3 patients</span>
+            <span class="patient-count-badge" id="patient-count-badge">0 patients</span>
           </div>
           <div class="lc-patients-grid" id="lc-patients-grid"></div>
         </div>
       </div>
 
-      <!-- Patient Detail View -->
       <div id="patient-detail-view" class="hidden">
         <div class="patient-detail-header">
           <button class="btn-ghost-back" id="patient-back-btn">
             <i data-feather="arrow-left"></i> Back to Patients
           </button>
           <div class="patient-detail-title-block">
-            <div class="patient-detail-avatar" id="pd-avatar">SJ</div>
+            <div class="patient-detail-avatar" id="pd-avatar">—</div>
             <div>
-              <div class="patient-detail-name" id="pd-name">Sarah Johnson</div>
-              <div class="patient-detail-meta" id="pd-meta">P001 · Active · Age 34</div>
+              <div class="patient-detail-name" id="pd-name"></div>
+              <div class="patient-detail-meta" id="pd-meta"></div>
             </div>
           </div>
         </div>
@@ -60,7 +59,6 @@
           <button class="tab-btn" data-ptab="coachNotes">Coaching Notes</button>
         </div>
 
-        <!-- OVERVIEW -->
         <div class="ptab-panel active" id="ptab-overview">
           <div class="two-col-grid">
             <div class="card">
@@ -83,7 +81,6 @@
           </div>
         </div>
 
-        <!-- METRICS -->
         <div class="ptab-panel" id="ptab-metrics">
           <div class="two-col-grid">
             <div class="card chart-card">
@@ -97,7 +94,6 @@
           </div>
         </div>
 
-        <!-- GOALS -->
         <div class="ptab-panel" id="ptab-goals">
           <div class="card">
             <div class="card-header">
@@ -108,18 +104,15 @@
           </div>
         </div>
 
-        <!-- HABITS -->
         <div class="ptab-panel" id="ptab-habits">
           <div class="card">
             <div class="card-header">
               <span class="card-title">Weekly Habit Tracker</span>
-              <span class="habit-week-label">Week of Jun 2–8, 2026</span>
             </div>
             <div class="habits-table-wrap" id="pd-habits-wrap"></div>
           </div>
         </div>
 
-        <!-- COACHING NOTES -->
         <div class="ptab-panel" id="ptab-coachNotes">
           <div class="card">
             <div class="card-header">
@@ -135,7 +128,6 @@
   </div>
 </div>
 
-<!-- Add Note Modal -->
 <div class="modal-overlay hidden" id="note-modal">
   <div class="modal-box">
     <div class="modal-header">
@@ -148,11 +140,7 @@
     <div class="modal-body">
       <div class="field-group">
         <label class="field-label">Patient</label>
-        <select class="field-input" id="note-patient">
-          <option>Sarah Johnson</option>
-          <option>Emily Thompson</option>
-          <option>David Martinez</option>
-        </select>
+        <select class="field-input" id="note-patient"></select>
       </div>
       <div class="field-group">
         <label class="field-label">Session Type</label>
@@ -176,7 +164,6 @@
   </div>
 </div>
 
-<!-- Add Goal Modal -->
 <div class="modal-overlay hidden" id="goal-modal">
   <div class="modal-box">
     <div class="modal-header">

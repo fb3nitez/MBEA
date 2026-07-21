@@ -6,6 +6,7 @@
   <title>MedCare — Coaching Notes</title>
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+  @include('lifecoach.partials.boot')
 </head>
 <body>
 <div class="app-shell">
@@ -19,7 +20,7 @@
         <h1 class="page-title">Coaching Notes</h1>
       </div>
       <div class="topbar-right">
-        <span class="topbar-date">Sunday, June 7, 2026</span>
+        <span class="topbar-date" id="topbar-date"></span>
       </div>
     </header>
 
@@ -38,9 +39,6 @@
           </div>
           <select id="notes-patient-filter" class="filter-select">
             <option value="">All Patients</option>
-            <option value="Sarah Johnson">Sarah Johnson</option>
-            <option value="Emily Thompson">Emily Thompson</option>
-            <option value="David Martinez">David Martinez</option>
           </select>
         </div>
         <div class="global-notes-list" id="global-notes-list"></div>
@@ -49,7 +47,6 @@
   </div>
 </div>
 
-<!-- Add Note Modal -->
 <div class="modal-overlay hidden" id="note-modal">
   <div class="modal-box">
     <div class="modal-header">
@@ -62,11 +59,7 @@
     <div class="modal-body">
       <div class="field-group">
         <label class="field-label">Patient</label>
-        <select class="field-input" id="note-patient">
-          <option>Sarah Johnson</option>
-          <option>Emily Thompson</option>
-          <option>David Martinez</option>
-        </select>
+        <select class="field-input" id="note-patient"></select>
       </div>
       <div class="field-group">
         <label class="field-label">Session Type</label>

@@ -68,4 +68,15 @@ Route::middleware(['auth', 'role:lifecoach'])
         Route::get('/notes', 'notes')->name('notes');
         Route::get('/tasks', 'tasks')->name('tasks');
         Route::get('/profile', 'profile')->name('profile');
+
+        Route::get('/patients/{id}', 'showPatient')->name('patients.show');
+
+        Route::post('/notes', 'storeNote')->name('notes.store');
+        Route::delete('/notes/{id}', 'destroyNote')->name('notes.destroy');
+
+        Route::post('/tasks', 'storeTask')->name('tasks.store');
+        Route::put('/tasks/{id}/toggle', 'toggleTask')->name('tasks.toggle');
+
+        Route::post('/schedules', 'storeSchedule')->name('schedules.store');
+        Route::post('/goals', 'storeGoal')->name('goals.store');
     });

@@ -6,6 +6,7 @@
   <title>MedCare — Life Coach Dashboard</title>
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+  @include('lifecoach.partials.boot')
 </head>
 <body>
 <div class="app-shell">
@@ -19,68 +20,67 @@
         <h1 class="page-title">Dashboard</h1>
       </div>
       <div class="topbar-right">
-        <span class="topbar-date">Sunday, June 7, 2026</span>
+        <span class="topbar-date" id="topbar-date"></span>
       </div>
     </header>
 
     <div class="content-wrap">
 
-      <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-text">
             <div class="stat-label">Assigned Patients</div>
-            <div class="stat-value" id="stat-patients">3</div>
+            <div class="stat-value" id="stat-patients">{{ $stats['patient_count'] ?? 0 }}</div>
           </div>
           <div class="stat-icon si-green"><i data-feather="users"></i></div>
         </div>
         <div class="stat-card">
           <div class="stat-text">
             <div class="stat-label">Pending Tasks</div>
-            <div class="stat-value" id="stat-tasks">—</div>
+            <div class="stat-value" id="stat-tasks">{{ $stats['pending_tasks'] ?? 0 }}</div>
           </div>
           <div class="stat-icon si-orange"><i data-feather="list"></i></div>
         </div>
         <div class="stat-card">
           <div class="stat-text">
             <div class="stat-label">Completed This Week</div>
-            <div class="stat-value">8</div>
-            <div class="stat-trend trend-up">+25% from last week</div>
+            <div class="stat-value" id="stat-completed">{{ $stats['completed_this_week'] ?? 0 }}</div>
           </div>
           <div class="stat-icon si-blue"><i data-feather="check-circle"></i></div>
         </div>
         <div class="stat-card">
           <div class="stat-text">
-            <div class="stat-label">Avg. Progress Score</div>
-            <div class="stat-value">7.8/10</div>
-            <div class="stat-trend trend-up">+0.5 improvement</div>
+            <div class="stat-label">Avg. Goal Progress</div>
+            <div class="stat-value" id="stat-progress">
+              @if(($stats['avg_progress'] ?? 0) > 0)
+                {{ $stats['avg_progress'] }}%
+              @else
+                —
+              @endif
+            </div>
           </div>
           <div class="stat-icon si-purple"><i data-feather="trending-up"></i></div>
         </div>
       </div>
 
-      <!-- Two-col -->
       <div class="two-col-grid">
-        <!-- My Patients -->
         <div class="card">
           <div class="card-header">
             <span class="card-title">My Patients</span>
-            <a href="/lifecoach/patients" class="btn-ghost">View All</a>
+            <a href="{{ route('lifecoach.patients') }}" class="btn-ghost">View All</a>
           </div>
           <div class="dash-patient-list" id="dash-patient-list"></div>
         </div>
 
-        <!-- Pending Tasks -->
         <div class="card">
           <div class="card-header">
             <span class="card-title">Pending Tasks</span>
-            <a href="/lifecoach/tasks" class="btn-ghost">View All</a>
+            <a href="{{ route('lifecoach.tasks') }}" class="btn-ghost">View All</a>
           </div>
           <div class="dash-task-list" id="dash-task-list"></div>
         </div>
       </div>
 
-      <!-- Follow-up Schedule -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">This Week's Follow-up Schedule</span>
@@ -95,7 +95,6 @@
   </div>
 </div>
 
-<!-- Schedule Modal -->
 <div class="modal-overlay hidden" id="schedule-modal">
   <div class="modal-box">
     <div class="modal-header">
@@ -108,11 +107,7 @@
     <div class="modal-body">
       <div class="field-group">
         <label class="field-label">Patient</label>
-        <select class="field-input" id="sched-patient">
-          <option>Sarah Johnson</option>
-          <option>Emily Thompson</option>
-          <option>David Martinez</option>
-        </select>
+        <select class="field-input" id="sched-patient"></select>
       </div>
       <div class="field-group">
         <label class="field-label">Focus / Topic</label>

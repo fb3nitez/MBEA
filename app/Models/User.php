@@ -36,4 +36,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(PatientRecord::class, 'life_coach_id');
     }
+
+    public function coachingNotes(): HasMany
+    {
+        return $this->hasMany(CoachingNote::class, 'life_coach_id');
+    }
+
+    public function coachingTasks(): HasMany
+    {
+        return $this->hasMany(CoachingTask::class, 'life_coach_id');
+    }
+
+    public function coachingSchedules(): HasMany
+    {
+        return $this->hasMany(CoachingSchedule::class, 'life_coach_id');
+    }
+
+    public function coachingGoals(): HasMany
+    {
+        return $this->hasMany(CoachingGoal::class, 'life_coach_id');
+    }
 }
