@@ -1,9 +1,9 @@
 @php
-  try {
-    $lifeCoaches = $lifeCoaches ?? \App\Models\User::role('lifecoach')->orderBy('name')->get(['id', 'name']);
-  } catch (\Throwable $e) {
-    $lifeCoaches = collect();
-  }
+try {
+$lifeCoaches = $lifeCoaches ?? \App\Models\User::role('lifecoach')->orderBy('name')->get(['id', 'name']);
+} catch (\Throwable $e) {
+$lifeCoaches = collect();
+}
 @endphp
 
 <!-- Add Patient Modal -->
@@ -49,7 +49,7 @@
         <select class="field-input" id="new-coach">
           <option value="">Unassigned</option>
           @foreach ($lifeCoaches as $coach)
-            <option value="{{ $coach->id }}">{{ $coach->name }}</option>
+          <option value="{{ $coach->id }}">{{ $coach->name }}</option>
           @endforeach
         </select>
       </div>
@@ -252,21 +252,21 @@
         <div class="pm-section-label" style="margin-bottom:8px;">Personal Medical History</div>
         <div class="check-grid" id="mh-personal-checks">
           @foreach ([
-            'hypertension' => 'Hypertension',
-            'stroke_tia' => 'Stroke / TIA',
-            'diabetes' => 'Diabetes',
-            'bronchial_asthma' => 'Bronchial Asthma',
-            'tuberculosis' => 'Tuberculosis',
-            'thyroid_disorders' => 'Thyroid Disorders',
-            'chronic_pain_fibromyalgia' => 'Chronic Pain / Fibromyalgia',
-            'epilepsy_seizure' => 'Epilepsy / Seizure',
-            'autoimmune_disease' => 'Autoimmune Disease',
-            'cancer' => 'Cancer',
-            'other_medical' => 'Other',
+          'hypertension' => 'Hypertension',
+          'stroke_tia' => 'Stroke / TIA',
+          'diabetes' => 'Diabetes',
+          'bronchial_asthma' => 'Bronchial Asthma',
+          'tuberculosis' => 'Tuberculosis',
+          'thyroid_disorders' => 'Thyroid Disorders',
+          'chronic_pain_fibromyalgia' => 'Chronic Pain / Fibromyalgia',
+          'epilepsy_seizure' => 'Epilepsy / Seizure',
+          'autoimmune_disease' => 'Autoimmune Disease',
+          'cancer' => 'Cancer',
+          'other_medical' => 'Other',
           ] as $key => $label)
-            <label class="check-item">
-              <input type="checkbox" class="mh-check" data-field="{{ $key }}" /> {{ $label }}
-            </label>
+          <label class="check-item">
+            <input type="checkbox" class="mh-check" data-field="{{ $key }}" /> {{ $label }}
+          </label>
           @endforeach
         </div>
         <div class="modal-grid-2" style="margin-top:10px;">
@@ -291,17 +291,17 @@
         <div class="pm-section-label" style="margin:16px 0 8px;">Family History</div>
         <div class="check-grid">
           @foreach ([
-            'family_hypertension' => 'Hypertension',
-            'family_stroke' => 'Stroke',
-            'family_diabetes' => 'Diabetes',
-            'family_cancer' => 'Cancer',
-            'family_psychiatric_disorder' => 'Psychiatric Disorder',
-            'family_substance_use' => 'Substance Use',
-            'family_other' => 'Other',
+          'family_hypertension' => 'Hypertension',
+          'family_stroke' => 'Stroke',
+          'family_diabetes' => 'Diabetes',
+          'family_cancer' => 'Cancer',
+          'family_psychiatric_disorder' => 'Psychiatric Disorder',
+          'family_substance_use' => 'Substance Use',
+          'family_other' => 'Other',
           ] as $key => $label)
-            <label class="check-item">
-              <input type="checkbox" class="mh-check" data-field="{{ $key }}" /> {{ $label }}
-            </label>
+          <label class="check-item">
+            <input type="checkbox" class="mh-check" data-field="{{ $key }}" /> {{ $label }}
+          </label>
           @endforeach
         </div>
         <div class="modal-grid-2" style="margin-top:10px;">
@@ -355,27 +355,32 @@
         </div>
 
         <div class="pm-section-label" style="margin:16px 0 8px;">Trauma / Abuse History</div>
-        @foreach ([
+        <div class="space-y-3">
+          @foreach ([
           'physical' => 'Physical Abuse',
           'emotional' => 'Emotional Abuse',
           'sexual' => 'Sexual Abuse',
           'neglect' => 'Neglect',
-        ] as $key => $label)
+          ] as $key => $label)
           <div class="trauma-block">
             <label class="check-item">
-              <input type="checkbox" class="ph-trauma-main" data-prefix="{{ $key }}" id="ph-{{ $key }}_abuse" /> {{ $label }}
+              <input type="checkbox" class="ph-trauma-main" data-expands="ph-{{ $key }}-expand" data-prefix="{{ $key }}" id="ph-{{ $key }}_abuse" /> {{ $label }}
             </label>
-            <div class="check-grid" style="margin:6px 0 8px 18px;">
-              <label class="check-item"><input type="checkbox" id="ph-{{ $key }}_child" /> Childhood</label>
-              <label class="check-item"><input type="checkbox" id="ph-{{ $key }}_adult" /> Adulthood</label>
-              <label class="check-item"><input type="checkbox" id="ph-{{ $key }}_ongoing" /> Ongoing</label>
-              <label class="check-item"><input type="checkbox" id="ph-{{ $key }}_past" /> Past</label>
-            </div>
-            <div class="field-group">
-              <input type="text" class="field-input" id="ph-{{ $key }}_notes" placeholder="Notes..." />
+            <div class="expand-target hidden mt-3 pl-6" id="ph-{{ $key }}-expand">
+              <div class="pm-form-hint">When did this occur?</div>
+              <div class="check-grid" style="margin:6px 0 8px 0;">
+                <label class="check-item check-card"><input type="checkbox" id="ph-{{ $key }}_child" /> As a child</label>
+                <label class="check-item check-card"><input type="checkbox" id="ph-{{ $key }}_adult" /> As an adult</label>
+                <label class="check-item check-card"><input type="checkbox" id="ph-{{ $key }}_ongoing" /> Ongoing</label>
+                <label class="check-item check-card"><input type="checkbox" id="ph-{{ $key }}_past" /> Past experience</label>
+              </div>
+              <div class="field-group">
+                <input type="text" class="field-input" id="ph-{{ $key }}_notes" placeholder="Notes..." />
+              </div>
             </div>
           </div>
-        @endforeach
+          @endforeach
+        </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
           <button class="btn-blue" id="pm-save-psychiatric">Save Psychiatric History</button>
         </div>
@@ -418,51 +423,97 @@
           </div>
         </div>
 
-        <div class="pm-section-label" style="margin:16px 0 8px;">PHQ-9 Items</div>
-        <div class="modal-grid-2">
-          @foreach ([
-            'phq_little_interest' => 'Little interest',
-            'phq_feeling_down' => 'Feeling down',
-            'phq_trouble_sleeping' => 'Trouble sleeping',
-            'phq_feeling_tired' => 'Feeling tired',
-            'phq_poor_appetite' => 'Poor appetite',
-            'phq_feeling_bad' => 'Feeling bad about self',
-            'phq_trouble_concentrating' => 'Trouble concentrating',
-            'phq_moving_slow' => 'Moving/speaking slow',
-            'phq_thoughts_hurting' => 'Thoughts of self-harm',
-          ] as $key => $label)
-            <div class="field-group">
-              <label class="field-label">{{ $label }}</label>
-              <select class="field-input" id="ls-{{ $key }}">
-                <option value="">—</option>
-                <option>Not at all</option>
-                <option>Several days</option>
-                <option>More than half the days</option>
-                <option>Nearly every day</option>
-              </select>
-            </div>
-          @endforeach
+        <div class="pm-section-label" style="margin:16px 0 8px;">Mental Health &amp; Well-being</div>
+        <p style="font-size:13px;color:#64748b;margin:0 0 10px;">Over the past 2 weeks, how often have you experienced the following?</p>
+        <div class="pm-phq-table-wrap">
+          <table class="pm-phq-table">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Not at all</th>
+                <th>Several days</th>
+                <th>More than half</th>
+                <th>Nearly every day</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ([
+              'phq_little_interest' => 'Little interest or pleasure in doing things',
+              'phq_feeling_down' => 'Feeling down, depressed, or hopeless',
+              'phq_trouble_sleeping' => 'Trouble falling or staying asleep, or sleeping too much',
+              'phq_feeling_tired' => 'Feeling tired or having little energy',
+              'phq_poor_appetite' => 'Poor appetite or overeating',
+              'phq_feeling_bad' => 'Feeling bad about yourself or that you are a failure',
+              'phq_trouble_concentrating' => 'Trouble concentrating on things',
+              'phq_moving_slow' => 'Moving or speaking slowly, or being fidgety/restless',
+              'phq_thoughts_hurting' => 'Thoughts of hurting yourself',
+              ] as $key => $label)
+              <tr>
+                <th>{{ $label }}</th>
+                <td><input type="radio" class="ls-phq-radio" name="ls-phq-{{ $key }}" value="Not at all" data-field="{{ $key }}" /></td>
+                <td><input type="radio" class="ls-phq-radio" name="ls-phq-{{ $key }}" value="Several days" data-field="{{ $key }}" /></td>
+                <td><input type="radio" class="ls-phq-radio" name="ls-phq-{{ $key }}" value="More than half the days" data-field="{{ $key }}" /></td>
+                <td><input type="radio" class="ls-phq-radio" name="ls-phq-{{ $key }}" value="Nearly every day" data-field="{{ $key }}" /></td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
         </div>
 
         <div class="pm-section-label" style="margin:16px 0 8px;">Substance / Habit Use</div>
         <div class="check-grid">
           @foreach ([
-            'sub_nicotine' => 'Nicotine',
-            'sub_alcohol' => 'Alcohol',
-            'sub_recreational' => 'Recreational drugs',
-            'sub_marijuana' => 'Marijuana',
-            'sub_screentime' => 'Screen time',
-            'sub_gambling' => 'Gambling',
-            'sub_others' => 'Others',
+          'sub_nicotine' => 'Nicotine',
+          'sub_alcohol' => 'Alcohol',
+          'sub_recreational' => 'Recreational drugs',
+          'sub_marijuana' => 'Marijuana',
+          'sub_screentime' => 'Screen time',
+          'sub_gambling' => 'Gambling',
+          'sub_others' => 'Others',
           ] as $key => $label)
-            <label class="check-item">
-              <input type="checkbox" class="ls-sub-check" data-field="{{ $key }}" /> {{ $label }}
-            </label>
+          <label class="check-item check-card ls-sub-item">
+            <input type="checkbox" class="ls-sub-check" data-field="{{ $key }}" /> {{ $label }}
+          </label>
+          @endforeach
+        </div>
+        <div class="pm-substance-details" style="margin-top:10px;">
+          @foreach ([
+          'sub_nicotine' => ['amount' => 'ls-sub_nicotine_amount', 'concern' => 'ls-sub_nicotine_concern', 'label' => 'Nicotine'],
+          'sub_alcohol' => ['amount' => 'ls-sub_alcohol_amount', 'concern' => 'ls-sub_alcohol_concern', 'label' => 'Alcohol'],
+          'sub_recreational' => ['amount' => 'ls-sub_recreational_amount', 'concern' => 'ls-sub_recreational_concern', 'label' => 'Recreational drugs'],
+          'sub_marijuana' => ['amount' => 'ls-sub_marijuana_amount', 'concern' => 'ls-sub_marijuana_concern', 'label' => 'Marijuana'],
+          'sub_screentime' => ['amount' => 'ls-sub_screentime_amount', 'concern' => 'ls-sub_screentime_concern', 'label' => 'Screen time'],
+          'sub_gambling' => ['amount' => 'ls-sub_gambling_amount', 'concern' => 'ls-sub_gambling_concern', 'label' => 'Gambling'],
+          'sub_others' => ['amount' => 'ls-sub_others_specify', 'concern' => 'ls-sub_others_concern', 'label' => 'Others'],
+          ] as $key => $meta)
+          <div class="pm-substance-block" data-substance="{{ $key }}" style="display:none;margin-top:10px;border:1px solid #e2e8f0;border-radius:10px;padding:10px;background:#f8fafc;">
+            <div class="field-group">
+              <label class="field-label">{{ $meta['label'] }} amount / details</label>
+              <input type="text" class="field-input" id="{{ $meta['amount'] }}" placeholder="Enter string" />
+            </div>
+            <div class="field-group" style="margin-top:8px;">
+              <label class="field-label">Level of concern (0 = No concern, 5 = Very concerned)</label>
+              <input type="range" class="field-input" id="{{ $meta['concern'] }}" min="0" max="5" step="1" value="0" />
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-top:4px;">
+                <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+              </div>
+            </div>
+          </div>
           @endforeach
         </div>
         <div class="field-group" style="margin-top:10px;">
           <label class="field-label">Lifestyle Motivation</label>
           <textarea class="field-textarea" id="ls-lifestyle_motivation" rows="2"></textarea>
+        </div>
+        <div class="field-group" style="margin-top:10px;">
+          <label class="field-label">Motivation Level</label>
+          <select class="field-input" id="ls-motivation_level">
+            <option value="">Select motivation level</option>
+            <option value="Very Low">Very Low</option>
+            <option value="Low">Low</option>
+            <option value="Moderate">Moderate</option>
+            <option value="High">High</option>
+          </select>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
           <button class="btn-blue" id="pm-save-lifestyle">Save Lifestyle Assessment</button>
@@ -476,7 +527,7 @@
           <select class="field-input" id="pm-coach-select">
             <option value="">Unassigned</option>
             @foreach ($lifeCoaches as $coach)
-              <option value="{{ $coach->id }}">{{ $coach->name }}</option>
+            <option value="{{ $coach->id }}">{{ $coach->name }}</option>
             @endforeach
           </select>
         </div>

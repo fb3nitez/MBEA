@@ -350,16 +350,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Lifestyle
     var ls = p.lifestyle_assessment || {};
+    toggleExpandableInputs();
     ['health_score', 'sleep_hours', 'tired_frequency', 'weight_perception', 'fast_food_frequency',
-      'fruits_veg_servings', 'exercise_frequency', 'motivation_level', 'lifestyle_motivation',
-      'phq_little_interest', 'phq_feeling_down', 'phq_trouble_sleeping', 'phq_feeling_tired',
-      'phq_poor_appetite', 'phq_feeling_bad', 'phq_trouble_concentrating', 'phq_moving_slow',
-      'phq_thoughts_hurting'].forEach(function (f) {
-      setVal('ls-' + f, ls[f]);
+      'fruits_veg_servings', 'exercise_frequency', 'motivation_level', 'lifestyle_motivation'].forEach(function (f) {
+        setVal('ls-' + f, ls[f]);
+      });
+    qsa('.ls-phq-radio').forEach(function (rb) {
+      rb.checked = (ls[rb.getAttribute('data-field')] || '') === rb.value;
     });
     qsa('.ls-sub-check').forEach(function (cb) {
       cb.checked = !!ls[cb.getAttribute('data-field')];
+      var block = document.querySelector('.pm-substance-block[data-substance="' + cb.getAttribute('data-field') + '"]');
+      if (block) block.style.display = cb.checked ? 'block' : 'none';
     });
+    ['sub_nicotine_amount', 'sub_nicotine_concern', 'sub_alcohol_amount', 'sub_alcohol_concern', 'sub_recreational_amount', 'sub_recreational_concern', 'sub_marijuana_amount', 'sub_marijuana_concern', 'sub_screentime_amount', 'sub_screentime_concern', 'sub_gambling_amount', 'sub_gambling_concern', 'sub_others_specify', 'sub_others_concern'].forEach(function (field) {
+      var el = document.getElementById('ls-' + field);
+      if (el) {
+        el.value = ls[field] == null ? '' : ls[field];
+      }
+    });
+    setVal('ls-motivation_level', ls.motivation_level);
 
     var modal = document.getElementById('patient-detail-modal');
     if (modal) modal.setAttribute('data-current-patient', p.id);
@@ -391,6 +401,16 @@ document.addEventListener('DOMContentLoaded', function () {
     var btn = e.target.closest('[data-pm-tab]');
     if (!btn) return;
     switchPmTab(btn.getAttribute('data-pm-tab'));
+  });
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.hasAttribute('data-expands')) {
+      toggleExpandableInputs();
+    }
+    if (e.target && e.target.classList.contains('ls-sub-check')) {
+      var block = document.querySelector('.pm-substance-block[data-substance="' + e.target.getAttribute('data-field') + '"]');
+      if (block) block.style.display = e.target.checked ? 'block' : 'none';
+    }
   });
 
   // Patient modal quick-action buttons
@@ -428,6 +448,17 @@ document.addEventListener('DOMContentLoaded', function () {
     closeModal('patient-detail-modal');
     goToPage('assessments', id ? ('patient=' + encodeURIComponent(p ? (p.patient_id || p.id) : id)) : null);
   });
+
+  function toggleExpandableInputs() {
+    qsa('[data-expands]').forEach(function (input) {
+      var targetId = input.getAttribute('data-expands');
+      if (!targetId) return;
+      var target = document.getElementById(targetId);
+      if (!target) return;
+      var isChecked = input.type === 'checkbox' ? input.checked : (input.value === 'yes');
+      target.classList.toggle('hidden', !isChecked);
+    });
+  }
 
   function collectMedicalHistory() {
     var data = {};
@@ -468,15 +499,22 @@ document.addEventListener('DOMContentLoaded', function () {
   function collectLifestyle() {
     var data = {};
     ['health_score', 'sleep_hours', 'tired_frequency', 'weight_perception', 'fast_food_frequency',
-      'fruits_veg_servings', 'exercise_frequency', 'motivation_level', 'lifestyle_motivation',
-      'phq_little_interest', 'phq_feeling_down', 'phq_trouble_sleeping', 'phq_feeling_tired',
-      'phq_poor_appetite', 'phq_feeling_bad', 'phq_trouble_concentrating', 'phq_moving_slow',
-      'phq_thoughts_hurting'].forEach(function (f) {
-      data[f] = getVal('ls-' + f);
+      'fruits_veg_servings', 'exercise_frequency', 'motivation_level', 'lifestyle_motivation'].forEach(function (f) {
+        data[f] = getVal('ls-' + f);
+      });
+    qsa('.ls-phq-radio').forEach(function (rb) {
+      if (rb.checked) {
+        data[rb.getAttribute('data-field')] = rb.value;
+      }
     });
     qsa('.ls-sub-check').forEach(function (cb) {
       data[cb.getAttribute('data-field')] = cb.checked;
     });
+    ['sub_nicotine_amount', 'sub_nicotine_concern', 'sub_alcohol_amount', 'sub_alcohol_concern', 'sub_recreational_amount', 'sub_recreational_concern', 'sub_marijuana_amount', 'sub_marijuana_concern', 'sub_screentime_amount', 'sub_screentime_concern', 'sub_gambling_amount', 'sub_gambling_concern', 'sub_others_specify', 'sub_others_concern'].forEach(function (field) {
+      var el = document.getElementById('ls-' + field);
+      data[field] = el ? el.value : '';
+    });
+    data.motivation_level = getVal('ls-motivation_level');
     return data;
   }
 
@@ -611,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '<span class="badge badge-outline">Follow-up</span>';
       var statBadge = c.status === 'Completed' ? '<span class="badge badge-completed">Completed</span>' :
         c.status === 'Cancelled' ? '<span class="badge badge-inactive">Cancelled</span>' :
-        '<span class="badge badge-scheduled">Scheduled</span>';
+          '<span class="badge badge-scheduled">Scheduled</span>';
       var tr = document.createElement('tr');
       tr.innerHTML = '<td class="td-name">' + (c.patient || '—') + '</td>' +
         '<td>' + (c.date || '—') + '</td>' +
@@ -1402,7 +1440,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cl) closeModal(cl.getAttribute('data-close'));
     // Click outside modal box
     if (e.target.classList.contains('modal-overlay')) {
-      var modals = ['add-patient-modal','schedule-consult-modal','record-modal','profile-modal','edit-consult-modal','patient-detail-modal'];
+      var modals = ['add-patient-modal', 'schedule-consult-modal', 'record-modal', 'profile-modal', 'edit-consult-modal', 'patient-detail-modal'];
       modals.forEach(function (m) { closeModal(m); });
     }
   });
