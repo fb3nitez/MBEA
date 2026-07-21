@@ -53,9 +53,9 @@
 
     <div class="form-control">
         <label class="label">
-            <span class="label-text">Marital Status</span>
+            <span class="label-text">Marital Status <span class="text-error">*</span></span>
         </label>
-        <select name="maritalStatus" class="select select-bordered w-full">
+        <select name="maritalStatus" class="select select-bordered w-full" required>
             <option value="">Select status</option>
             <option value="single">Single</option>
             <option value="married">Married</option>

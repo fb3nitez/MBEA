@@ -16,6 +16,55 @@ class IntakeFormRequest extends FormRequest
     }
 
     /**
+     * Normalize HTML checkbox values ("on") before boolean validation runs.
+     */
+    protected function prepareForValidation(): void
+    {
+        $booleanFields = [
+            'pmhHypertension', 'pmhStroke', 'pmhTuberculosis', 'pmhThyroid',
+            'pmhDiabetes', 'pmhChronicPain', 'pmhAsthma', 'pmhEpilepsy',
+            'pmhAutoimmune', 'pmhCancer', 'pmhOther',
+            'fhHypertension', 'fhStroke', 'fhDiabetes', 'fhSubstance',
+            'fhCancer', 'fhPsychiatric', 'fhOther',
+            'traumaPhysical', 'traumaEmotional', 'traumaSexual', 'traumaNeglect',
+            'tpChild', 'tpAdult', 'tpOngoing', 'tpPast',
+            'teChild', 'teAdult', 'teOngoing', 'tePast',
+            'tsChild', 'tsAdult', 'tsOngoing', 'tsPast',
+            'tnChild', 'tnAdult', 'tnOngoing', 'tnPast',
+            'subNicotine', 'subAlcohol', 'subRecreational', 'subMarijuana',
+            'subScreentime', 'subGambling', 'subOthers',
+        ];
+
+        $normalized = [];
+
+        foreach ($booleanFields as $field) {
+            if (! $this->has($field)) {
+                continue;
+            }
+
+            $value = $this->input($field);
+
+            if (is_bool($value)) {
+                $normalized[$field] = $value;
+                continue;
+            }
+
+            if (is_string($value)) {
+                $normalized[$field] = in_array(strtolower($value), ['on', 'true', '1', 'yes'], true);
+                continue;
+            }
+
+            if (is_numeric($value)) {
+                $normalized[$field] = (int) $value === 1;
+            }
+        }
+
+        if ($normalized !== []) {
+            $this->merge($normalized);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
@@ -32,7 +81,7 @@ class IntakeFormRequest extends FormRequest
             'sex' => 'required|string|in:male,female',
             'gender' => 'nullable|string|max:255',
             'gender_other' => 'nullable|string|max:255',
-            'maritalStatus' => 'nullable|string|in:single,married,annulled,widowed,separated',
+            'maritalStatus' => 'required|string|in:single,married,annulled,widowed,separated',
             'yearLevel' => 'nullable|string|max:255',
             'course' => 'nullable|string|max:255',
             'occupation' => 'nullable|string|max:255',
@@ -193,6 +242,7 @@ class IntakeFormRequest extends FormRequest
             'sex.required' => 'Sex is required.',
             'sex.in' => 'Please select a valid sex option.',
             'chiefComplaint.required' => 'Chief complaint is required.',
+            'maritalStatus.required' => 'Marital status is required.',
             'maritalStatus.in' => 'Please select a valid marital status.',
 
             // Medical History

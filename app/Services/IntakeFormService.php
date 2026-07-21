@@ -124,7 +124,7 @@ class IntakeFormService
             'religion' => $data['religion'] ?? null,
             'sex' => $data['sex'] ?? null,
             'gender' => $gender,
-            'marital_status' => $data['maritalStatus'] ?? null,
+            'marital_status' => $data['maritalStatus'],
             'student_year_level' => $data['yearLevel'] ?? null,
             'course' => $data['course'] ?? null,
             'occupation' => $data['occupation'] ?? null,

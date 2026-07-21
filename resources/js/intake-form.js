@@ -228,6 +228,7 @@ class PatientIntakeForm {
         if (!data.name?.trim()) errors.name = 'Full name is required';
         if (!data.birthday) errors.birthday = 'Birthday is required';
         if (!data.sex) errors.sex = 'Sex is required';
+        if (!data.maritalStatus) errors.maritalStatus = 'Marital status is required';
         if (!data.chiefComplaint?.trim()) errors.chiefComplaint = 'Chief complaint is required';
 
         return errors;
@@ -432,8 +433,15 @@ class PatientIntakeForm {
                 document.getElementById('success_message').textContent = data.message;
                 document.getElementById('success_modal').showModal();
             } else {
-                // Show error modal with specific message
-                document.getElementById('error_message').textContent = data.message || 'An error occurred. Please try again.';
+                // Show error modal with specific message (including validation errors)
+                let message = data.message || 'An error occurred. Please try again.';
+                if (data.errors) {
+                    const details = Object.values(data.errors).flat().join(' ');
+                    if (details) {
+                        message = details;
+                    }
+                }
+                document.getElementById('error_message').textContent = message;
                 document.getElementById('error_modal').showModal();
             }
         } catch (error) {

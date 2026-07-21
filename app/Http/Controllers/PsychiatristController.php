@@ -150,7 +150,7 @@ class PsychiatristController extends Controller
             'religion' => ['nullable', 'string', 'max:255'],
             'sex' => ['nullable', 'in:male,female,Male,Female'],
             'gender' => ['nullable', 'string', 'max:255'],
-            'marital_status' => ['nullable', 'in:single,married,annulled,widowed,separated'],
+            'marital_status' => ['in:single,married,annulled,widowed,separated'],
             'student_year_level' => ['nullable', 'string', 'max:255'],
             'course' => ['nullable', 'string', 'max:255'],
             'occupation' => ['nullable', 'string', 'max:255'],
