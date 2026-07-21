@@ -2,14 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\BiopsychosocialAssessment;
+use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
 use App\Models\LifestyleAssessment;
 use App\Models\MedicalHistory;
 use App\Models\PatientRecord;
+use App\Models\Prescription;
 use App\Models\PsychiatricHistory;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection as SupportCollection;
 
 class PatientService
 {
@@ -21,25 +26,37 @@ class PatientService
             ->get();
     }
 
+    public function getPaginatedTodayPatients(int $perPage = 10): LengthAwarePaginator
+    {
+        return PatientRecord::with('lifeCoach')
+            ->whereBetween('created_at', [Carbon::today(), Carbon::tomorrow()])
+            ->latest()
+            ->paginate($perPage);
+    }
+
     public function getAllPatients(): Collection
     {
         return PatientRecord::with(['lifeCoach', 'lifestyleAssessment'])
-            ->latest()
+            ->oldest('created_at')
             ->get();
+    }
+
+    public function getPaginatedPatients(int $perPage = 10): LengthAwarePaginator
+    {
+        return PatientRecord::with(['lifeCoach', 'lifestyleAssessment'])
+            ->oldest('created_at')
+            ->paginate($perPage);
     }
 
     public function getHighRiskPatients(int $limit = 5): Collection
     {
         return PatientRecord::with('lifeCoach')
-            ->where(function ($query) {
-                $query->where('status', 'Critical')
-                    ->orWhereHas('lifestyleAssessment', function ($q) {
-                        $q->whereIn('phq_thoughts_hurting', [
-                            'Several days',
-                            'More than half the days',
-                            'Nearly every day',
-                        ]);
-                    });
+            ->whereHas('lifestyleAssessment', function ($q) {
+                $q->whereIn('phq_thoughts_hurting', [
+                    'Several days',
+                    'More than half the days',
+                    'Nearly every day',
+                ]);
             })
             ->latest()
             ->limit($limit)
@@ -65,6 +82,250 @@ class PatientService
         ])->findOrFail($id);
     }
 
+    /**
+     * Lightweight patient list for selectors: initial suggestions when $query is empty,
+     * otherwise name / patient_id search.
+     *
+     * @return SupportCollection<int, array{id:int,patient_id:?string,name:string,age:?int,sex:?string}>
+     */
+    public function searchPatients(?string $query = null, int $limit = 12): SupportCollection
+    {
+        $limit = max(1, min($limit, 25));
+        $q = trim((string) $query);
+
+        $builder = PatientRecord::query()
+            ->select(['id', 'patient_id', 'fullname', 'birthday', 'sex', 'created_at']);
+
+        if ($q !== '') {
+            $builder->where(function ($queryBuilder) use ($q) {
+                $queryBuilder->where('fullname', 'like', '%'.$q.'%')
+                    ->orWhere('patient_id', 'like', '%'.$q.'%');
+            })->orderBy('fullname');
+        } else {
+            $builder->latest('created_at');
+        }
+
+        return $builder->limit($limit)->get()->map(fn (PatientRecord $p) => [
+            'id' => $p->id,
+            'patient_id' => $p->patient_id,
+            'name' => $p->fullname,
+            'age' => $p->age,
+            'sex' => $p->sex ? ucfirst($p->sex) : null,
+        ])->values();
+    }
+
+    public function getLifestylePatients(): SupportCollection
+    {
+        return PatientRecord::with('lifestyleAssessment')
+            ->whereHas('lifestyleAssessment')
+            ->oldest('fullname')
+            ->get()
+            ->map(fn (PatientRecord $p) => [
+                'id' => $p->id,
+                'patient_id' => $p->patient_id,
+                'name' => $p->fullname,
+                'age' => $p->age,
+                'sex' => $p->sex ? ucfirst($p->sex) : null,
+                'lifestyle_assessment' => $p->lifestyleAssessment,
+            ])
+            ->values();
+    }
+
+    public function getClinicalTemplates(?string $type = null): SupportCollection
+    {
+        $this->ensureDefaultClinicalTemplates();
+
+        $builder = ClinicalTemplate::query()->orderBy('sort_order')->orderBy('name');
+        if ($type) {
+            $builder->where('type', $type);
+        }
+
+        return $builder->get()->map(fn (ClinicalTemplate $t) => $t->toArray())->values();
+    }
+
+    public function createClinicalTemplate(array $data): ClinicalTemplate
+    {
+        return ClinicalTemplate::create($this->normalizeTemplateData($data));
+    }
+
+    public function updateClinicalTemplate(ClinicalTemplate $template, array $data): ClinicalTemplate
+    {
+        $template->update($this->normalizeTemplateData($data, $template));
+
+        return $template->fresh();
+    }
+
+    public function deleteClinicalTemplate(ClinicalTemplate $template): void
+    {
+        $template->delete();
+    }
+
+    public function ensureDefaultClinicalTemplates(): void
+    {
+        if (ClinicalTemplate::query()->exists()) {
+            return;
+        }
+
+        $defaults = [
+            [
+                'type' => 'rx',
+                'name' => 'MDD — First Line SSRI',
+                'tag' => 'Depression',
+                'tag_class' => 'tag-depression',
+                'description' => 'Sertraline 50mg',
+                'payload' => [
+                    'diag' => 'F32.1 Major Depressive Disorder',
+                    'meds' => [['name' => 'Sertraline', 'dose' => '50mg', 'freq' => ['Morning'], 'qty' => 30]],
+                ],
+                'sort_order' => 1,
+            ],
+            [
+                'type' => 'rx',
+                'name' => 'GAD — Sertraline + PRN Clonazepam',
+                'tag' => 'Anxiety',
+                'tag_class' => 'tag-anxiety',
+                'description' => 'Sertraline 50mg · Clonazepam 0.5mg',
+                'payload' => [
+                    'diag' => 'F41.1 Generalized Anxiety Disorder',
+                    'meds' => [
+                        ['name' => 'Sertraline', 'dose' => '50mg', 'freq' => ['Morning'], 'qty' => 30],
+                        ['name' => 'Clonazepam', 'dose' => '0.5mg', 'freq' => ['Bedtime'], 'qty' => 10],
+                    ],
+                ],
+                'sort_order' => 2,
+            ],
+            [
+                'type' => 'rx',
+                'name' => 'Schizophrenia — Risperidone Starter',
+                'tag' => 'Psychosis',
+                'tag_class' => 'tag-psychosis',
+                'description' => 'Risperidone 2mg · Biperiden 2mg',
+                'payload' => [
+                    'diag' => 'F20.9 Schizophrenia',
+                    'meds' => [
+                        ['name' => 'Risperidone', 'dose' => '2mg', 'freq' => ['Morning', 'Dinner'], 'qty' => 60],
+                        ['name' => 'Biperiden', 'dose' => '2mg', 'freq' => ['Morning'], 'qty' => 30],
+                    ],
+                ],
+                'sort_order' => 3,
+            ],
+            [
+                'type' => 'rx',
+                'name' => 'Bipolar — Mood Stabilizer',
+                'tag' => 'Bipolar',
+                'tag_class' => 'tag-bipolar',
+                'description' => 'Valproic Acid 500mg · Quetiapine 100mg',
+                'payload' => [
+                    'diag' => 'F31.0 Bipolar I Disorder',
+                    'meds' => [
+                        ['name' => 'Valproic Acid', 'dose' => '500mg', 'freq' => ['Morning', 'Dinner'], 'qty' => 60],
+                        ['name' => 'Quetiapine', 'dose' => '100mg', 'freq' => ['Bedtime'], 'qty' => 30],
+                    ],
+                ],
+                'sort_order' => 4,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Psychiatric Baseline Panel',
+                'tag' => 'Psychiatric',
+                'tag_class' => 'tag-psychiatric',
+                'description' => 'CBC, TSH, FBS, Lipid Profile, Urinalysis',
+                'payload' => [
+                    'tests' => ['CBC with differential', 'TSH', 'Fasting Blood Sugar', 'Lipid Profile', 'Complete urinalysis'],
+                ],
+                'sort_order' => 1,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Mood Disorder Workup',
+                'tag' => 'Anxiety',
+                'tag_class' => 'tag-anxiety',
+                'description' => 'CBC, TSH, Free T3/T4, Sodium, Lithium',
+                'payload' => [
+                    'tests' => ['CBC with differential', 'TSH', 'Free T3', 'Free T4', 'Sodium'],
+                ],
+                'sort_order' => 2,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Metabolic Monitoring',
+                'tag' => 'Metabolic',
+                'tag_class' => 'tag-metabolic',
+                'description' => 'FBS, HbA1c, Lipid Profile, Creatinine',
+                'payload' => [
+                    'tests' => ['Fasting Blood Sugar', 'HbA1c', 'Lipid Profile', 'Creatinine', 'eGFR'],
+                ],
+                'sort_order' => 3,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Comprehensive Workup',
+                'tag' => 'Comprehensive',
+                'tag_class' => 'tag-comprehensive',
+                'description' => 'All CBC, Thyroid, Liver, Renal + X-ray',
+                'payload' => [
+                    'tests' => ['CBC with differential', 'TSH', 'Free T3', 'Free T4', 'AST', 'ALT', 'BUN', 'Creatinine', 'Fasting Blood Sugar', 'HbA1c', 'Lipid Profile', 'Chest X-ray'],
+                ],
+                'sort_order' => 4,
+            ],
+        ];
+
+        foreach ($defaults as $row) {
+            ClinicalTemplate::create($row);
+        }
+    }
+
+    private function normalizeTemplateData(array $data, ?ClinicalTemplate $existing = null): array
+    {
+        $type = $data['type'] ?? $existing?->type ?? 'rx';
+        $payload = $data['payload'] ?? null;
+
+        if ($payload === null) {
+            if ($type === 'dx') {
+                $payload = ['tests' => $data['tests'] ?? ($existing?->payload['tests'] ?? [])];
+            } else {
+                $payload = [
+                    'diag' => $data['diag'] ?? ($existing?->payload['diag'] ?? null),
+                    'meds' => $data['meds'] ?? ($existing?->payload['meds'] ?? []),
+                ];
+            }
+        }
+
+        $tag = $data['tag'] ?? $existing?->tag;
+        $tagClass = $data['tag_class'] ?? $data['tagClass'] ?? $existing?->tag_class;
+        if (! $tagClass && $tag) {
+            $tagClass = $this->guessTagClass($tag, $type);
+        }
+
+        return [
+            'type' => $type,
+            'name' => $data['name'] ?? $existing?->name,
+            'tag' => $tag,
+            'tag_class' => $tagClass,
+            'description' => $data['description'] ?? $data['desc'] ?? $existing?->description,
+            'payload' => $payload,
+            'sort_order' => isset($data['sort_order']) ? (int) $data['sort_order'] : ($existing?->sort_order ?? 0),
+        ];
+    }
+
+    private function guessTagClass(string $tag, string $type): string
+    {
+        $map = [
+            'depression' => 'tag-depression',
+            'anxiety' => 'tag-anxiety',
+            'psychosis' => 'tag-psychosis',
+            'bipolar' => 'tag-bipolar',
+            'ptsd' => 'tag-ptsd',
+            'psychiatric' => 'tag-psychiatric',
+            'metabolic' => 'tag-metabolic',
+            'comprehensive' => 'tag-comprehensive',
+        ];
+
+        $key = strtolower($tag);
+
+        return $map[$key] ?? ($type === 'dx' ? 'tag-psychiatric' : 'tag-depression');
+    }
+
     public function createPatient(array $data): PatientRecord
     {
         return PatientRecord::create([
@@ -80,7 +341,6 @@ class PatientService
             'chief_complaint' => $data['chief_complaint'] ?? '',
             'primary_diagnosis' => $data['primary_diagnosis'] ?? null,
             'clinical_notes' => $data['clinical_notes'] ?? null,
-            'status' => $data['status'] ?? 'Active',
             'life_coach_id' => $data['life_coach_id'] ?? null,
         ]);
     }
@@ -100,7 +360,6 @@ class PatientService
             'chief_complaint' => $data['chief_complaint'] ?? $patient->chief_complaint,
             'primary_diagnosis' => $data['primary_diagnosis'] ?? $patient->primary_diagnosis,
             'clinical_notes' => $data['clinical_notes'] ?? $patient->clinical_notes,
-            'status' => $data['status'] ?? $patient->status,
             'life_coach_id' => array_key_exists('life_coach_id', $data)
                 ? ($data['life_coach_id'] ?: null)
                 : $patient->life_coach_id,
@@ -112,11 +371,24 @@ class PatientService
     public function updateMedicalHistory(PatientRecord $patient, array $data): MedicalHistory
     {
         $payload = $this->booleanize($data, [
-            'hypertension', 'stroke_tia', 'diabetes', 'bronchial_asthma', 'tuberculosis',
-            'thyroid_disorders', 'chronic_pain_fibromyalgia', 'epilepsy_seizure',
-            'autoimmune_disease', 'cancer', 'other_medical',
-            'family_hypertension', 'family_stroke', 'family_diabetes', 'family_cancer',
-            'family_psychiatric_disorder', 'family_substance_use', 'family_other',
+            'hypertension',
+            'stroke_tia',
+            'diabetes',
+            'bronchial_asthma',
+            'tuberculosis',
+            'thyroid_disorders',
+            'chronic_pain_fibromyalgia',
+            'epilepsy_seizure',
+            'autoimmune_disease',
+            'cancer',
+            'other_medical',
+            'family_hypertension',
+            'family_stroke',
+            'family_diabetes',
+            'family_cancer',
+            'family_psychiatric_disorder',
+            'family_substance_use',
+            'family_other',
         ]);
 
         return MedicalHistory::updateOrCreate(
@@ -142,11 +414,28 @@ class PatientService
     public function updatePsychiatricHistory(PatientRecord $patient, array $data): PsychiatricHistory
     {
         $payload = $this->booleanize($data, [
-            'diagnosed_mental_condition', 'psychiatric_hospitalized',
-            'physical_abuse', 'physical_child', 'physical_adult', 'physical_ongoing', 'physical_past',
-            'emotional_abuse', 'emotional_child', 'emotional_adult', 'emotional_ongoing', 'emotional_past',
-            'sexual_abuse', 'sexual_child', 'sexual_adult', 'sexual_ongoing', 'sexual_past',
-            'neglect', 'neglect_child', 'neglect_adult', 'neglect_ongoing', 'neglect_past',
+            'diagnosed_mental_condition',
+            'psychiatric_hospitalized',
+            'physical_abuse',
+            'physical_child',
+            'physical_adult',
+            'physical_ongoing',
+            'physical_past',
+            'emotional_abuse',
+            'emotional_child',
+            'emotional_adult',
+            'emotional_ongoing',
+            'emotional_past',
+            'sexual_abuse',
+            'sexual_child',
+            'sexual_adult',
+            'sexual_ongoing',
+            'sexual_past',
+            'neglect',
+            'neglect_child',
+            'neglect_adult',
+            'neglect_ongoing',
+            'neglect_past',
         ]);
 
         return PsychiatricHistory::updateOrCreate(
@@ -168,8 +457,13 @@ class PatientService
     public function updateLifestyleAssessment(PatientRecord $patient, array $data): LifestyleAssessment
     {
         $payload = $this->booleanize($data, [
-            'sub_nicotine', 'sub_alcohol', 'sub_recreational', 'sub_marijuana',
-            'sub_screentime', 'sub_gambling', 'sub_others',
+            'sub_nicotine',
+            'sub_alcohol',
+            'sub_recreational',
+            'sub_marijuana',
+            'sub_screentime',
+            'sub_gambling',
+            'sub_others',
         ]);
 
         return LifestyleAssessment::updateOrCreate(
@@ -214,9 +508,17 @@ class PatientService
     public function getConsultations(): Collection
     {
         return ConsultationSchedule::with('patientRecord')
-            ->orderByDesc('date')
-            ->orderByDesc('time')
+            ->orderBy('date')
+            ->orderBy('time')
             ->get();
+    }
+
+    public function getPaginatedConsultations(int $perPage = 10): LengthAwarePaginator
+    {
+        return ConsultationSchedule::with('patientRecord')
+            ->orderBy('date')
+            ->orderBy('time')
+            ->paginate($perPage);
     }
 
     public function getPendingConsultations(int $limit = 5): Collection
@@ -262,6 +564,123 @@ class PatientService
         $consultation->delete();
     }
 
+    public function saveAssessment(PatientRecord $patient, array $data): BiopsychosocialAssessment
+    {
+        $existing = $this->getAssessment($patient);
+        $merged = is_array($existing?->assessment_data) ? $existing->assessment_data : [];
+
+        foreach (['biological', 'psychological', 'social', 'spiritual', 'prayer_points', 'intervention'] as $section) {
+            if (array_key_exists($section, $data)) {
+                $merged[$section] = $data[$section];
+            }
+        }
+
+        return BiopsychosocialAssessment::updateOrCreate(
+            ['patient_record_id' => $patient->id],
+            [
+                'assessment_data' => $merged,
+                'status' => $data['status'] ?? $existing?->status ?? 'Active',
+            ]
+        );
+    }
+
+    public function getAssessment(PatientRecord $patient): ?BiopsychosocialAssessment
+    {
+        return BiopsychosocialAssessment::where('patient_record_id', $patient->id)
+            ->latest('updated_at')
+            ->first();
+    }
+
+    public function getPaginatedAssessmentPatients(int $perPage = 12, ?string $search = null): LengthAwarePaginator
+    {
+        $builder = PatientRecord::query()
+            ->with(['biopsychosocialAssessments' => function ($query) {
+                $query->latest('updated_at');
+            }])
+            ->oldest('created_at');
+
+        if ($search) {
+            $builder->where(function ($query) use ($search) {
+                $query->where('fullname', 'like', '%'.$search.'%')
+                    ->orWhere('patient_id', 'like', '%'.$search.'%');
+            });
+        }
+
+        return $builder->paginate($perPage)->through(function (PatientRecord $patient) {
+            $assessment = $patient->biopsychosocialAssessments->first();
+            $data = is_array($assessment?->assessment_data) ? $assessment->assessment_data : [];
+            $cc = $data['biological']['cc'] ?? null;
+
+            return [
+                'id' => $patient->id,
+                'patient_id' => $patient->patient_id,
+                'name' => $patient->fullname,
+                'age' => $patient->age,
+                'sex' => $patient->sex ? ucfirst($patient->sex) : null,
+                'primary_diagnosis' => $patient->primary_diagnosis,
+                'has_assessment' => (bool) $assessment,
+                'summary' => $cc ?: ($patient->primary_diagnosis ?: 'No assessment yet'),
+                'assessment_updated_at' => optional($assessment?->updated_at)->format('Y-m-d'),
+                'completion' => $this->assessmentCompletionPercent($data),
+            ];
+        });
+    }
+
+    public function assessmentToArray(?BiopsychosocialAssessment $assessment): array
+    {
+        if (! $assessment) {
+            return [];
+        }
+
+        return is_array($assessment->assessment_data) ? $assessment->assessment_data : [];
+    }
+
+    private function assessmentCompletionPercent(array $data): int
+    {
+        $sections = ['biological', 'psychological', 'social', 'spiritual', 'prayer_points', 'intervention'];
+        $filled = 0;
+
+        foreach ($sections as $section) {
+            if (empty($data[$section])) {
+                continue;
+            }
+
+            if (is_array($data[$section])) {
+                $hasContent = collect($data[$section])->filter(function ($value) {
+                    if (is_array($value)) {
+                        return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
+                    }
+
+                    return filled($value);
+                })->isNotEmpty();
+
+                if ($hasContent) {
+                    $filled++;
+                }
+            }
+        }
+
+        return (int) round(($filled / max(count($sections), 1)) * 100);
+    }
+
+    public function savePrescription(PatientRecord $patient, array $data): Prescription
+    {
+        return Prescription::updateOrCreate(
+            ['patient_record_id' => $patient->id],
+            [
+                'diagnosis' => $data['diagnosis'] ?? null,
+                'medications' => $data['medications'] ?? [],
+                'notes' => $data['notes'] ?? null,
+                'status' => $data['status'] ?? 'Draft',
+            ]
+        );
+    }
+
+    public function getPrescription(PatientRecord $patient): ?Prescription
+    {
+        return Prescription::where('patient_record_id', $patient->id)->first();
+    }
+
     public function patientToArray(PatientRecord $patient): array
     {
         $patient->loadMissing(['lifeCoach', 'medicalHistory', 'psychiatricHistory', 'lifestyleAssessment']);
@@ -281,7 +700,6 @@ class PatientService
             'occupation' => $patient->occupation,
             'chief_complaint' => $patient->chief_complaint,
             'primary_diagnosis' => $patient->primary_diagnosis,
-            'status' => $patient->status ?? 'Submitted',
             'life_coach_id' => $patient->life_coach_id,
             'coach' => $patient->lifeCoach?->name ?? 'Unassigned',
             'complaint' => $patient->chief_complaint,
@@ -296,7 +714,7 @@ class PatientService
     {
         $time = $c->time;
         if (is_string($time) && preg_match('/^\d{2}:\d{2}/', $time)) {
-            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time.':00' : $time)->format('g:i A');
+            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time . ':00' : $time)->format('g:i A');
         } else {
             try {
                 $displayTime = Carbon::parse($time)->format('g:i A');

@@ -12,7 +12,7 @@
 </head>
 
 @php
-  $page = trim($__env->yieldContent('page'));
+$page = trim($__env->yieldContent('page'));
 @endphp
 
 <body data-page="{{ $page }}">
@@ -95,17 +95,26 @@
       prescriptions: @json(route('psychiatrist.prescriptions')),
       logout: @json(route('auth.logout')),
       patientsStore: @json(route('psychiatrist.patients.store')),
+      patientsSearch: @json(route('psychiatrist.patients.search')),
       patientsShow: @json(url('/psychiatrist/patients')),
       patientsUpdate: @json(url('/psychiatrist/patients')),
+      patientsLifestyle: @json(url('/psychiatrist/patients')),
       consultationsStore: @json(route('psychiatrist.consultations.store')),
       consultationsUpdate: @json(url('/psychiatrist/consultations')),
+      assessmentsStore: @json(route('psychiatrist.assessments.store', ['id' => '__ID__'])),
+      assessmentsShow: @json(route('psychiatrist.assessments.show', ['id' => '__ID__'])),
+      prescriptionsStore: @json(route('psychiatrist.prescriptions.store', ['id' => '__ID__'])),
+      templatesStore: @json(route('psychiatrist.templates.store')),
+      templatesUpdate: @json(url('/psychiatrist/clinical-templates')),
       recordsUpdate: @json(url('/psychiatrist/records')),
     };
     window.PSYCH_DATA = window.PSYCH_DATA || {};
   </script>
   @stack('scripts')
   <script src="{{ asset('js/psychiatrist.js') }}"></script>
-  <script>feather.replace();</script>
+  <script>
+    feather.replace();
+  </script>
 </body>
 
 </html>

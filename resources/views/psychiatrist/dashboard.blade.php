@@ -4,29 +4,13 @@
 @section('page', 'dashboard')
 @section('page_title', 'Dashboard')
 
-@php
-    $statusMap = [
-        'Active' => 'badge-active',
-        'Critical' => 'badge-critical',
-        'Inactive' => 'badge-inactive',
-        'Pending' => 'badge-pending',
-        'Submitted' => 'badge-pending',
-        'Completed' => 'badge-completed',
-        'Scheduled' => 'badge-scheduled',
-        'Emergency' => 'badge-emergency',
-        'Stable' => 'badge-stable',
-        'Monitoring' => 'badge-monitoring',
-        'Maintenance' => 'badge-maintenance',
-    ];
-@endphp
-
 @section('content')
 <section class="psych-section active" id="section-dashboard">
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-text">
         <div class="stat-label">Total Patients Today</div>
-        <div class="stat-value">{{ $patients->count() }}</div>
+        <div class="stat-value">{{ $todayPatientsTotal }}</div>
         <div class="stat-trend trend-up">From kiosk intake</div>
       </div>
       <div class="stat-icon si-blue"><i data-feather="users"></i></div>
@@ -132,7 +116,6 @@
             <th>Age/Sex</th>
             <th>Chief Complaint</th>
             <th>Intake Time</th>
-            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -144,22 +127,22 @@
               <td>{{ $patient->chief_complaint }}</td>
               <td>{{ $patient->created_at->format('h:i A') }}</td>
               <td>
-                <span class="badge {{ $statusMap[$patient->status] ?? 'badge-outline' }}">
-                  {{ $patient->status }}
-                </span>
-              </td>
-              <td>
                 <button class="btn-outline-sm" onclick="viewPatient({{ $patient->id }})">View Details</button>
               </td>
             </tr>
           @empty
             <tr>
-              <td colspan="6" style="text-align:center;color:#64748b;">No intakes today.</td>
+              <td colspan="5" style="text-align:center;color:#64748b;">No intakes today.</td>
             </tr>
           @endforelse
         </tbody>
       </table>
     </div>
+    @if ($todayPatientsPaginator->hasPages())
+      <div class="pagination-wrap">
+        {{ $todayPatientsPaginator->links() }}
+      </div>
+    @endif
   </div>
 </section>
 @endsection
@@ -167,7 +150,7 @@
 @push('scripts')
 <script>
   window.PSYCH_DATA = window.PSYCH_DATA || {};
-  window.PSYCH_DATA.patients = @json($allPatients);
+  window.PSYCH_DATA.patientSuggestions = @json($patientSuggestions);
   window.PSYCH_DATA.lifeCoaches = @json($lifeCoaches);
 </script>
 @endpush

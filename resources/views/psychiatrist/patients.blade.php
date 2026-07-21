@@ -16,13 +16,6 @@
         <input type="text" id="patient-search" class="search-input"
           placeholder="Search by name or patient ID..." />
       </div>
-      <select id="patient-status-filter" class="filter-select">
-        <option value="">All Status</option>
-        <option value="Submitted">Submitted</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-        <option value="Critical">Critical</option>
-      </select>
     </div>
     <div class="table-wrap">
       <table class="data-table" id="patients-table">
@@ -31,7 +24,6 @@
             <th>Patient ID</th>
             <th>Name</th>
             <th>Age</th>
-            <th>Status</th>
             <th>Assigned Life Coach</th>
             <th>Chief Complaint</th>
             <th>Actions</th>
@@ -42,6 +34,11 @@
         </tbody>
       </table>
     </div>
+    @if ($patientsPaginator->hasPages())
+    <div class="pagination-wrap">
+      {{ $patientsPaginator->links() }}
+    </div>
+    @endif
   </div>
 </section>
 @endsection
@@ -50,6 +47,7 @@
 <script>
   window.PSYCH_DATA = window.PSYCH_DATA || {};
   window.PSYCH_DATA.patients = @json($patients);
+  window.PSYCH_DATA.allPatients = @json($patients);
   window.PSYCH_DATA.lifeCoaches = @json($lifeCoaches);
 </script>
 @endpush

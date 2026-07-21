@@ -30,15 +30,6 @@ $lifeCoaches = collect();
             <option value="male">Male</option>
           </select>
         </div>
-        <div class="field-group">
-          <label class="field-label">Status</label>
-          <select class="field-input" id="new-status">
-            <option value="Active">Active</option>
-            <option value="Submitted">Submitted</option>
-            <option value="Critical">Critical</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-        </div>
       </div>
       <div class="field-group">
         <label class="field-label">Chief Complaint</label>
@@ -72,7 +63,11 @@ $lifeCoaches = collect();
       <div class="modal-grid-2">
         <div class="field-group">
           <label class="field-label">Patient</label>
-          <select class="field-input" id="consult-patient"></select>
+          <div style="position:relative;">
+            <input type="text" class="field-input" id="consult-patient-search" placeholder="Search patient by name or ID..." autocomplete="off" />
+            <div id="consult-patient-dropdown" class="typeahead-dropdown hidden" style="max-height:220px;overflow:auto;"></div>
+          </div>
+          <input type="hidden" id="consult-patient" />
         </div>
         <div class="field-group">
           <label class="field-label">Date</label>
@@ -142,10 +137,6 @@ $lifeCoaches = collect();
           <div class="pm-info-block">
             <div class="pm-info-label">Sex</div>
             <div class="pm-info-value" id="pm-sex">—</div>
-          </div>
-          <div class="pm-info-block">
-            <div class="pm-info-label">Status</div>
-            <div id="pm-status"></div>
           </div>
           <div class="pm-info-block" style="grid-column:1/-1;">
             <div class="pm-info-label">Assigned Life Coach</div>
@@ -219,15 +210,6 @@ $lifeCoaches = collect();
           <div class="field-group">
             <label class="field-label">Occupation</label>
             <input type="text" class="field-input" id="pr-occupation" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">Status</label>
-            <select class="field-input" id="pr-status">
-              <option value="Submitted">Submitted</option>
-              <option value="Active">Active</option>
-              <option value="Critical">Critical</option>
-              <option value="Inactive">Inactive</option>
-            </select>
           </div>
         </div>
         <div class="field-group">
@@ -416,10 +398,6 @@ $lifeCoaches = collect();
           <div class="field-group">
             <label class="field-label">Exercise Frequency</label>
             <input type="text" class="field-input" id="ls-exercise_frequency" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">Motivation Level</label>
-            <input type="text" class="field-input" id="ls-motivation_level" />
           </div>
         </div>
 
@@ -666,6 +644,50 @@ $lifeCoaches = collect();
         @csrf
         <button class="btn-red-sm">Sure</button>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Clinical Template Modal -->
+<div class="modal-overlay hidden" id="template-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="template-modal-title">Add Template</h3>
+      <button class="modal-close" data-close="template-modal"><i data-feather="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tpl-id" />
+      <input type="hidden" id="tpl-type" />
+      <div class="field-group">
+        <label class="field-label">Name</label>
+        <input type="text" class="field-input" id="tpl-name" placeholder="Template name" />
+      </div>
+      <div class="modal-grid-2" style="margin-top:10px;">
+        <div class="field-group">
+          <label class="field-label">Tag</label>
+          <input type="text" class="field-input" id="tpl-tag" placeholder="e.g. Anxiety" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Description</label>
+          <input type="text" class="field-input" id="tpl-desc" placeholder="Short summary" />
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:10px;" id="tpl-diag-wrap">
+        <label class="field-label">Diagnosis</label>
+        <input type="text" class="field-input" id="tpl-diag" placeholder="ICD / diagnosis label" />
+      </div>
+      <div class="field-group" style="margin-top:10px;" id="tpl-meds-wrap">
+        <label class="field-label">Medications (one per line: Name | Dose | Freq | Qty)</label>
+        <textarea class="field-textarea" id="tpl-meds" rows="4" placeholder="Sertraline | 50mg | Morning | 30"></textarea>
+      </div>
+      <div class="field-group hidden" style="margin-top:10px;" id="tpl-tests-wrap">
+        <label class="field-label">Tests (comma or newline separated)</label>
+        <textarea class="field-textarea" id="tpl-tests" rows="4" placeholder="CBC with differential, TSH, Fasting Blood Sugar"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" data-close="template-modal">Cancel</button>
+      <button class="btn-blue" id="tpl-save-btn">Save Template</button>
     </div>
   </div>
 </div>

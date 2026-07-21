@@ -31,6 +31,11 @@
         </tbody>
       </table>
     </div>
+    @if ($consultationsPaginator->hasPages())
+    <div class="pagination-wrap">
+      {{ $consultationsPaginator->links() }}
+    </div>
+    @endif
   </div>
 </section>
 @endsection
@@ -39,7 +44,7 @@
 <script>
   window.PSYCH_DATA = window.PSYCH_DATA || {};
   window.PSYCH_DATA.consultations = @json($consultations);
-  window.PSYCH_DATA.patients = @json($patients);
+  window.PSYCH_DATA.patientSuggestions = @json($patientSuggestions);
   window.PSYCH_DATA.lifeCoaches = @json($lifeCoaches);
 </script>
 @endpush

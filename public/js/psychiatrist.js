@@ -9,48 +9,24 @@ document.addEventListener('DOMContentLoaded', function () {
   ============================================================ */
 
   var DATA = window.PSYCH_DATA || {};
-  var PATIENTS = Array.isArray(DATA.patients) ? DATA.patients.slice() : [];
+  var PATIENT_SUGGESTIONS = Array.isArray(DATA.patientSuggestions) ? DATA.patientSuggestions.slice() : [];
+  var PATIENTS = Array.isArray(DATA.allPatients) ? DATA.allPatients.slice()
+    : (Array.isArray(DATA.patients) ? DATA.patients.slice() : PATIENT_SUGGESTIONS.slice());
+  var ASSESSMENT_PATIENTS = Array.isArray(DATA.assessmentPatients) ? DATA.assessmentPatients.slice() : PATIENTS;
+  var PRESCRIPTION_PATIENTS = Array.isArray(DATA.prescriptionPatients) ? DATA.prescriptionPatients.slice() : PATIENTS;
   var CONSULTATIONS = Array.isArray(DATA.consultations) ? DATA.consultations.slice() : [];
   var RECORDS = Array.isArray(DATA.records) ? DATA.records.slice() : [];
   var LIFE_COACHES = Array.isArray(DATA.lifeCoaches) ? DATA.lifeCoaches.slice() : [];
+  var LIFESTYLE_PATIENTS = Array.isArray(DATA.lifestyle) ? DATA.lifestyle.slice() : [];
+  var RX_TEMPLATES = Array.isArray(DATA.rxTemplates) ? DATA.rxTemplates.slice() : [];
+  var DX_TEMPLATES = Array.isArray(DATA.dxTemplates) ? DATA.dxTemplates.slice() : [];
   var CURRENT_PATIENT = null;
 
-  var LIFESTYLE = [
-    {
-      name: 'Sarah Johnson', metrics: [
-        { label: 'Sleep', value: '7.5 hrs', pct: 75, color: 'bar-green' },
-        { label: 'Exercise', value: '4×/week', pct: 50, color: 'bar-amber' },
-        { label: 'Nutrition', value: 'Good', pct: 80, color: 'bar-green' },
-        { label: 'Stress', value: 'Moderate', pct: 60, color: 'bar-amber' },
-      ]
-    },
-    {
-      name: 'Emily Thompson', metrics: [
-        { label: 'Sleep', value: '5.5 hrs', pct: 55, color: 'bar-amber' },
-        { label: 'Exercise', value: '2×/week', pct: 25, color: 'bar-red' },
-        { label: 'Nutrition', value: 'Fair', pct: 60, color: 'bar-amber' },
-        { label: 'Stress', value: 'High', pct: 85, color: 'bar-red' },
-      ]
-    },
-  ];
   var ASSESSMENTS = [
     { id: 'P001', name: 'Sarah Johnson', age: '34y', sex: 'Female', diag: 'Major Depressive Disorder (F32.1)', status: 'Stable', prog: 85, lastDate: '2026-05-28', tag: 'Cognitive Behavioral Coaching', provider: 'Dr. Maria Santos · Psychiatrist' },
     { id: 'P002', name: 'David Martinez', age: '42y', sex: 'Male', diag: 'Generalized Anxiety Disorder (F41.1)', status: 'Maintenance', prog: 70, lastDate: '2026-05-20', tag: 'Stress Management', provider: 'Emily Roberts · Life Coach' },
     { id: 'P003', name: 'Emily Thompson', age: '28y', sex: 'Female', diag: 'Panic Disorder with Agoraphobia (F40.01)', status: 'Critical', prog: 60, lastDate: '2026-06-08', tag: null, provider: 'Dr. Maria Santos · Psychiatrist' },
     { id: 'P004', name: 'James Wilson', age: '55y', sex: 'Male', diag: 'Insomnia Disorder (G47.00)', status: 'Life Coaching', prog: 50, lastDate: '2026-05-15', tag: 'Sleep Wellness & Lifestyle Medicine', provider: 'Michael Chen · Life Coach' },
-  ];
-  var RX_TEMPLATES = [
-    { name: 'MDD — First Line SSRI', tag: 'Depression', tagClass: 'tag-depression', desc: 'Sertraline 50mg', meds: [{ name: 'Sertraline', dose: '50mg', freq: ['Morning'], qty: 30 }], diag: 'F32.1 Major Depressive Disorder' },
-    { name: 'GAD — Sertraline + PRN Clonazepam', tag: 'Anxiety', tagClass: 'tag-anxiety', desc: 'Sertraline 50mg · Clonazepam 0.5mg', meds: [{ name: 'Sertraline', dose: '50mg', freq: ['Morning'], qty: 30 }, { name: 'Clonazepam', dose: '0.5mg', freq: ['Bedtime'], qty: 10 }], diag: 'F41.1 Generalized Anxiety Disorder' },
-    { name: 'Schizophrenia — Risperidone Starter', tag: 'Psychosis', tagClass: 'tag-psychosis', desc: 'Risperidone 2mg · Biperiden 2mg', meds: [{ name: 'Risperidone', dose: '2mg', freq: ['Morning', 'Dinner'], qty: 60 }, { name: 'Biperiden', dose: '2mg', freq: ['Morning'], qty: 30 }], diag: 'F20.9 Schizophrenia' },
-    { name: 'Bipolar — Mood Stabilizer', tag: 'Bipolar', tagClass: 'tag-bipolar', desc: 'Valproic Acid 500mg · Quetiapine 100mg', meds: [{ name: 'Valproic Acid', dose: '500mg', freq: ['Morning', 'Dinner'], qty: 60 }, { name: 'Quetiapine', dose: '100mg', freq: ['Bedtime'], qty: 30 }], diag: 'F31.0 Bipolar I Disorder' },
-  ];
-
-  var DX_TEMPLATES = [
-    { name: 'Psychiatric Baseline Panel', tag: 'Psychiatric', tagClass: 'tag-psychiatric', desc: 'CBC, TSH, FBS, Lipid Profile, Urinalysis', tests: ['CBC with differential', 'TSH', 'Fasting Blood Sugar', 'Lipid Profile', 'Complete urinalysis'] },
-    { name: 'Mood Disorder Workup', tag: 'Anxiety', tagClass: 'tag-anxiety', desc: 'CBC, TSH, Free T3/T4, Sodium, Lithium', tests: ['CBC with differential', 'TSH', 'Free T3', 'Free T4', 'Sodium'] },
-    { name: 'Metabolic Monitoring', tag: 'Metabolic', tagClass: 'tag-metabolic', desc: 'FBS, HbA1c, Lipid Profile, Creatinine', tests: ['Fasting Blood Sugar', 'HbA1c', 'Lipid Profile', 'Creatinine', 'eGFR'] },
-    { name: 'Comprehensive Workup', tag: 'Comprehensive', tagClass: 'tag-comprehensive', desc: 'All CBC, Thyroid, Liver, Renal + X-ray', tests: ['CBC with differential', 'TSH', 'Free T3', 'Free T4', 'AST', 'ALT', 'BUN', 'Creatinine', 'Fasting Blood Sugar', 'HbA1c', 'Lipid Profile', 'Chest X-ray'] },
   ];
 
   var DX_LAB_GROUPS = [
@@ -170,6 +146,12 @@ document.addEventListener('DOMContentLoaded', function () {
     id = String(id);
     return PATIENTS.find(function (p) {
       return String(p.id) === id || String(p.patient_id) === id;
+    }) || PATIENT_SUGGESTIONS.find(function (p) {
+      return String(p.id) === id || String(p.patient_id) === id;
+    }) || LIFESTYLE_PATIENTS.find(function (p) {
+      return String(p.id) === id || String(p.patient_id) === id;
+    }) || PRESCRIPTION_PATIENTS.find(function (p) {
+      return String(p.id) === id || String(p.patient_id) === id;
     });
   }
 
@@ -177,19 +159,163 @@ document.addEventListener('DOMContentLoaded', function () {
     var idx = PATIENTS.findIndex(function (p) { return String(p.id) === String(patient.id); });
     if (idx >= 0) PATIENTS[idx] = Object.assign({}, PATIENTS[idx], patient);
     else PATIENTS.push(patient);
+
+    var sIdx = PATIENT_SUGGESTIONS.findIndex(function (p) { return String(p.id) === String(patient.id); });
+    var suggestion = {
+      id: patient.id,
+      patient_id: patient.patient_id,
+      name: patient.name,
+      age: patient.age,
+      sex: patient.sex,
+    };
+    if (sIdx >= 0) PATIENT_SUGGESTIONS[sIdx] = Object.assign({}, PATIENT_SUGGESTIONS[sIdx], suggestion);
+    else PATIENT_SUGGESTIONS.unshift(suggestion);
   }
 
-  function populateConsultPatientSelect(selectedId) {
-    var sel = document.getElementById('consult-patient');
-    if (!sel) return;
-    sel.innerHTML = '';
-    PATIENTS.forEach(function (p) {
-      var opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = (p.name || 'Patient') + (p.patient_id ? ' (' + p.patient_id + ')' : '');
-      if (selectedId && String(p.id) === String(selectedId)) opt.selected = true;
-      sel.appendChild(opt);
+  function patientLabel(p) {
+    return (p.name || 'Patient') + (p.patient_id ? ' (' + p.patient_id + ')' : '');
+  }
+
+  function searchPatientsApi(query) {
+    var routes = window.PSYCH_ROUTES || {};
+    var url = (routes.patientsSearch || '/psychiatrist/patients/search') + '?limit=12';
+    if (query) url += '&q=' + encodeURIComponent(query);
+    return apiFetch(url).then(function (data) {
+      return Array.isArray(data.patients) ? data.patients : [];
     });
+  }
+
+  function createPatientPicker(opts) {
+    var searchEl = document.getElementById(opts.searchId);
+    var hiddenEl = document.getElementById(opts.hiddenId);
+    var dropdownEl = document.getElementById(opts.dropdownId);
+    if (!searchEl || !hiddenEl || !dropdownEl) return null;
+
+    var timer = null;
+    var requestSeq = 0;
+
+    function setSelected(patient) {
+      if (!patient) {
+        searchEl.value = '';
+        hiddenEl.value = '';
+        if (opts.ageId) setVal(opts.ageId, '');
+        return;
+      }
+      upsertPatientLocal(patient);
+      searchEl.value = patientLabel(patient);
+      hiddenEl.value = patient.id;
+      if (opts.ageId && patient.age != null) setVal(opts.ageId, patient.age);
+      if (typeof opts.onSelect === 'function') opts.onSelect(patient);
+    }
+
+    function renderMatches(matches, query) {
+      dropdownEl.innerHTML = '';
+      if (!matches.length) {
+        if (query) {
+          var empty = document.createElement('div');
+          empty.className = 'typeahead-item';
+          empty.style.color = '#64748b';
+          empty.textContent = 'No patients found';
+          dropdownEl.appendChild(empty);
+          show(dropdownEl);
+        } else {
+          hide(dropdownEl);
+        }
+        return;
+      }
+
+      if (!query) {
+        var hint = document.createElement('div');
+        hint.className = 'typeahead-item';
+        hint.style.color = '#64748b';
+        hint.style.fontSize = '12px';
+        hint.style.cursor = 'default';
+        hint.textContent = 'Recent suggestions — type to search all patients';
+        dropdownEl.appendChild(hint);
+      }
+
+      matches.forEach(function (p) {
+        var item = document.createElement('div');
+        item.className = 'typeahead-item';
+        item.textContent = patientLabel(p);
+        item.addEventListener('click', function () {
+          setSelected(p);
+          hide(dropdownEl);
+        });
+        dropdownEl.appendChild(item);
+      });
+      show(dropdownEl);
+    }
+
+    function runSearch(query) {
+      var q = (query || '').trim();
+      var seq = ++requestSeq;
+
+      if (!q && PATIENT_SUGGESTIONS.length) {
+        renderMatches(PATIENT_SUGGESTIONS.slice(0, 12), '');
+        return;
+      }
+
+      searchPatientsApi(q).then(function (matches) {
+        if (seq !== requestSeq) return;
+        matches.forEach(upsertPatientLocal);
+        if (!q && matches.length) {
+          PATIENT_SUGGESTIONS = matches.slice();
+        }
+        renderMatches(matches, q);
+      }).catch(function () {
+        if (seq !== requestSeq) return;
+        var local = (q ? PATIENTS : PATIENT_SUGGESTIONS).filter(function (p) {
+          if (!q) return true;
+          var name = (p.name || '').toLowerCase();
+          var pid = String(p.patient_id || '').toLowerCase();
+          var needle = q.toLowerCase();
+          return name.includes(needle) || pid.includes(needle);
+        }).slice(0, 12);
+        renderMatches(local, q);
+      });
+    }
+
+    searchEl.addEventListener('input', function () {
+      hiddenEl.value = '';
+      clearTimeout(timer);
+      timer = setTimeout(function () { runSearch(searchEl.value); }, 220);
+    });
+    searchEl.addEventListener('focus', function () {
+      runSearch(searchEl.value);
+    });
+    document.addEventListener('click', function (e) {
+      if (!dropdownEl.contains(e.target) && e.target !== searchEl) hide(dropdownEl);
+    });
+
+    return {
+      setSelected: setSelected,
+      clear: function () { setSelected(null); hide(dropdownEl); },
+      getId: function () { return hiddenEl.value; },
+    };
+  }
+
+  var consultPatientPicker = null;
+  var rxPatientPicker = null;
+  var dxPatientPicker = null;
+
+  function populateConsultPatientSelect(selectedId) {
+    if (!consultPatientPicker) return;
+    if (selectedId) {
+      var selected = findPatientLocal(selectedId);
+      if (selected) {
+        consultPatientPicker.setSelected(selected);
+        return;
+      }
+      searchPatientsApi(String(selectedId)).then(function (matches) {
+        var found = matches.find(function (p) {
+          return String(p.id) === String(selectedId) || String(p.patient_id) === String(selectedId);
+        }) || matches[0];
+        if (found) consultPatientPicker.setSelected(found);
+      });
+      return;
+    }
+    consultPatientPicker.clear();
   }
 
   /* ============================================================
@@ -253,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!tbody) return;
     tbody.innerHTML = '';
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748b;">No patients found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#64748b;">No patients found.</td></tr>';
       return;
     }
     list.forEach(function (p) {
@@ -261,7 +387,6 @@ document.addEventListener('DOMContentLoaded', function () {
       tr.innerHTML = '<td class="td-id">' + (p.patient_id || p.id) + '</td>' +
         '<td class="td-name">' + (p.name || '—') + '</td>' +
         '<td>' + (p.age != null ? p.age : '—') + '</td>' +
-        '<td>' + statusBadge(p.status || 'Submitted') + '</td>' +
         '<td>' + (p.coach || 'Unassigned') + '</td>' +
         '<td class="td-complaint">' + (p.complaint || p.chief_complaint || '—') + '</td>' +
         '<td><button class="btn-outline-sm" onclick="viewPatient(' + p.id + ')"><i data-feather="eye" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;"></i>View</button></td>';
@@ -287,15 +412,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var setText = function (id, val) { var el = document.getElementById(id); if (el) el.textContent = val == null || val === '' ? '—' : val; };
     setText('pm-name', p.name);
-    setText('pm-sub', (p.patient_id || p.id) + ' · ' + (p.status || 'Submitted'));
+    setText('pm-sub', p.patient_id || p.id);
     setText('pm-id', p.patient_id || p.id);
     setText('pm-age', p.age);
     setText('pm-sex', p.sex);
     setText('pm-coach', p.coach || 'Unassigned');
     setText('pm-complaint', p.complaint || p.chief_complaint);
-
-    var statusEl = document.getElementById('pm-status');
-    if (statusEl) statusEl.innerHTML = statusBadge(p.status || 'Submitted');
 
     // Patient record form
     setVal('pr-fullname', p.name);
@@ -307,7 +429,6 @@ document.addEventListener('DOMContentLoaded', function () {
     setVal('pr-year', p.student_year_level);
     setVal('pr-course', p.course);
     setVal('pr-occupation', p.occupation);
-    setVal('pr-status', p.status || 'Submitted');
     setVal('pr-complaint', p.chief_complaint || p.complaint);
     setVal('pr-diagnosis', p.primary_diagnosis);
     setVal('pr-clinical-notes', p.clinical_notes);
@@ -446,7 +567,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var id = modal ? modal.getAttribute('data-current-patient') : null;
     var p = id ? findPatientLocal(id) : null;
     closeModal('patient-detail-modal');
-    goToPage('assessments', id ? ('patient=' + encodeURIComponent(p ? (p.patient_id || p.id) : id)) : null);
+    goToPage('assessments', id ? ('patient=' + encodeURIComponent(id)) : null);
   });
 
   function toggleExpandableInputs() {
@@ -542,7 +663,6 @@ document.addEventListener('DOMContentLoaded', function () {
           student_year_level: getVal('pr-year') || null,
           course: getVal('pr-course') || null,
           occupation: getVal('pr-occupation') || null,
-          status: getVal('pr-status'),
           chief_complaint: getVal('pr-complaint'),
           primary_diagnosis: getVal('pr-diagnosis') || null,
           clinical_notes: getVal('pr-clinical-notes') || null,
@@ -590,6 +710,18 @@ document.addEventListener('DOMContentLoaded', function () {
         body: JSON.stringify(collectLifestyle()),
       }).then(function (data) {
         if (CURRENT_PATIENT) CURRENT_PATIENT.lifestyle_assessment = data.lifestyle_assessment;
+        var lsIdx = LIFESTYLE_PATIENTS.findIndex(function (p) { return String(p.id) === String(id); });
+        var entry = {
+          id: Number(id),
+          patient_id: CURRENT_PATIENT ? CURRENT_PATIENT.patient_id : null,
+          name: CURRENT_PATIENT ? CURRENT_PATIENT.name : 'Patient',
+          age: CURRENT_PATIENT ? CURRENT_PATIENT.age : null,
+          sex: CURRENT_PATIENT ? CURRENT_PATIENT.sex : null,
+          lifestyle_assessment: data.lifestyle_assessment,
+        };
+        if (lsIdx >= 0) LIFESTYLE_PATIENTS[lsIdx] = Object.assign({}, LIFESTYLE_PATIENTS[lsIdx], entry);
+        else LIFESTYLE_PATIENTS.push(entry);
+        filterLifestyle();
         showToast(data.message || 'Lifestyle assessment updated.');
       }).catch(function (err) { showToast(err.message); });
     });
@@ -611,26 +743,38 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Patient search + filter
+  // Patient search
   function filterPatients() {
     var searchEl = document.getElementById('patient-search');
-    var filterEl = document.getElementById('patient-status-filter');
-    if (!searchEl || !filterEl) return;
+    if (!searchEl) return;
     var q = (searchEl.value || '').toLowerCase();
-    var st = filterEl.value;
     var list = PATIENTS.filter(function (p) {
       var pid = String(p.patient_id || p.id || '').toLowerCase();
-      var matchQ = !q || (p.name || '').toLowerCase().includes(q) || pid.includes(q);
-      var matchS = !st || p.status === st;
-      return matchQ && matchS;
+      return !q || (p.name || '').toLowerCase().includes(q) || pid.includes(q);
     });
     buildPatients(list);
   }
 
   var psearch = document.getElementById('patient-search');
-  var psfilter = document.getElementById('patient-status-filter');
   if (psearch) psearch.addEventListener('input', filterPatients);
-  if (psfilter) psfilter.addEventListener('change', filterPatients);
+
+  consultPatientPicker = createPatientPicker({
+    searchId: 'consult-patient-search',
+    hiddenId: 'consult-patient',
+    dropdownId: 'consult-patient-dropdown',
+  });
+  rxPatientPicker = createPatientPicker({
+    searchId: 'rx-patient-search',
+    hiddenId: 'rx-patient',
+    dropdownId: 'rx-patient-dropdown',
+    ageId: 'rx-age',
+  });
+  dxPatientPicker = createPatientPicker({
+    searchId: 'dx-patient-search',
+    hiddenId: 'dx-patient',
+    dropdownId: 'dx-patient-dropdown',
+    ageId: 'dx-age',
+  });
 
   /* ============================================================
      BUILD CONSULTATIONS TABLE
@@ -766,25 +910,172 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ============================================================
      BUILD LIFESTYLE
   ============================================================ */
-  function buildLifestyle() {
+  function metricColor(pct) {
+    if (pct >= 70) return 'bar-green';
+    if (pct >= 40) return 'bar-amber';
+    return 'bar-red';
+  }
+
+  function clampPct(n) {
+    n = Number(n) || 0;
+    if (n < 0) return 0;
+    if (n > 100) return 100;
+    return Math.round(n);
+  }
+
+  function scoreFrequency(value, goodWords, badWords) {
+    var v = String(value || '').toLowerCase();
+    if (!v) return { pct: 40, label: '—' };
+    for (var i = 0; i < goodWords.length; i++) {
+      if (v.indexOf(goodWords[i]) >= 0) return { pct: 80, label: value };
+    }
+    for (var j = 0; j < badWords.length; j++) {
+      if (v.indexOf(badWords[j]) >= 0) return { pct: 25, label: value };
+    }
+    return { pct: 55, label: value };
+  }
+
+  function phqStressPct(ls) {
+    var map = {
+      'Not at all': 15,
+      'Several days': 45,
+      'More than half the days': 70,
+      'Nearly every day': 90,
+    };
+    var keys = ['phq_feeling_down', 'phq_feeling_tired', 'phq_trouble_sleeping', 'phq_little_interest'];
+    var total = 0;
+    var count = 0;
+    keys.forEach(function (k) {
+      if (ls[k] && map[ls[k]] != null) {
+        total += map[ls[k]];
+        count += 1;
+      }
+    });
+    if (!count) return { pct: 40, label: 'Not assessed' };
+    var pct = Math.round(total / count);
+    var label = pct >= 70 ? 'High' : (pct >= 40 ? 'Moderate' : 'Low');
+    return { pct: pct, label: label };
+  }
+
+  function lifestyleMetrics(ls) {
+    ls = ls || {};
+    var sleepHours = ls.sleep_hours != null && ls.sleep_hours !== '' ? Number(ls.sleep_hours) : null;
+    var sleepPct = sleepHours == null ? 40 : clampPct((sleepHours / 8) * 100);
+    var exercise = scoreFrequency(ls.exercise_frequency, ['daily', 'every day', '5', '6', '7', 'regular'], ['never', 'rare', 'none', 'sedentary', '0']);
+    var nutrition = scoreFrequency(
+      [ls.fruits_veg_servings, ls.fast_food_frequency, ls.weight_perception].filter(Boolean).join(' · ') || '',
+      ['good', 'healthy', 'daily', '5', 'plenty'],
+      ['poor', 'fair', 'often', 'daily fast', 'obese']
+    );
+    if (!ls.fruits_veg_servings && !ls.fast_food_frequency) {
+      nutrition = { pct: 40, label: '—' };
+    } else if (ls.fruits_veg_servings && !nutrition.label) {
+      nutrition.label = ls.fruits_veg_servings;
+    } else if (ls.fruits_veg_servings) {
+      nutrition.label = ls.fruits_veg_servings;
+    }
+    var stress = phqStressPct(ls);
+    var health = ls.health_score != null && ls.health_score !== ''
+      ? { pct: clampPct(Number(ls.health_score) * 10), label: String(ls.health_score) + '/10' }
+      : null;
+
+    var metrics = [
+      { label: 'Sleep', value: sleepHours == null ? '—' : (sleepHours + ' hrs'), pct: sleepPct, color: metricColor(sleepPct) },
+      { label: 'Exercise', value: exercise.label || '—', pct: exercise.pct, color: metricColor(exercise.pct) },
+      { label: 'Nutrition', value: nutrition.label || '—', pct: nutrition.pct, color: metricColor(nutrition.pct) },
+      { label: 'Stress', value: stress.label, pct: stress.pct, color: metricColor(100 - stress.pct) },
+    ];
+    if (health) {
+      metrics.unshift({ label: 'Health', value: health.label, pct: health.pct, color: metricColor(health.pct) });
+    }
+    return metrics;
+  }
+
+  function buildLifestyle(list) {
     var grid = document.getElementById('lifestyle-grid');
+    var empty = document.getElementById('lifestyle-empty');
     if (!grid) return;
+    list = Array.isArray(list) ? list : LIFESTYLE_PATIENTS;
     grid.innerHTML = '';
-    LIFESTYLE.forEach(function (p) {
+
+    if (!list.length) {
+      if (empty) show(empty);
+      return;
+    }
+    if (empty) hide(empty);
+
+    list.forEach(function (p) {
+      var metrics = lifestyleMetrics(p.lifestyle_assessment);
       var card = document.createElement('div');
       card.className = 'lifestyle-card';
-      var html = '<div class="lifestyle-card-name">' + p.name + '</div>';
-      p.metrics.forEach(function (m) {
+      card.style.cursor = 'pointer';
+      card.setAttribute('data-patient-id', p.id);
+
+      var html = '<div class="lifestyle-card-top" style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">' +
+        '<div>' +
+        '<div class="lifestyle-card-name" style="margin-bottom:2px;">' + (p.name || 'Patient') + '</div>' +
+        '<div style="font-size:12px;color:#64748b;">' + (p.patient_id || ('#' + p.id)) +
+        (p.age != null ? ' · ' + p.age + 'y' : '') +
+        (p.sex ? ' · ' + p.sex : '') + '</div>' +
+        '</div>' +
+        '<button type="button" class="btn-outline-sm lifestyle-open-btn" data-lifestyle-open="' + p.id + '">Open</button>' +
+        '</div>';
+
+      metrics.forEach(function (m) {
         html += '<div class="metric-row">' +
           '<span class="metric-label">' + m.label + '</span>' +
           '<div class="metric-track"><div class="metric-bar ' + m.color + '" style="width:' + m.pct + '%"></div></div>' +
           '<span class="metric-value">' + m.value + '</span>' +
           '</div>';
       });
+
+      if (p.lifestyle_assessment && p.lifestyle_assessment.motivation_level) {
+        html += '<div style="margin-top:8px;font-size:12px;color:#64748b;">Motivation: <strong style="color:#0f172a;">' +
+          p.lifestyle_assessment.motivation_level + '</strong></div>';
+      }
+
       card.innerHTML = html;
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('.lifestyle-open-btn') || e.target === card || e.target.closest('.lifestyle-card')) {
+          openLifestylePatient(p.id);
+        }
+      });
       grid.appendChild(card);
     });
+    ri();
   }
+
+  function openLifestylePatient(id) {
+    var local = findPatientLocal(id);
+    if (local && local.medical_history !== undefined) {
+      populatePatientModal(local);
+      switchPmTab('lifestyle');
+    } else {
+      var base = (window.PSYCH_ROUTES || {}).patientsShow || '/psychiatrist/patients';
+      apiFetch(base + '/' + id)
+        .then(function (data) {
+          upsertPatientLocal(data.patient);
+          populatePatientModal(data.patient);
+          switchPmTab('lifestyle');
+        })
+        .catch(function (err) {
+          showToast(err.message || 'Unable to load patient.');
+        });
+    }
+  }
+
+  function filterLifestyle() {
+    var input = document.getElementById('lifestyle-search');
+    var q = input ? input.value.toLowerCase().trim() : '';
+    var list = LIFESTYLE_PATIENTS.filter(function (p) {
+      if (!q) return true;
+      return (p.name || '').toLowerCase().includes(q) || String(p.patient_id || '').toLowerCase().includes(q);
+    });
+    buildLifestyle(list);
+  }
+
+  var lifestyleSearch = document.getElementById('lifestyle-search');
+  if (lifestyleSearch) lifestyleSearch.addEventListener('input', filterLifestyle);
 
   /* ============================================================
      BUILD ASSESSMENTS
@@ -795,25 +1086,15 @@ document.addEventListener('DOMContentLoaded', function () {
     grid.innerHTML = '';
 
     var accentMap = {
-      Stable: { accent: 'accent-stable', pctClass: 'pct-green', barClass: 'bar-lg-green', progClass: 'prog-green' },
-      Monitoring: { accent: 'accent-monitoring', pctClass: 'pct-amber', barClass: 'bar-lg-amber', progClass: 'prog-amber' },
-      Critical: { accent: 'accent-critical', pctClass: 'pct-red', barClass: 'bar-lg-red', progClass: 'prog-red' },
-      Maintenance: { accent: 'accent-maintenance', pctClass: 'pct-blue', barClass: 'bar-lg-blue', progClass: 'prog-blue' },
-      'Life Coaching': { accent: 'accent-coaching', pctClass: 'pct-blue', barClass: 'bar-lg-blue', progClass: 'prog-blue' },
-    };
-
-    var statusBadgeMap = {
-      Stable: 'badge-stable',
-      Monitoring: 'badge-monitoring',
-      Critical: 'badge-critical',
-      Maintenance: 'badge-maintenance',
-      'Life Coaching': 'badge-maintenance',
+      Complete: { accent: 'accent-stable', pctClass: 'pct-green', barClass: 'bar-lg-green', progClass: 'prog-green', badge: 'badge-stable', label: 'Complete' },
+      'In Progress': { accent: 'accent-monitoring', pctClass: 'pct-amber', barClass: 'bar-lg-amber', progClass: 'prog-amber', badge: 'badge-monitoring', label: 'In Progress' },
+      'Not Started': { accent: 'accent-maintenance', pctClass: 'pct-blue', barClass: 'bar-lg-blue', progClass: 'prog-blue', badge: 'badge-outline', label: 'Not Started' },
     };
 
     list.forEach(function (a) {
-      var theme = accentMap[a.status] || accentMap['Maintenance'];
-      var badgeClass = statusBadgeMap[a.status] || 'badge-outline';
-      var statusLabel = a.status === 'Life Coaching' ? '♥ Life Coaching' : a.status;
+      var theme = accentMap[a.status] || accentMap['Not Started'];
+      var badgeClass = theme.badge;
+      var statusLabel = theme.label;
 
       var div = document.createElement('div');
       div.className = 'assess-card';
@@ -885,43 +1166,270 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Assessment search/filter
-  var assSearch = document.getElementById('assess-search');
-  var assSFilter = document.getElementById('assess-status-filter');
-  function filterAssessments() {
-    var q = (assSearch ? assSearch.value : '').toLowerCase();
-    var st = assSFilter ? assSFilter.value : '';
-    var list = ASSESSMENTS.filter(function (a) {
-      var mq = !q || a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q);
-      var ms = !st || a.status === st;
-      return mq && ms;
-    });
-    buildAssessments(list);
+  function populateAssessmentPatientSelects() {
+    // Searchable patient pickers are initialized separately.
   }
-  if (assSearch) assSearch.addEventListener('input', filterAssessments);
-  if (assSFilter) assSFilter.addEventListener('change', filterAssessments);
 
-  // Open assessment detail
+  function populateAssessmentCards() {
+    var patients = ASSESSMENT_PATIENTS || [];
+    var cards = patients.map(function (p) {
+      var prog = typeof p.completion === 'number' ? p.completion : (p.has_assessment ? 50 : 0);
+      var status = prog >= 100 ? 'Complete' : (prog > 0 || p.has_assessment ? 'In Progress' : 'Not Started');
+      return {
+        id: String(p.id),
+        patient_id: p.patient_id || '',
+        name: p.name || 'Patient',
+        age: p.age != null ? (p.age + 'y') : '—',
+        sex: p.sex || '—',
+        diag: p.summary || p.primary_diagnosis || 'No assessment yet',
+        status: status,
+        prog: prog,
+        lastDate: p.assessment_updated_at || (p.has_assessment ? 'Saved' : 'Not started'),
+        tag: null,
+        provider: 'Dr. Maria Santos · Psychiatrist',
+        patient: p,
+      };
+    });
+    ASSESSMENTS = cards;
+    buildAssessments(cards);
+  }
+
+  // Server-side search form handles filtering; keep local filter as no-op fallback.
+  var assSearch = document.getElementById('assess-search');
+  if (assSearch) {
+    assSearch.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (this.form) this.form.submit();
+      }
+    });
+  }
+
   document.addEventListener('click', function (e) {
     var openBtn = e.target.closest('[data-assess-open]');
     if (openBtn) {
       openAssessDetail(openBtn.getAttribute('data-assess-open'));
       return;
     }
-    var card = e.target.closest('.assess-card');
+    var card = e.target.closest('#assessment-cards-grid .assess-card');
     if (card && !e.target.closest('button')) {
       openAssessDetail(card.getAttribute('data-assess-id'));
     }
   });
 
+  var CURRENT_ASSESSMENT = {};
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function collectBiological() {
+    return {
+      bp: getVal('v-bp'),
+      hr: getVal('v-hr'),
+      temp: getVal('v-temp'),
+      weight: getVal('v-weight'),
+      height: getVal('v-height'),
+      bmi: getVal('v-bmi'),
+      cc: getVal('bio-cc'),
+      hpi: getVal('bio-hpi'),
+      pph: getVal('bio-pph'),
+      pmh: getVal('bio-pmh'),
+      fh: getVal('bio-fh'),
+      sh: getVal('bio-sh'),
+      ros: getVal('bio-ros'),
+      pe: getVal('bio-pe'),
+      lab: getVal('bio-lab'),
+    };
+  }
+
+  function collectPsychological() {
+    var si = 'none';
+    qsa('input[name="psy-si"]').forEach(function (rb) { if (rb.checked) si = rb.value; });
+    return {
+      appearance: getVal('psy-appearance'),
+      behavior: getVal('psy-behavior'),
+      speech: getVal('psy-speech'),
+      mood: getVal('psy-mood'),
+      affect: getVal('psy-affect'),
+      thought_process: getVal('psy-thought_process'),
+      thought_content: getVal('psy-thought_content'),
+      perception: getVal('psy-perception'),
+      cognition: getVal('psy-cognition'),
+      insight: getVal('psy-insight'),
+      judgment: getVal('psy-judgment'),
+      si: si,
+      risk_notes: getVal('psy-risk_notes'),
+      safety_plan: getVal('psy-safety_plan'),
+    };
+  }
+
+  function collectSocial() {
+    return {
+      living: getVal('soc-living'),
+      occupation: getVal('soc-occupation'),
+      financial: getVal('soc-financial'),
+      relationships: getVal('soc-relationships'),
+      cultural: getVal('soc-cultural'),
+      legal: getVal('soc-legal'),
+      substance: getVal('soc-substance'),
+      stressors: getVal('soc-stressors'),
+    };
+  }
+
+  function collectSpiritual() {
+    return {
+      beliefs: getVal('spi-beliefs'),
+      practices: getVal('spi-practices'),
+      coping: getVal('spi-coping'),
+      needs: getVal('spi-needs'),
+      strengths: getVal('spi-strengths'),
+      meaning: getVal('spi-meaning'),
+    };
+  }
+
+  function collectPrayerPoints() {
+    var points = [];
+    qsa('#prayer-list .prayer-entry').forEach(function (el) {
+      points.push({
+        date: el.getAttribute('data-date') || '',
+        author: el.getAttribute('data-author') || 'Dr. Maria Santos',
+        text: el.getAttribute('data-text') || (el.querySelector('.prayer-text') ? el.querySelector('.prayer-text').textContent : ''),
+      });
+    });
+    return points;
+  }
+
+  function collectIntervention() {
+    var timeline = [];
+    qsa('#intervention-timeline .timeline-entry').forEach(function (el) {
+      timeline.push({
+        date: el.getAttribute('data-date') || '',
+        text: el.getAttribute('data-text') || (el.querySelector('.timeline-text') ? el.querySelector('.timeline-text').textContent : ''),
+      });
+    });
+    return {
+      plan: getVal('intervention-plan'),
+      timeline: timeline,
+      medical_history: {
+        allergies: getVal('medhist-allergies'),
+        medications: getVal('medhist-medications'),
+        surgical: getVal('medhist-surgical'),
+        hospitalizations: getVal('medhist-hospitalizations'),
+        immunizations: getVal('medhist-immunizations'),
+        family: getVal('medhist-family'),
+      },
+    };
+  }
+
+  function renderPrayerPoints(points) {
+    var list = document.getElementById('prayer-list');
+    if (!list) return;
+    list.innerHTML = '';
+    (points || []).forEach(function (point) {
+      var entry = document.createElement('div');
+      entry.className = 'prayer-entry';
+      entry.setAttribute('data-date', point.date || '');
+      entry.setAttribute('data-author', point.author || 'Dr. Maria Santos');
+      entry.setAttribute('data-text', point.text || '');
+      entry.innerHTML = '<div class="prayer-meta">' + escapeHtml(point.date || '') +
+        ' · ' + escapeHtml(point.author || 'Dr. Maria Santos') +
+        ' <button type="button" class="btn-outline-sm prayer-remove" style="margin-left:8px;">Remove</button></div>' +
+        '<div class="prayer-text">' + escapeHtml(point.text || '') + '</div>';
+      list.appendChild(entry);
+    });
+  }
+
+  function renderInterventionTimeline(entries) {
+    var list = document.getElementById('intervention-timeline');
+    if (!list) return;
+    list.innerHTML = '';
+    (entries || []).forEach(function (item) {
+      var entry = document.createElement('div');
+      entry.className = 'timeline-entry';
+      entry.setAttribute('data-date', item.date || '');
+      entry.setAttribute('data-text', item.text || '');
+      entry.innerHTML = '<div class="timeline-dot"></div>' +
+        '<div class="timeline-content">' +
+        '<div class="timeline-date">' + escapeHtml(item.date || '') +
+        ' <button type="button" class="btn-outline-sm timeline-remove" style="margin-left:8px;">Remove</button></div>' +
+        '<div class="timeline-text">' + escapeHtml(item.text || '') + '</div>' +
+        '</div>';
+      list.appendChild(entry);
+    });
+  }
+
+  function hydrateAssessmentForm(assessment) {
+    assessment = assessment || {};
+    var bio = assessment.biological || {};
+    setVal('v-bp', bio.bp); setVal('v-hr', bio.hr); setVal('v-temp', bio.temp);
+    setVal('v-weight', bio.weight); setVal('v-height', bio.height); setVal('v-bmi', bio.bmi);
+    setVal('bio-cc', bio.cc); setVal('bio-hpi', bio.hpi); setVal('bio-pph', bio.pph);
+    setVal('bio-pmh', bio.pmh); setVal('bio-fh', bio.fh); setVal('bio-sh', bio.sh);
+    setVal('bio-ros', bio.ros); setVal('bio-pe', bio.pe); setVal('bio-lab', bio.lab);
+
+    var psy = assessment.psychological || {};
+    ['appearance', 'behavior', 'speech', 'mood', 'affect', 'thought_process', 'thought_content', 'perception', 'cognition', 'insight', 'judgment', 'risk_notes', 'safety_plan'].forEach(function (k) {
+      setVal('psy-' + k, psy[k]);
+    });
+    var si = psy.si || 'none';
+    qsa('input[name="psy-si"]').forEach(function (rb) { rb.checked = rb.value === si; });
+
+    var soc = assessment.social || {};
+    ['living', 'occupation', 'financial', 'relationships', 'cultural', 'legal', 'substance', 'stressors'].forEach(function (k) {
+      setVal('soc-' + k, soc[k]);
+    });
+
+    var spi = assessment.spiritual || {};
+    ['beliefs', 'practices', 'coping', 'needs', 'strengths', 'meaning'].forEach(function (k) {
+      setVal('spi-' + k, spi[k]);
+    });
+
+    renderPrayerPoints(assessment.prayer_points || []);
+
+    var inter = assessment.intervention || {};
+    setVal('intervention-plan', inter.plan || '');
+    renderInterventionTimeline(inter.timeline || []);
+    var mh = inter.medical_history || {};
+    ['allergies', 'medications', 'surgical', 'hospitalizations', 'immunizations', 'family'].forEach(function (k) {
+      setVal('medhist-' + k, mh[k]);
+    });
+  }
+
   function openAssessDetail(id) {
-    var a = ASSESSMENTS.find(function (x) { return x.id === id; });
-    if (!a) return;
+    var a = ASSESSMENTS.find(function (x) {
+      return String(x.id) === String(id) || String(x.patient_id) === String(id);
+    });
+    if (!a) {
+      // Deep-link may use patient_id before cards map exists; try API by numeric id if possible.
+      var numericId = parseInt(id, 10);
+      if (!numericId) return;
+      a = { id: String(numericId), name: 'Patient', patient: { id: numericId } };
+    }
+
+    CURRENT_PATIENT = Object.assign({}, a.patient || {}, { id: a.patient && a.patient.id ? a.patient.id : a.id });
     hide(document.getElementById('assessment-list-view'));
     show(document.getElementById('assessment-detail-view'));
-    document.getElementById('assess-detail-name').textContent = a.name;
-    document.getElementById('assess-detail-id').textContent = a.id;
+    document.getElementById('assess-detail-name').textContent = a.name || CURRENT_PATIENT.name || 'Patient';
+    document.getElementById('assess-detail-id').textContent = a.patient_id || CURRENT_PATIENT.patient_id || a.id;
+    hydrateAssessmentForm({});
     switchAssessTab('biological');
+
+    var url = (ROUTES.assessmentsShow || '/psychiatrist/patients/__ID__/assessment').replace('__ID__', CURRENT_PATIENT.id);
+    apiFetch(url).then(function (data) {
+      CURRENT_ASSESSMENT = data.assessment || {};
+      CURRENT_PATIENT = Object.assign({}, CURRENT_PATIENT, data.patient || {});
+      document.getElementById('assess-detail-name').textContent = CURRENT_PATIENT.name || a.name;
+      document.getElementById('assess-detail-id').textContent = CURRENT_PATIENT.patient_id || a.id;
+      hydrateAssessmentForm(CURRENT_ASSESSMENT);
+      ri();
+    }).catch(function (err) {
+      showToast(err.message || 'Unable to load assessment.');
+    });
     ri();
   }
 
@@ -932,32 +1440,90 @@ document.addEventListener('DOMContentLoaded', function () {
     ri();
   });
 
-  // Assessment 6-tab switching
   function switchAssessTab(tab) {
-    qsa('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-    qsa('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
-    var btn = qs('[data-tab="' + tab + '"]');
-    var panel = document.getElementById('tab-' + tab);
-    if (btn) btn.classList.add('active');
-    if (panel) panel.classList.add('active');
+    qsa('#assess-tab-bar .assess-tab-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-assess-tab') === tab);
+    });
+    qsa('#assessment-detail-view .tab-panel').forEach(function (p) {
+      p.classList.toggle('active', p.getAttribute('data-assess-panel') === tab || p.id === ('tab-' + tab));
+    });
   }
 
-  qsa('.tab-btn').forEach(function (btn) {
+  qsa('#assess-tab-bar .assess-tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      switchAssessTab(this.getAttribute('data-tab'));
+      switchAssessTab(this.getAttribute('data-assess-tab'));
     });
   });
+
+  function saveAssessmentSection(section) {
+    if (!CURRENT_PATIENT || !CURRENT_PATIENT.id) {
+      showToast('Open a patient assessment first.');
+      return;
+    }
+
+    var payload = {};
+    if (section === 'biological') payload.biological = collectBiological();
+    else if (section === 'psychological') payload.psychological = collectPsychological();
+    else if (section === 'social') payload.social = collectSocial();
+    else if (section === 'spiritual') payload.spiritual = collectSpiritual();
+    else if (section === 'prayer_points') payload.prayer_points = collectPrayerPoints();
+    else if (section === 'intervention') payload.intervention = collectIntervention();
+    else {
+      payload = {
+        biological: collectBiological(),
+        psychological: collectPsychological(),
+        social: collectSocial(),
+        spiritual: collectSpiritual(),
+        prayer_points: collectPrayerPoints(),
+        intervention: collectIntervention(),
+      };
+    }
+
+    apiFetch((ROUTES.assessmentsStore || '').replace('__ID__', CURRENT_PATIENT.id), {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }).then(function (data) {
+      CURRENT_ASSESSMENT = data.assessment || Object.assign({}, CURRENT_ASSESSMENT, payload);
+      CURRENT_PATIENT.assessment = CURRENT_ASSESSMENT;
+      var card = ASSESSMENTS.find(function (x) { return String(x.id) === String(CURRENT_PATIENT.id); });
+      if (card) {
+        card.diag = (CURRENT_ASSESSMENT.biological && CURRENT_ASSESSMENT.biological.cc) || card.diag;
+        card.lastDate = (data.updated_at || '').slice(0, 10) || card.lastDate;
+        card.prog = Math.max(card.prog || 0, 20);
+      }
+      showToast(data.message || 'Assessment saved.');
+    }).catch(function (err) {
+      showToast(err.message || 'Unable to save assessment.');
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var saveBtn = e.target.closest('[data-assess-save]');
+    if (saveBtn && saveBtn.closest('#assessment-detail-view')) {
+      e.preventDefault();
+      saveAssessmentSection(saveBtn.getAttribute('data-assess-save'));
+    }
+    if (e.target.closest('.prayer-remove')) {
+      var prayerEntry = e.target.closest('.prayer-entry');
+      if (prayerEntry) prayerEntry.remove();
+    }
+    if (e.target.closest('.timeline-remove')) {
+      var tlEntry = e.target.closest('.timeline-entry');
+      if (tlEntry) tlEntry.remove();
+    }
+  });
+
+  if (typeof populateAssessmentCards === 'function') populateAssessmentCards();
 
   /* ============================================================
      ACCORDION (Medical History)
   ============================================================ */
   function initAccordion() {
-    qsa('.accordion-trigger').forEach(function (trigger) {
+    qsa('#medhist-accordion .accordion-trigger').forEach(function (trigger) {
       trigger.addEventListener('click', function () {
         var panel = this.nextElementSibling;
         var isOpen = panel.classList.contains('open');
-        // Close all
-        qsa('.accordion-trigger').forEach(function (t) {
+        qsa('#medhist-accordion .accordion-trigger').forEach(function (t) {
           t.classList.remove('open');
           if (t.nextElementSibling) t.nextElementSibling.classList.remove('open');
         });
@@ -974,7 +1540,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var allOpen = false;
       toggleAllBtn.addEventListener('click', function () {
         allOpen = !allOpen;
-        qsa('.accordion-trigger').forEach(function (t) {
+        qsa('#medhist-accordion .accordion-trigger').forEach(function (t) {
           if (allOpen) { t.classList.add('open'); if (t.nextElementSibling) t.nextElementSibling.classList.add('open'); }
           else { t.classList.remove('open'); if (t.nextElementSibling) t.nextElementSibling.classList.remove('open'); }
         });
@@ -989,21 +1555,18 @@ document.addEventListener('DOMContentLoaded', function () {
   ============================================================ */
   var addPrayerBtn = document.getElementById('add-prayer-btn');
   var prayerInput = document.getElementById('prayer-input');
-  var prayerList = document.getElementById('prayer-list');
 
   if (addPrayerBtn) {
     addPrayerBtn.addEventListener('click', function () {
       var text = prayerInput ? prayerInput.value.trim() : '';
       if (!text) { showToast('Please enter a prayer point.'); return; }
-      var entry = document.createElement('div');
-      entry.className = 'prayer-entry';
       var d = new Date();
       var dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      entry.innerHTML = '<div class="prayer-meta">' + dateStr + ' · Dr. Maria Santos</div>' +
-        '<div class="prayer-text">' + text + '</div>';
-      if (prayerList) prayerList.insertBefore(entry, prayerList.firstChild);
+      var points = collectPrayerPoints();
+      points.unshift({ date: dateStr, author: 'Dr. Maria Santos', text: text });
+      renderPrayerPoints(points);
       prayerInput.value = '';
-      showToast('Prayer point added.');
+      saveAssessmentSection('prayer_points');
     });
   }
 
@@ -1012,24 +1575,22 @@ document.addEventListener('DOMContentLoaded', function () {
   ============================================================ */
   var addInterventionBtn = document.getElementById('add-intervention-btn');
   var interventionInput = document.getElementById('intervention-input');
-  var interventionTL = document.getElementById('intervention-timeline');
 
   if (addInterventionBtn) {
-    addInterventionBtn.addEventListener('click', function () {
+    addInterventionBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
       var text = interventionInput ? interventionInput.value.trim() : '';
       if (!text) { showToast('Please enter an intervention.'); return; }
-      var entry = document.createElement('div');
-      entry.className = 'timeline-entry';
       var d = new Date();
       var dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      entry.innerHTML = '<div class="timeline-dot"></div>' +
-        '<div class="timeline-content">' +
-        '<div class="timeline-date">' + dateStr + '</div>' +
-        '<div class="timeline-text">' + text + '</div>' +
-        '</div>';
-      if (interventionTL) interventionTL.insertBefore(entry, interventionTL.firstChild);
+      var inter = collectIntervention();
+      inter.timeline = inter.timeline || [];
+      inter.timeline.unshift({ date: dateStr, text: text });
+      setVal('intervention-plan', inter.plan || getVal('intervention-plan'));
+      renderInterventionTimeline(inter.timeline);
       interventionInput.value = '';
-      showToast('Intervention entry added.');
+      saveAssessmentSection('intervention');
     });
   }
 
@@ -1224,13 +1785,15 @@ document.addEventListener('DOMContentLoaded', function () {
   var generateRxBtn = document.getElementById('generate-rx-btn');
   if (generateRxBtn) {
     generateRxBtn.addEventListener('click', function () {
-      var patient = (document.getElementById('rx-patient').value) || '—';
+      var patientId = document.getElementById('rx-patient').value;
+      var patient = findPatientLocal(patientId);
+      var patientLabel = patient ? (patient.name || '—') : '—';
       var age = (document.getElementById('rx-age').value) || '—';
       var date = (document.getElementById('rx-date').value) || todayStr;
       var diag = (document.getElementById('rx-diagnosis').value) || '—';
       var notes = (document.getElementById('rx-notes').value) || '—';
 
-      document.getElementById('preview-patient').textContent = patient;
+      document.getElementById('preview-patient').textContent = patientLabel;
       document.getElementById('preview-age').textContent = age;
       document.getElementById('preview-date').textContent = date;
       document.getElementById('preview-diag').textContent = diag;
@@ -1238,6 +1801,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var medsList = document.getElementById('preview-meds-list');
       medsList.innerHTML = '';
+      var medications = [];
       var rows = qsa('.rx-med-row', rxMedsList);
       rows.forEach(function (row) {
         var name = row.querySelector('input[type="text"]').value;
@@ -1255,48 +1819,246 @@ document.addEventListener('DOMContentLoaded', function () {
         if (customFreq && customFreq.value.trim()) freq.push(customFreq.value.trim());
         var qty = row.querySelector('.med-qty-input').value;
         if (!name) return;
+        var med = { name: name, dose: dose, frequency: freq.join(', '), qty: qty };
+        medications.push(med);
         var li = document.createElement('li');
         li.textContent = name + ' ' + dose + (freq.length ? ' — ' + freq.join(', ') : '') + (qty ? ' · Qty: ' + qty : '');
         medsList.appendChild(li);
       });
 
-      showToast('Prescription generated.');
+      if (!patientId) {
+        showToast('Please select a patient first.');
+        return;
+      }
+
+      apiFetch((ROUTES.prescriptionsStore || '').replace('__ID__', patientId), {
+        method: 'POST',
+        body: JSON.stringify({ diagnosis: diag, medications: medications, notes: notes, status: 'Draft' }),
+      }).then(function (data) {
+        showToast(data.message || 'Prescription saved.');
+      }).catch(function (err) {
+        showToast(err.message || 'Unable to save prescription.');
+      });
+
       ri();
     });
   }
 
   /* ============================================================
-     RX: TEMPLATE LIBRARY
+     RX / DX: TEMPLATE LIBRARY (DB-backed)
   ============================================================ */
+  function normalizeTemplate(t) {
+    var payload = t.payload || {};
+    return {
+      id: t.id,
+      type: t.type,
+      name: t.name,
+      tag: t.tag || '',
+      tagClass: t.tagClass || t.tag_class || 'tag-psychiatric',
+      desc: t.desc || t.description || '',
+      diag: t.diag || payload.diag || '',
+      meds: t.meds || payload.meds || [],
+      tests: t.tests || payload.tests || [],
+      payload: payload,
+    };
+  }
+
+  function upsertTemplateLocal(template) {
+    var t = normalizeTemplate(template);
+    var list = t.type === 'dx' ? DX_TEMPLATES : RX_TEMPLATES;
+    var idx = list.findIndex(function (item) { return String(item.id) === String(t.id); });
+    if (idx >= 0) list[idx] = t;
+    else list.push(t);
+    if (t.type === 'dx') DX_TEMPLATES = list;
+    else RX_TEMPLATES = list;
+  }
+
+  function removeTemplateLocal(type, id) {
+    if (type === 'dx') {
+      DX_TEMPLATES = DX_TEMPLATES.filter(function (t) { return String(t.id) !== String(id); });
+    } else {
+      RX_TEMPLATES = RX_TEMPLATES.filter(function (t) { return String(t.id) !== String(id); });
+    }
+  }
+
+  function buildTemplateItem(t, onApply) {
+    var div = document.createElement('div');
+    div.className = 'template-item';
+    div.innerHTML = '<div class="template-item-top">' +
+      '<span class="template-name">' + (t.name || 'Template') + '</span>' +
+      (t.tag ? '<span class="template-tag ' + (t.tagClass || '') + '">' + t.tag + '</span>' : '') +
+      '</div>' +
+      '<div class="template-desc">' + (t.desc || '') + '</div>' +
+      '<div class="template-actions" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">' +
+      '<button type="button" class="btn-outline-sm tpl-apply">+ Apply</button>' +
+      '<button type="button" class="btn-outline-sm tpl-edit">Edit</button>' +
+      '<button type="button" class="btn-outline-sm tpl-delete" style="color:#b91c1c;">Delete</button>' +
+      '</div>';
+    div.querySelector('.tpl-apply').addEventListener('click', function () { onApply(t); });
+    div.querySelector('.tpl-edit').addEventListener('click', function () { openTemplateModal(t.type, t); });
+    div.querySelector('.tpl-delete').addEventListener('click', function () { deleteTemplate(t); });
+    return div;
+  }
+
   function buildRxTemplates() {
     var list = document.getElementById('rx-template-list');
     if (!list) return;
     list.innerHTML = '';
-    RX_TEMPLATES.forEach(function (t) {
-      var div = document.createElement('div');
-      div.className = 'template-item';
-      div.innerHTML = '<div class="template-item-top">' +
-        '<span class="template-name">' + t.name + '</span>' +
-        '<span class="template-tag ' + t.tagClass + '">' + t.tag + '</span>' +
-        '</div>' +
-        '<div class="template-desc">' + t.desc + '</div>' +
-        '<button class="btn-outline-sm" style="margin-top:4px;">+ Apply Template</button>';
-      div.querySelector('button').addEventListener('click', function () {
-        applyRxTemplate(t);
-      });
-      list.appendChild(div);
+    if (!RX_TEMPLATES.length) {
+      list.innerHTML = '<div class="template-item" style="color:#64748b;">No Rx templates yet. Click Manage / Add.</div>';
+      return;
+    }
+    RX_TEMPLATES.map(normalizeTemplate).forEach(function (t) {
+      list.appendChild(buildTemplateItem(t, applyRxTemplate));
+    });
+  }
+
+  function buildDxTemplates() {
+    var list = document.getElementById('dx-template-list');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!DX_TEMPLATES.length) {
+      list.innerHTML = '<div class="template-item" style="color:#64748b;">No diagnostic templates yet. Click Manage / Add.</div>';
+      return;
+    }
+    DX_TEMPLATES.map(normalizeTemplate).forEach(function (t) {
+      list.appendChild(buildTemplateItem(t, applyDxTemplate));
     });
   }
 
   function applyRxTemplate(t) {
     if (!rxMedsList) return;
+    t = normalizeTemplate(t);
     rxMedsList.innerHTML = '';
-    t.meds.forEach(function (m) {
+    (t.meds || []).forEach(function (m) {
       rxMedsList.appendChild(createMedRow(m));
     });
-    if (rxDiagInput) rxDiagInput.value = t.diag;
+    if (rxDiagInput) rxDiagInput.value = t.diag || '';
     ri();
     showToast('Template "' + t.name + '" applied.');
+  }
+
+  function applyDxTemplate(t) {
+    t = normalizeTemplate(t);
+    qsa('.dx-cb').forEach(function (cb) { cb.checked = false; });
+    (t.tests || []).forEach(function (test) {
+      var cb = qs('.dx-cb[data-test="' + test + '"]');
+      if (cb) cb.checked = true;
+    });
+    showToast('Template "' + t.name + '" applied.');
+  }
+
+  function parseMedsText(text) {
+    return String(text || '').split('\n').map(function (line) {
+      line = line.trim();
+      if (!line) return null;
+      var parts = line.split('|').map(function (p) { return p.trim(); });
+      return {
+        name: parts[0] || '',
+        dose: parts[1] || '',
+        freq: parts[2] ? parts[2].split(',').map(function (f) { return f.trim(); }).filter(Boolean) : [],
+        qty: parts[3] ? Number(parts[3]) || parts[3] : '',
+      };
+    }).filter(Boolean);
+  }
+
+  function medsToText(meds) {
+    return (meds || []).map(function (m) {
+      return [m.name || '', m.dose || '', Array.isArray(m.freq) ? m.freq.join(', ') : (m.freq || ''), m.qty || ''].join(' | ');
+    }).join('\n');
+  }
+
+  function parseTestsText(text) {
+    return String(text || '')
+      .split(/[\n,]+/)
+      .map(function (t) { return t.trim(); })
+      .filter(Boolean);
+  }
+
+  function openTemplateModal(type, template) {
+    setVal('tpl-id', template ? template.id : '');
+    setVal('tpl-type', type);
+    setVal('tpl-name', template ? template.name : '');
+    setVal('tpl-tag', template ? template.tag : '');
+    setVal('tpl-desc', template ? (template.desc || '') : '');
+    setVal('tpl-diag', template ? (template.diag || '') : '');
+    setVal('tpl-meds', template ? medsToText(template.meds) : '');
+    setVal('tpl-tests', template ? (template.tests || []).join(', ') : '');
+
+    var title = document.getElementById('template-modal-title');
+    if (title) title.textContent = (template ? 'Edit' : 'Add') + (type === 'dx' ? ' Diagnostic Template' : ' Rx Template');
+
+    var diagWrap = document.getElementById('tpl-diag-wrap');
+    var medsWrap = document.getElementById('tpl-meds-wrap');
+    var testsWrap = document.getElementById('tpl-tests-wrap');
+    if (type === 'dx') {
+      if (diagWrap) hide(diagWrap);
+      if (medsWrap) hide(medsWrap);
+      if (testsWrap) show(testsWrap);
+    } else {
+      if (diagWrap) show(diagWrap);
+      if (medsWrap) show(medsWrap);
+      if (testsWrap) hide(testsWrap);
+    }
+    openModal('template-modal');
+  }
+
+  function deleteTemplate(t) {
+    if (!t.id) return;
+    if (!window.confirm('Delete template "' + t.name + '"?')) return;
+    var base = (window.PSYCH_ROUTES || {}).templatesUpdate || '/psychiatrist/clinical-templates';
+    apiFetch(base + '/' + t.id, { method: 'DELETE' })
+      .then(function (data) {
+        removeTemplateLocal(t.type, t.id);
+        buildRxTemplates();
+        buildDxTemplates();
+        showToast(data.message || 'Template deleted.');
+      })
+      .catch(function (err) { showToast(err.message); });
+  }
+
+  var rxTemplateAddBtn = document.getElementById('rx-template-add-btn');
+  if (rxTemplateAddBtn) rxTemplateAddBtn.addEventListener('click', function () { openTemplateModal('rx'); });
+  var dxTemplateAddBtn = document.getElementById('dx-template-add-btn');
+  if (dxTemplateAddBtn) dxTemplateAddBtn.addEventListener('click', function () { openTemplateModal('dx'); });
+
+  var tplSaveBtn = document.getElementById('tpl-save-btn');
+  if (tplSaveBtn) {
+    tplSaveBtn.addEventListener('click', function () {
+      var id = getVal('tpl-id');
+      var type = getVal('tpl-type') || 'rx';
+      var name = getVal('tpl-name').trim();
+      if (!name) { showToast('Template name is required.'); return; }
+
+      var payload = {
+        type: type,
+        name: name,
+        tag: getVal('tpl-tag').trim() || null,
+        description: getVal('tpl-desc').trim() || null,
+      };
+      if (type === 'dx') {
+        payload.tests = parseTestsText(getVal('tpl-tests'));
+      } else {
+        payload.diag = getVal('tpl-diag').trim() || null;
+        payload.meds = parseMedsText(getVal('tpl-meds'));
+      }
+
+      var routes = window.PSYCH_ROUTES || {};
+      var url = id
+        ? ((routes.templatesUpdate || '/psychiatrist/clinical-templates') + '/' + id)
+        : (routes.templatesStore || '/psychiatrist/clinical-templates');
+      var method = id ? 'PUT' : 'POST';
+
+      apiFetch(url, { method: method, body: JSON.stringify(payload) })
+        .then(function (data) {
+          upsertTemplateLocal(data.template);
+          buildRxTemplates();
+          buildDxTemplates();
+          closeModal('template-modal');
+          showToast(data.message || 'Template saved.');
+        })
+        .catch(function (err) { showToast(err.message); });
+    });
   }
 
   /* ============================================================
@@ -1342,11 +2104,13 @@ document.addEventListener('DOMContentLoaded', function () {
   var generateDxBtn = document.getElementById('generate-dx-btn');
   if (generateDxBtn) {
     generateDxBtn.addEventListener('click', function () {
-      var patient = document.getElementById('dx-patient').value || '—';
+      var patientId = document.getElementById('dx-patient').value;
+      var patient = findPatientLocal(patientId);
+      var patientLabelText = patient ? (patient.name || '—') : (document.getElementById('dx-patient-search').value || '—');
       var date = document.getElementById('dx-date').value || todayStr;
       var notes = document.getElementById('dx-notes').value || '—';
 
-      document.getElementById('dx-prev-patient').textContent = patient;
+      document.getElementById('dx-prev-patient').textContent = patientLabelText;
       document.getElementById('dx-prev-date').textContent = date;
       document.getElementById('dx-prev-notes').textContent = notes;
 
@@ -1364,6 +2128,10 @@ document.addEventListener('DOMContentLoaded', function () {
         testList.appendChild(li2);
       }
 
+      if (!patientId) {
+        showToast('Please select a patient first.');
+        return;
+      }
       showToast('Diagnostic request generated.');
     });
   }
@@ -1378,35 +2146,6 @@ document.addEventListener('DOMContentLoaded', function () {
     win.document.close();
     win.print();
   };
-
-  function buildDxTemplates() {
-    var list = document.getElementById('dx-template-list');
-    if (!list) return;
-    list.innerHTML = '';
-    DX_TEMPLATES.forEach(function (t) {
-      var div = document.createElement('div');
-      div.className = 'template-item';
-      div.innerHTML = '<div class="template-item-top">' +
-        '<span class="template-name">' + t.name + '</span>' +
-        '<span class="template-tag ' + t.tagClass + '">' + t.tag + '</span>' +
-        '</div>' +
-        '<div class="template-desc">' + t.desc + '</div>' +
-        '<button class="btn-outline-sm" style="margin-top:4px;">+ Apply Template</button>';
-      div.querySelector('button').addEventListener('click', function () {
-        applyDxTemplate(t);
-      });
-      list.appendChild(div);
-    });
-  }
-
-  function applyDxTemplate(t) {
-    qsa('.dx-cb').forEach(function (cb) { cb.checked = false; });
-    t.tests.forEach(function (test) {
-      var cb = qs('.dx-cb[data-test="' + test + '"]');
-      if (cb) cb.checked = true;
-    });
-    showToast('Template "' + t.name + '" applied.');
-  }
 
   /* ============================================================
      MODALS
@@ -1440,7 +2179,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cl) closeModal(cl.getAttribute('data-close'));
     // Click outside modal box
     if (e.target.classList.contains('modal-overlay')) {
-      var modals = ['add-patient-modal', 'schedule-consult-modal', 'record-modal', 'profile-modal', 'edit-consult-modal', 'patient-detail-modal'];
+      var modals = ['add-patient-modal', 'schedule-consult-modal', 'record-modal', 'profile-modal', 'edit-consult-modal', 'patient-detail-modal', 'template-modal', 'logout-modal'];
       modals.forEach(function (m) { closeModal(m); });
     }
   });
@@ -1458,7 +2197,6 @@ document.addEventListener('DOMContentLoaded', function () {
         age: getVal('new-age') ? parseInt(getVal('new-age'), 10) : null,
         sex: getVal('new-sex') || 'female',
         chief_complaint: getVal('new-complaint'),
-        status: getVal('new-status') || 'Active',
         life_coach_id: getVal('new-coach') || null,
       };
       apiFetch((window.PSYCH_ROUTES || {}).patientsStore || '/psychiatrist/patients', {
@@ -1530,16 +2268,26 @@ document.addEventListener('DOMContentLoaded', function () {
     var page = document.body.getAttribute('data-page');
     var p = findPatientLocal(patientId);
 
-    if (page === 'prescriptions' && p) {
-      var sel = document.getElementById('rx-patient');
-      if (sel) {
-        var targetVal = p.name + ' (' + p.id + ')';
-        for (var i = 0; i < sel.options.length; i++) {
-          if (sel.options[i].value === targetVal) { sel.selectedIndex = i; break; }
-        }
+    function selectRx(patient) {
+      if (rxPatientPicker) rxPatientPicker.setSelected(patient);
+      else {
+        setVal('rx-patient', patient.id);
+        setVal('rx-patient-search', patientLabel(patient));
+        if (patient.age != null) setVal('rx-age', patient.age);
       }
-      var ageEl = document.getElementById('rx-age');
-      if (ageEl) ageEl.value = p.age;
+    }
+
+    if (page === 'prescriptions') {
+      if (p) {
+        selectRx(p);
+      } else {
+        searchPatientsApi(String(patientId)).then(function (matches) {
+          var found = matches.find(function (item) {
+            return String(item.id) === String(patientId) || String(item.patient_id) === String(patientId);
+          }) || matches[0];
+          if (found) selectRx(found);
+        });
+      }
     }
 
     if (page === 'assessments') {
@@ -1548,6 +2296,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (page === 'records') {
       setTimeout(function () { openRecord(patientId); }, 50);
+    }
+
+    if (page === 'lifestyle') {
+      setTimeout(function () { openLifestylePatient(patientId); }, 50);
     }
   })();
 
