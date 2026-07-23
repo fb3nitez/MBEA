@@ -1848,3 +1848,35 @@ body {
   color: var(--text-400);
   margin-top: 2px;
 }
+
+gn-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+ 
+/* Style the existing .btn-outline-sm inside notes to look like a themed delete */
+.global-note-item .gn-actions .btn-outline-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+ 
+.global-note-item .gn-actions .btn-outline-sm:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, .25);
+}
