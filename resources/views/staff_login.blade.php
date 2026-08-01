@@ -38,7 +38,6 @@
             <i data-feather="shield"></i>
           </div>
           <div class="hero-copy">
-            <span class="hero-pill">Secure access</span>
             <h1 class="portal-heading">Signing in as</h1>
             <p class="portal-sub">Select your role to continue</p>
           </div>
@@ -139,17 +138,12 @@
               <input type="checkbox" id="remember-me" class="remember-checkbox" />
               <span>Remember me</span>
             </label>
-            <a href="#" class="forgot-link">Forgot password?</a>
           </div>
 
           <button type="submit" class="btn-submit" id="btn-submit">
             <span id="submit-text">Sign In</span>
           </button>
         </form>
-
-        <p class="form-footer-note">
-          Not a staff member? <a href="/" class="blue-link">Go to Patient Portal</a>
-        </p>
       </div>
     </main>
   </section>
