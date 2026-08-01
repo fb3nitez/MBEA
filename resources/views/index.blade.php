@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic</title>
+  <title>MB.EA Integrated Psychiatric &amp; Lifestyle Medicine Clinic</title>
   <link rel="stylesheet" href="{{ asset('css/index.css') }}" />
 </head>
 <body>
@@ -13,7 +13,7 @@
     <div class="nav-inner">
       <a href="/" class="nav-brand">
         <span class="nav-brand-mark">ME</span>
-        <span class="nav-brand-text">MBEA</span>
+        <span class="nav-brand-text">MB.EA</span>
       </a>
 
       <nav class="nav-links" id="nav-links">
@@ -45,7 +45,7 @@
         <p class="hero-subhead">Mind, Body &amp; Spirit</p>
 
         <p class="hero-description">
-          MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic provides compassionate,
+          MB.EA Integrated Psychiatric &amp; Lifestyle Medicine Clinic provides compassionate,
           evidence-based mental health care that addresses every dimension of your well-being —
           biological, psychological, social, and spiritual.
         </p>
@@ -189,15 +189,15 @@
       <div class="footer-col">
         <div class="nav-brand">
           <span class="nav-brand-mark">MC</span>
-          <span class="nav-brand-text">MedCare Clinic</span>
+          <span class="nav-brand-text">MB.EA Clinic</span>
         </div>
-        <p>MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic. Compassionate, evidence-based care for mind, body, and spirit.</p>
+        <p>MB.EA Integrated Psychiatric &amp; Lifestyle Medicine Clinic. Compassionate, evidence-based care for mind, body, and spirit.</p>
       </div>
 
       <div class="footer-col">
         <h4>Contact</h4>
         <p>123 Wellness Avenue<br>Tacloban City, Leyte</p>
-        <p>(053) 555-0100<br>info@medcareclinic.example</p>
+        <p>(053) 555-0100<br>info@mbea.clinic.example</p>
       </div>
 
       <div class="footer-col">
@@ -213,7 +213,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; <span id="footer-year"></span> MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic. All information is kept confidential and protected under medical privacy laws.</p>
+      <p>&copy; <span id="footer-year"></span> MB.EA Integrated Psychiatric &amp; Lifestyle Medicine Clinic. All information is kept confidential and protected under medical privacy laws.</p>
     </div>
   </footer>
 
