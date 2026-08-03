@@ -145,16 +145,7 @@ function lcInitSidebar(activeKey) {
   var logout = document.getElementById('logout-btn');
   if (logout) {
     logout.addEventListener('click', function () {
-      var form = document.createElement('form');
-      form.method = 'POST';
-      form.action = (window.LC_ROUTES && window.LC_ROUTES.logout) || '/auth/logout';
-      var input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = '_token';
-      input.value = lcCsrfToken();
-      form.appendChild(input);
-      document.body.appendChild(form);
-      form.submit();
+      lcOpenModal('logout-modal');
     });
   }
 

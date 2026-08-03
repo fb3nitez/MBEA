@@ -80,3 +80,23 @@ Route::middleware(['auth', 'role:lifecoach'])
         Route::post('/schedules', 'storeSchedule')->name('schedules.store');
         Route::post('/goals', 'storeGoal')->name('goals.store');
     });
+
+
+//test route for role selection
+Route::post('/auth/check-role', function (\Illuminate\Http\Request $request) {
+    $user = \App\Models\User::where('email', $request->email)->first();
+
+    if (!$user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+        return response()->json(['role' => null]);
+    }
+
+    if ($user->hasRole('psychiatrist')) {
+        return response()->json(['role' => 'Psychiatrist']);
+    }
+
+    if ($user->hasRole('lifecoach')) {
+        return response()->json(['role' => 'Life Coach']);
+    }
+
+    return response()->json(['role' => null]);
+});

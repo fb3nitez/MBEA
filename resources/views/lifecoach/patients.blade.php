@@ -12,7 +12,7 @@
 <body>
 <div class="app-shell">
 
-  @include('partials.lifecoach_sidebar', ['activePage' => 'patients'])
+    @include('lifecoach.partials.lifecoach_sidebar', ['activePage' => 'patients'])
 
   <div class="main-area">
     <header class="main-topbar">

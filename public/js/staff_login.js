@@ -1,334 +1,352 @@
 /* ============================================================
-   MB.EA STAFF LOGIN — polished interactions
+   MB.EA STAFF LOGIN — clean two-phase, no session until confirmed
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
-    var sectionPortal = document.getElementById("section-portal");
-    var sectionLogin = document.getElementById("section-login");
+
+    var sectionPortal       = document.getElementById("section-portal");
+    var sectionLogin        = document.getElementById("section-login");
     var btnRolePsychiatrist = document.getElementById("btn-role-psychiatrist");
-    var btnRoleCoach = document.getElementById("btn-role-coach");
-    var btnBackPortal = document.getElementById("btn-back-portal");
-    var loginForm = document.getElementById("login-form");
-    var emailInput = document.getElementById("email");
-    var passwordInput = document.getElementById("password");
-    var eyeToggle = document.getElementById("eye-toggle");
-    var rememberCheck = document.getElementById("remember-me");
-    var errorBox = document.getElementById("error-box");
-    var errorMsg = document.getElementById("error-message");
-    var btnSubmit = document.getElementById("btn-submit");
-    var submitText = document.getElementById("submit-text");
-    var loadingScreen = document.getElementById("loading-screen");
-    var loadingCircle = document.getElementById("loading-circle");
-    var loadingRoleIcon = document.getElementById("loading-role-icon");
-    var loadingTextWrap = document.getElementById("loading-text");
-    var loadingRoleName = document.getElementById("loading-role-name");
-    var loadingProgress = document.getElementById("loading-progress-bar");
-    var loadingCheck = document.getElementById("loading-check");
-    var selectedRoleInput = document.getElementById("selected-role");
-    var roleSubtitle = document.getElementById("role-subtitle");
+    var btnRoleCoach        = document.getElementById("btn-role-coach");
+    var btnBackPortal       = document.getElementById("btn-back-portal");
+    var loginForm           = document.getElementById("login-form");
+    var emailInput          = document.getElementById("email");
+    var passwordInput       = document.getElementById("password");
+    var eyeToggle           = document.getElementById("eye-toggle");
+    var rememberCheck       = document.getElementById("remember-me");
+    var errorBox            = document.getElementById("error-box");
+    var errorMsg            = document.getElementById("error-message");
+    var btnSubmit           = document.getElementById("btn-submit");
+    var submitText          = document.getElementById("submit-text");
+    var selectedRoleInput   = document.getElementById("selected-role");
+    var roleSubtitle        = document.getElementById("role-subtitle");
+    var rolePill            = document.getElementById("role-pill");
+    var loginRoleIcon       = document.getElementById("login-role-icon");
+
+    // Loading screen
+    var loadingScreen       = document.getElementById("loading-screen");
+    var loadingCircle       = document.getElementById("loading-circle");
+    var loadingRoleIconSpin = document.getElementById("loading-role-icon-spinner");
+    var loadingTextWrap     = document.getElementById("loading-text");
+    var loadingRoleName     = document.getElementById("loading-role-name");
+    var loadingProgress     = document.getElementById("loading-progress-bar");
+    var loadingCheck        = document.getElementById("loading-check");
+
+    // Mismatch modal
+    var mismatchOverlay     = document.getElementById("mismatch-overlay");
+    var mismatchSelected    = document.getElementById("mismatch-selected");
+    var mismatchActual      = document.getElementById("mismatch-actual");
+    var mismatchCorrectLbl  = document.getElementById("mismatch-correct-label");
+    var mismatchYes         = document.getElementById("mismatch-yes");
+    var mismatchNo          = document.getElementById("mismatch-no");
 
     var currentRole = "Psychiatrist";
 
-    function show(el) {
-        if (!el) return;
-        el.classList.remove("hidden");
-        el.style.opacity = "";
-        el.style.transform = "";
+    // ── Helpers ──────────────────────────────────────────────
+    function show(el) { if (el) el.classList.remove("hidden"); }
+    function hide(el) { if (el) el.classList.add("hidden"); }
+    function reIcons() { if (window.feather) window.feather.replace(); }
+
+    function getCsrf() {
+        var meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute("content") : "";
     }
 
-    function hide(el) {
-        if (!el) return;
-        el.classList.add("hidden");
+    function resetBtn() {
+        if (btnSubmit)  { btnSubmit.disabled = false; btnSubmit.classList.remove("is-loading"); }
+        if (submitText) submitText.textContent = "Sign In";
     }
 
-    function reIcons() {
-        if (window.feather) {
-            window.feather.replace();
-        }
+    function showError(msg) {
+        if (errorMsg) errorMsg.textContent = msg;
+        show(errorBox);
     }
 
-    function animateSection(target) {
-        var current = sectionPortal.classList.contains("hidden")
-            ? sectionLogin
-            : sectionPortal;
+    function clearError() { hide(errorBox); }
 
-        if (!target || current === target) {
-            return;
-        }
+    // ── Section transitions ───────────────────────────────────
+    function animateToSection(target) {
+        var current = sectionPortal.classList.contains("hidden") ? sectionLogin : sectionPortal;
+        if (!target || current === target) return;
 
-        current.style.transition = "opacity 0.24s ease, transform 0.24s ease";
-        current.style.opacity = "0";
-        current.style.transform = "translateY(-8px)";
+        current.style.transition = "opacity 0.22s ease, transform 0.22s ease";
+        current.style.opacity    = "0";
+        current.style.transform  = "translateY(-8px)";
 
-        target.classList.remove("hidden");
-        target.style.transition = "opacity 0.24s ease, transform 0.24s ease";
-        target.style.opacity = "0";
-        target.style.transform = "translateY(10px)";
+        show(target);
+        target.style.transition = "opacity 0.22s ease, transform 0.22s ease";
+        target.style.opacity    = "0";
+        target.style.transform  = "translateY(10px)";
 
         requestAnimationFrame(function () {
-            target.style.opacity = "1";
+            target.style.opacity   = "1";
             target.style.transform = "translateY(0)";
         });
 
-        window.setTimeout(function () {
-            current.classList.add("hidden");
-            current.style.opacity = "";
-            current.style.transform = "";
-            current.style.transition = "";
+        setTimeout(function () {
+            hide(current);
+            current.style.cssText   = "";
             target.style.transition = "";
-        }, 260);
+        }, 240);
     }
 
     function showPortal() {
-        animateSection(sectionPortal);
-        hide(errorBox);
+        clearError();
+        animateToSection(sectionPortal);
         reIcons();
     }
 
-    function showLogin() {
-        animateSection(sectionLogin);
-        hide(errorBox);
-        reIcons();
-    }
-
-    function selectRole(role) {
+    function showLoginFor(role) {
         currentRole = role;
-        if (selectedRoleInput) {
-            selectedRoleInput.value = role;
+        if (selectedRoleInput) selectedRoleInput.value = role;
+
+        if (rolePill) {
+            rolePill.textContent = role;
+            rolePill.className   = "role-pill " + (role === "Life Coach" ? "role-pill-green" : "role-pill-blue");
         }
+
         if (roleSubtitle) {
-            roleSubtitle.textContent =
-                role === "Life Coach"
-                    ? "Coaching sessions and lifestyle tracking"
-                    : "Patient assessments and prescriptions";
+            roleSubtitle.textContent = role === "Life Coach"
+                ? "Coaching sessions and lifestyle tracking"
+                : "Patient assessments and prescriptions";
         }
-        showLogin();
+
+        if (loginRoleIcon) {
+            loginRoleIcon.setAttribute("data-feather", role === "Life Coach" ? "heart" : "cpu");
+        }
+
+        clearError();
+        animateToSection(sectionLogin);
+        reIcons();
     }
 
+    // ── Role selection ────────────────────────────────────────
     if (btnRolePsychiatrist) {
         btnRolePsychiatrist.addEventListener("click", function (e) {
             e.preventDefault();
-            selectRole("Psychiatrist");
+            showLoginFor("Psychiatrist");
         });
     }
 
     if (btnRoleCoach) {
         btnRoleCoach.addEventListener("click", function (e) {
             e.preventDefault();
-            selectRole("Life Coach");
+            showLoginFor("Life Coach");
         });
     }
 
     if (btnBackPortal) {
         btnBackPortal.addEventListener("click", function (e) {
             e.preventDefault();
-            // Don't navigate if button is disabled (error shown)
-            if (btnBackPortal.disabled) {
-                e.stopPropagation();
-                return false;
-            }
             showPortal();
         });
     }
 
+    // ── Password toggle ───────────────────────────────────────
     var pwVisible = false;
-
     if (eyeToggle && passwordInput) {
         eyeToggle.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
+            e.preventDefault(); e.stopPropagation();
             pwVisible = !pwVisible;
-            passwordInput.type = pwVisible ? "text" : "password";
+            passwordInput.type    = pwVisible ? "text" : "password";
             eyeToggle.textContent = pwVisible ? "Hide" : "Show";
-
             if (passwordInput.value) {
                 passwordInput.focus();
-                var len = passwordInput.value.length;
-                passwordInput.setSelectionRange(len, len);
+                passwordInput.setSelectionRange(passwordInput.value.length, passwordInput.value.length);
             }
         });
     }
 
-    function showError(msg) {
-        if (errorMsg) {
-            errorMsg.textContent = msg;
-        }
-        show(errorBox);
-        // Disable back button when error is shown
-        if (btnBackPortal) {
-            btnBackPortal.disabled = true;
-            btnBackPortal.style.opacity = "0.5";
-            btnBackPortal.style.cursor = "not-allowed";
-        }
-    }
-
-    function clearError() {
-        hide(errorBox);
-        // Re-enable back button when error is cleared
-        if (btnBackPortal) {
-            btnBackPortal.disabled = false;
-            btnBackPortal.style.opacity = "";
-            btnBackPortal.style.cursor = "";
-        }
-    }
-
-    var saved = "";
+    // ── Remember me restore ───────────────────────────────────
     try {
-        saved = localStorage.getItem("mbea_email") || "";
+        var saved = localStorage.getItem("mbea_email") || "";
+        if (saved && emailInput) {
+            emailInput.value = saved;
+            if (rememberCheck) rememberCheck.checked = true;
+        }
     } catch (e) {}
 
-    if (saved && emailInput) {
-        emailInput.value = saved;
-        if (rememberCheck) {
-            rememberCheck.checked = true;
-        }
-    }
-
-    function detectRole(email) {
-        var key = (email || "").toLowerCase().trim();
-
-        if (/doctor|psychiatrist|psych|dr\./.test(key)) {
-            return {
-                role: "Psychiatrist",
-                name: "Dr. Staff Member",
-            };
-        }
-
-        if (/coach|life/.test(key)) {
-            return {
-                role: "Life Coach",
-                name: "Coach Staff Member",
-            };
-        }
-
-        return currentRole === "Life Coach"
-            ? {
-                  role: "Life Coach",
-                  name: "Coach Staff Member",
-              }
-            : {
-                  role: "Psychiatrist",
-                  name: "Dr. Staff Member",
-              };
-    }
-
-    function showLoading(roleInfo) {
+    // ── Loading screen ────────────────────────────────────────
+    function showLoading(role) {
         if (!loadingScreen) return;
+        show(loadingScreen);
+        hide(loadingTextWrap);
+        hide(loadingCheck);
+        if (loadingProgress) loadingProgress.style.width = "0%";
 
-        loadingScreen.classList.remove("hidden");
-        loadingTextWrap.classList.add("hidden");
-        loadingCheck.classList.add("hidden");
-        loadingProgress.style.width = "0%";
-
-        loadingCircle.className = "loading-circle";
-        loadingCircle.classList.add(
-            roleInfo.role === "Life Coach" ? "green-role" : "blue-role",
-        );
-
-        if (loadingRoleIcon) {
-            loadingRoleIcon.setAttribute(
-                "data-feather",
-                roleInfo.role === "Life Coach" ? "heart" : "cpu",
-            );
-        }
-
-        if (loadingRoleName) {
-            loadingRoleName.textContent = roleInfo.role || "Psychiatrist";
-            loadingRoleName.className = "loading-role";
-            loadingRoleName.classList.add(
-                roleInfo.role === "Life Coach" ? "green-role" : "blue-role",
-            );
-        }
+        var isCoach = role === "Life Coach";
+        if (loadingCircle)      loadingCircle.className = "loading-circle " + (isCoach ? "green-role" : "blue-role");
+        if (loadingRoleIconSpin) loadingRoleIconSpin.setAttribute("data-feather", isCoach ? "heart" : "cpu");
+        if (loadingRoleName)    loadingRoleName.textContent = role;
+        if (loadingRoleName)    loadingRoleName.className   = "loading-role " + (isCoach ? "green-role" : "blue-role");
 
         reIcons();
-
-        window.setTimeout(function () {
-            loadingTextWrap.classList.remove("hidden");
-        }, 180);
+        setTimeout(function () { show(loadingTextWrap); }, 180);
 
         var progress = 0;
-        var timer = window.setInterval(function () {
+        var timer = setInterval(function () {
             progress += Math.random() * 16 + 8;
-            if (progress > 100) {
-                progress = 100;
-            }
-            loadingProgress.style.width = progress + "%";
-
-            if (progress >= 100) {
-                window.clearInterval(timer);
-                loadingCheck.classList.remove("hidden");
-            }
+            if (progress > 100) progress = 100;
+            if (loadingProgress) loadingProgress.style.width = progress + "%";
+            if (progress >= 100) { clearInterval(timer); show(loadingCheck); }
         }, 120);
     }
+
+    // ── Real login (Phase 2) — only called after role is confirmed ──
+    function doRealLogin(email, role, onSuccess, onFail) {
+        if (submitText) submitText.textContent = "Signing in...";
+
+        var formData = new FormData(loginForm);
+
+        fetch("/auth/login", {
+            method: "POST",
+            credentials: "same-origin",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRF-TOKEN": getCsrf(),
+            },
+        })
+        .then(function (res) {
+            var url    = res.url || "";
+            var failed = url.indexOf("/login") !== -1 || url.indexOf("/staff") !== -1;
+            if (failed) throw new Error("Auth failed after role check.");
+            return url;
+        })
+        .then(function (dashboardUrl) {
+            if (rememberCheck && rememberCheck.checked) {
+                try { localStorage.setItem("mbea_email", email); } catch (e) {}
+            }
+            showLoading(role);
+            setTimeout(function () { window.location.href = dashboardUrl; }, 1500);
+        })
+        .catch(function (err) {
+            console.error("[staff_login] Phase 2 error:", err);
+            if (onFail) onFail();
+        });
+    }
+
+    // ── Mismatch modal ────────────────────────────────────────
+    function showMismatch(selectedRole, actualRole, email) {
+        if (mismatchSelected)  mismatchSelected.textContent  = selectedRole;
+        if (mismatchActual)    mismatchActual.textContent     = actualRole;
+        if (mismatchCorrectLbl) mismatchCorrectLbl.textContent = actualRole;
+        show(mismatchOverlay);
+        reIcons();
+
+        // "Yes — take me there" → NOW do the real login for the correct role
+        if (mismatchYes) {
+            mismatchYes.onclick = function () {
+                hide(mismatchOverlay);
+                if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.classList.add("is-loading"); }
+                doRealLogin(email, actualRole, null, function () {
+                    resetBtn();
+                    if (passwordInput) passwordInput.value = "";
+                    showError("Sign in failed. Please try again.");
+                });
+            };
+        }
+
+        // "No — go back" → close modal, clear form, stay on login. NO session created.
+        if (mismatchNo) {
+            mismatchNo.onclick = function () {
+                hide(mismatchOverlay);
+                resetBtn();
+                if (passwordInput) passwordInput.value = "";
+                clearError();
+            };
+        }
+    }
+
+    // Close on backdrop click — same as No
+    if (mismatchOverlay) {
+        mismatchOverlay.addEventListener("click", function (e) {
+            if (e.target === mismatchOverlay) {
+                hide(mismatchOverlay);
+                resetBtn();
+                if (passwordInput) passwordInput.value = "";
+                clearError();
+            }
+        });
+    }
+
+    // ── TWO-PHASE LOGIN ───────────────────────────────────────
+    /*
+     * PHASE 1 — /auth/check-role
+     *   Verifies credentials + returns actual role from DB.
+     *   Does NOT create a session (no Auth::attempt).
+     *
+     *   Result A: null role → wrong credentials → show error, stop.
+     *   Result B: role matches currentRole → PHASE 2 immediately.
+     *   Result C: role mismatches → show mismatch modal.
+     *             NO real login yet. User chooses:
+     *             - Yes → PHASE 2 runs now with the correct role
+     *             - No  → nothing, form resets, no session anywhere
+     *
+     * PHASE 2 — /auth/login
+     *   Only called after Phase 1 confirms identity AND:
+     *   either (a) role matched, or (b) user accepted the mismatch.
+     *   This is the ONLY place Auth::attempt fires.
+     */
 
     if (loginForm) {
         loginForm.addEventListener("submit", function (e) {
             e.preventDefault();
             clearError();
 
-            var email =
-                emailInput && emailInput.value ? emailInput.value.trim() : "";
-            var password = passwordInput ? passwordInput.value : "";
+            var email    = emailInput    ? emailInput.value.trim() : "";
+            var password = passwordInput ? passwordInput.value     : "";
 
             if (!email || !password) {
                 showError("Please enter your email and password.");
                 return;
             }
 
-            if (btnSubmit) {
-                btnSubmit.disabled = true;
-                btnSubmit.classList.add("is-loading");
-            }
+            if (btnSubmit)  { btnSubmit.disabled = true; btnSubmit.classList.add("is-loading"); }
+            if (submitText) submitText.textContent = "Verifying...";
 
-            if (submitText) {
-                submitText.textContent = "Signing in...";
-            }
-
-            // First, validate credentials via AJAX
-            var formData = new FormData(loginForm);
-
-            fetch("/auth/login", {
+            /* ── PHASE 1 ── */
+            fetch("/auth/check-role", {
                 method: "POST",
-                body: formData,
+                credentials: "same-origin",
                 headers: {
+                    "Content-Type":     "application/json",
+                    "Accept":           "application/json",
                     "X-Requested-With": "XMLHttpRequest",
-                    Accept: "application/json",
+                    "X-CSRF-TOKEN":     getCsrf(),
                 },
+                body: JSON.stringify({ email: email, password: password }),
             })
-                .then(function (response) {
-                    // Laravel redirects on both success AND failure — fetch follows
-                    // that redirect automatically, so response.url tells us where
-                    // we actually ended up.
-                    var landedBackOnLogin =
-                        response.url.indexOf("/login") !== -1;
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var actualRole = data.role; // "Psychiatrist" | "Life Coach" | null
 
-                    if (!response.ok || landedBackOnLogin) {
-                        throw new Error("Invalid credentials");
-                    }
-
-                    return response.url; // the dashboard URL Laravel actually sent us to
-                })
-                .then(function (dashboardUrl) {
-                    if (rememberCheck && rememberCheck.checked && emailInput) {
-                        try {
-                            localStorage.setItem("mbea_email", email);
-                        } catch (err) {}
-                    }
-
-                    var roleInfo = detectRole(email);
-                    showLoading(roleInfo);
-
-                    window.setTimeout(function () {
-                        window.location.href = dashboardUrl; // real destination, not "/"
-                    }, 1500);
-                })
-                .catch(function (error) {
-                    btnSubmit.disabled = false;
-                    btnSubmit.classList.remove("is-loading");
-                    submitText.textContent = "Sign In";
+                // Wrong credentials — stop everything
+                if (!actualRole) {
+                    resetBtn();
                     showError("Invalid email or password. Please try again.");
-                });
+                    return;
+                }
+
+                // Role matches — go straight to real login
+                if (actualRole === currentRole) {
+                    doRealLogin(email, actualRole, null, function () {
+                        resetBtn();
+                        showError("Sign in failed. Please try again.");
+                    });
+                    return;
+                }
+
+                // Role mismatch — show modal, do NOT login yet
+                // User must explicitly confirm before any session is created
+                resetBtn();
+                showMismatch(currentRole, actualRole, email);
+            })
+            .catch(function (err) {
+                console.error("[staff_login] Phase 1 error:", err);
+                resetBtn();
+                showError("Could not verify credentials. Please try again.");
+            });
         });
     }
 

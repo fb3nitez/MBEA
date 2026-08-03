@@ -11,7 +11,7 @@
 <body>
 <div class="app-shell">
 
-  @include('partials.lifecoach_sidebar', ['activePage' => 'notes'])
+  @include('lifecoach.partials.lifecoach_sidebar', ['activePage' => 'notes'])
 
   <div class="main-area">
     <header class="main-topbar">

@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   @include('lifecoach.partials.boot')
+ 
 </head>
 <body>
 <div class="app-shell">
 
-  @include('partials.lifecoach_sidebar', ['activePage' => 'dashboard'])
+   @include('lifecoach.partials.lifecoach_sidebar', ['activePage' => 'dashboard'])
 
   <div class="main-area">
     <header class="main-topbar">

@@ -4,64 +4,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MB.EA — Staff Portal</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
+  <title>MedCare — Staff Portal</title>
   <link rel="stylesheet" href="{{ asset('css/staff_login.css') }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
 </head>
 
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
 
   <!-- ======================================================
-       SECTION: ROLE SELECTION
-  ====================================================== -->
+     SECTION: STAFF PORTAL (Step 1 — choose role)
+====================================================== -->
   <section id="section-portal" class="page-section">
     <header class="topbar">
       <div class="topbar-left">
-        <div class="brand-icon">
-          <i data-feather="activity"></i>
-        </div>
-        <span class="brand-name">MB.EA Clinic</span>
+        <div class="brand-icon"><i data-feather="activity"></i></div>
+        <span class="brand-name">MedCare Clinic</span>
         <span class="topbar-dot">·</span>
         <span class="topbar-label">STAFF PORTAL</span>
       </div>
       <div class="topbar-right">
-        <a href="/" class="topbar-link"><i data-feather="arrow-left" class="link-icon"></i> Patient Portal</a>
+        <a href="/" class="topbar-link">
+          <i data-feather="arrow-left" class="link-icon"></i> Patient Portal
+        </a>
       </div>
     </header>
 
     <main class="portal-main">
       <div class="portal-card">
-        <div class="hero-stack">
-          <div class="logo-icon large">
-            <i data-feather="shield"></i>
-          </div>
-          <div class="hero-copy">
-            <h1 class="portal-heading">Signing in as</h1>
-            <p class="portal-sub">Select your role to continue</p>
-          </div>
+        <div class="logo-block">
+          <div class="logo-icon large"><i data-feather="shield"></i></div>
+          <h1 class="portal-heading">Staff Access</h1>
+          <p class="portal-sub">Select your role to continue</p>
         </div>
 
-        <div class="role-buttons">
-          <button type="button" class="role-button psychiatrist" id="btn-role-psychiatrist">
-            <div class="role-icon blue">
-              <i data-feather="cpu"></i>
-            </div>
+        <!-- Clickable role cards -->
+        <div class="role-cards">
+          <button class="role-card role-card-btn" id="btn-role-psychiatrist">
+            <div class="role-icon blue"><i data-feather="cpu"></i></div>
             <div class="role-info">
               <div class="role-title">Psychiatrist</div>
               <div class="role-desc">Patient assessments · Prescriptions · Records</div>
             </div>
+            <i data-feather="chevron-right" class="role-chevron"></i>
           </button>
 
-          <button type="button" class="role-button coach" id="btn-role-coach">
-            <div class="role-icon green">
-              <i data-feather="heart"></i>
-            </div>
+          <button class="role-card role-card-btn" id="btn-role-coach">
+            <div class="role-icon green"><i data-feather="heart"></i></div>
             <div class="role-info">
               <div class="role-title">Life Coach</div>
               <div class="role-desc">Coaching sessions · Progress tracking · Tasks</div>
             </div>
+            <i data-feather="chevron-right" class="role-chevron"></i>
           </button>
         </div>
 
@@ -70,88 +64,138 @@
     </main>
 
     <footer class="page-footer">
-      © 2026 MB.EA Integrated Psychiatric &amp; Lifestyle Medicine Clinic
+      © 2026 MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic
     </footer>
   </section>
 
+
   <!-- ======================================================
-       SECTION: LOGIN FORM
-  ====================================================== -->
+     SECTION: LOGIN FORM (Step 2 — enter credentials)
+====================================================== -->
   <section id="section-login" class="page-section hidden">
     <header class="topbar">
       <div class="topbar-left">
-        <div class="brand-icon">
-          <i data-feather="activity"></i>
-        </div>
-        <span class="brand-name">MB.EA Clinic</span>
+        <div class="brand-icon"><i data-feather="activity"></i></div>
+        <span class="brand-name">MedCare Clinic</span>
         <span class="topbar-dot">·</span>
         <span class="topbar-label">STAFF PORTAL</span>
       </div>
       <div class="topbar-right">
-        <a href="#" class="topbar-link" id="btn-back-portal"><i data-feather="arrow-left" class="link-icon"></i>
-          Back</a>
+        <a href="#" class="topbar-link" id="btn-back-portal">
+          <i data-feather="arrow-left" class="link-icon"></i> Back
+        </a>
       </div>
     </header>
 
     <main class="portal-main">
       <div class="portal-card">
         <div class="logo-block">
-          <div class="logo-icon medium">
-            <i data-feather="lock"></i>
+          <div class="logo-icon medium" id="login-role-icon-wrap">
+            <i data-feather="lock" id="login-role-icon"></i>
           </div>
           <h1 class="portal-heading">Sign In</h1>
-          <p class="portal-sub" id="role-subtitle">Access your MB.EA staff dashboard</p>
+          <p class="portal-sub" id="role-subtitle">Access your MedCare staff dashboard</p>
+          <!-- Selected role pill -->
+          <div class="role-pill-wrap">
+            <span class="role-pill" id="role-pill">Psychiatrist</span>
+          </div>
         </div>
 
+        <!-- Error box -->
         <div class="error-box hidden" id="error-box">
           <i data-feather="alert-circle" class="error-icon"></i>
           <span id="error-message">Invalid credentials. Please try again.</span>
         </div>
 
+        <!-- Login Form -->
         <form action="{{ route('auth.login') }}" method="post" id="login-form" class="login-form" novalidate>
           @csrf
           <input type="hidden" id="selected-role" name="selected_role" value="Psychiatrist" />
 
-          <div class="field-group">
-            <label class="field-label" for="email">Email Address</label>
-            <div class="input-wrapper">
-              <i data-feather="mail" class="input-icon"></i>
-              <input type="email" id="email" name="email" class="field-input" placeholder="youremail@gmail.com"
-                autocomplete="email" />
-            </div>
+          <!-- Email — floating label style -->
+          <div class="fl-group">
+            <input type="email" id="email" name="email" class="fl-input" required autocomplete="email"
+              placeholder=" " />
+            <label for="email" class="fl-label">Email Address</label>
+            <span class="fl-bar"></span>
           </div>
 
-          <div class="field-group">
-            <label class="field-label" for="password">Password</label>
-            <div class="input-wrapper">
-              <i data-feather="lock" class="input-icon"></i>
-              <input type="password" id="password" name="password" class="field-input input-with-toggle"
-                placeholder="••••••••" autocomplete="current-password" />
-              <button type="button" class="eye-toggle" id="eye-toggle" aria-label="Toggle password visibility">
-                Show
-              </button>
-            </div>
+          <!-- Password — floating label style -->
+          <div class="fl-group" style="margin-top:28px;">
+            <input type="password" id="password" name="password" class="fl-input" required
+              autocomplete="current-password" placeholder=" " />
+            <label for="password" class="fl-label">Password</label>
+            <span class="fl-bar"></span>
+            <button type="button" class="eye-toggle" id="eye-toggle"
+              aria-label="Toggle password visibility">Show</button>
           </div>
 
-          <div class="form-row-split">
+          <!-- Remember + Forgot -->
+          <div class="form-row-split" style="margin-top:24px;">
             <label class="remember-label">
               <input type="checkbox" id="remember-me" class="remember-checkbox" />
               <span>Remember me</span>
             </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
           </div>
 
+          <!-- Submit -->
           <button type="submit" class="btn-submit" id="btn-submit">
             <span id="submit-text">Sign In</span>
           </button>
         </form>
+
+        <p class="form-footer-note">
+          Not a staff member? <a href="/" class="blue-link">Go to Patient Portal</a>
+        </p>
       </div>
     </main>
   </section>
 
+
+  <!-- ======================================================
+     ROLE MISMATCH MODAL
+====================================================== -->
+  <div id="mismatch-overlay" class="mismatch-overlay hidden">
+    <div class="mismatch-card">
+      <!-- Icon -->
+      <div class="mismatch-icon-wrap">
+        <div class="mismatch-icon"><i data-feather="alert-triangle"></i></div>
+      </div>
+
+      <!-- Content -->
+      <h2 class="mismatch-title">Wrong Role Selected</h2>
+      <p class="mismatch-body">
+        You selected <strong id="mismatch-selected">Psychiatrist</strong> but these
+        credentials belong to a <strong id="mismatch-actual">Life Coach</strong> account.
+      </p>
+      <p class="mismatch-body" style="margin-top:6px;">
+        Would you like to proceed to the
+        <strong id="mismatch-correct-label">Life Coach</strong> dashboard instead?
+      </p>
+
+      <!-- Actions -->
+      <div class="mismatch-actions">
+        <button class="mismatch-btn-yes" id="mismatch-yes">
+          <i data-feather="check-circle"></i>
+          Yes, take me there
+        </button>
+        <button class="mismatch-btn-no" id="mismatch-no">
+          <i data-feather="x-circle"></i>
+          No, go back
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================
+     LOADING SCREEN
+====================================================== -->
   <div id="loading-screen" class="loading-screen hidden">
     <div class="loading-ring-container">
       <div class="loading-circle" id="loading-circle">
-        <i data-feather="cpu" id="loading-role-icon"></i>
+        <i data-feather="cpu" id="loading-role-icon-spinner"></i>
       </div>
       <svg class="loading-svg" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
         <circle class="loading-ring" id="loading-ring-svg" cx="48" cy="48" r="44" fill="none" stroke-width="4"
