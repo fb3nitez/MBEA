@@ -9,10 +9,13 @@ use App\Services\PatientService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\BiopsychosocialAssessment;
 
 class PsychiatristController extends Controller
 {
-    public function __construct(private PatientService $patientService) {}
+    public function __construct(private PatientService $patientService)
+    {
+    }
 
     public function dashboard(): View
     {
@@ -39,7 +42,7 @@ class PsychiatristController extends Controller
     {
         $patientsPage = $this->patientService->getPaginatedPatients(10);
         $patients = $patientsPage->getCollection()
-            ->map(fn (PatientRecord $p) => $this->patientService->patientToArray($p))
+            ->map(fn(PatientRecord $p) => $this->patientService->patientToArray($p))
             ->values();
 
         return view('psychiatrist.patients', [
@@ -53,7 +56,7 @@ class PsychiatristController extends Controller
     {
         $consultationsPage = $this->patientService->getPaginatedConsultations(10);
         $consultations = $consultationsPage->getCollection()
-            ->map(fn ($c) => $this->patientService->consultationToArray($c))
+            ->map(fn($c) => $this->patientService->consultationToArray($c))
             ->values();
 
         return view('psychiatrist.consultations', [
@@ -96,6 +99,30 @@ class PsychiatristController extends Controller
             'dxTemplates' => $templates->where('type', 'dx')->values(),
         ]);
     }
+
+
+    public function profile()
+    {
+        $user = auth()->user();
+
+        $totalPatients = PatientRecord::count();
+        $totalConsultations = ConsultationSchedule::count();
+        $totalAssessments = BiopsychosocialAssessment::count();
+
+        $recentConsultations = ConsultationSchedule::with('patientRecord')
+            ->orderBy('date', 'desc')
+            ->limit(5)
+            ->get();
+
+        return view('psychiatrist.profile', compact(
+            'user',
+            'totalPatients',
+            'totalConsultations',
+            'totalAssessments',
+            'recentConsultations'
+        ));
+    }
+
 
     public function searchPatients(Request $request): JsonResponse
     {

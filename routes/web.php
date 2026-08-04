@@ -33,6 +33,7 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::get('/lifestyle', 'lifestyle')->name('lifestyle');
         Route::get('/assessments', 'assessments')->name('assessments');
         Route::get('/prescriptions', 'prescriptions')->name('prescriptions');
+        Route::get('/profile', 'profile')->name('profile');
 
         Route::get('/patients/search', 'searchPatients')->name('patients.search');
         Route::get('/patients/{id}', 'showPatient')->name('patients.show');

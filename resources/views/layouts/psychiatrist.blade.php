@@ -12,7 +12,7 @@
 </head>
 
 @php
-$page = trim($__env->yieldContent('page'));
+  $page = trim($__env->yieldContent('page'));
 @endphp
 
 <body data-page="{{ $page }}">
@@ -27,20 +27,17 @@ $page = trim($__env->yieldContent('page'));
       </div>
 
       <nav class="sidebar-nav">
-        <a href="{{ route('psychiatrist.dashboard') }}"
-          class="nav-item {{ $page === 'dashboard' ? 'active' : '' }}">
+        <a href="{{ route('psychiatrist.dashboard') }}" class="nav-item {{ $page === 'dashboard' ? 'active' : '' }}">
           <i data-feather="grid"></i><span>Dashboard</span>
         </a>
-        <a href="{{ route('psychiatrist.patients') }}"
-          class="nav-item {{ $page === 'patients' ? 'active' : '' }}">
+        <a href="{{ route('psychiatrist.patients') }}" class="nav-item {{ $page === 'patients' ? 'active' : '' }}">
           <i data-feather="users"></i><span>Patients</span>
         </a>
         <a href="{{ route('psychiatrist.consultations') }}"
           class="nav-item {{ $page === 'consultations' ? 'active' : '' }}">
           <i data-feather="calendar"></i><span>Consultations</span>
         </a>
-        <a href="{{ route('psychiatrist.lifestyle') }}"
-          class="nav-item {{ $page === 'lifestyle' ? 'active' : '' }}">
+        <a href="{{ route('psychiatrist.lifestyle') }}" class="nav-item {{ $page === 'lifestyle' ? 'active' : '' }}">
           <i data-feather="trending-up"></i><span>Lifestyle Monitoring</span>
         </a>
         <a href="{{ route('psychiatrist.assessments') }}"
@@ -54,9 +51,9 @@ $page = trim($__env->yieldContent('page'));
       </nav>
 
       <div class="sidebar-footer">
-        <button type="button" class="nav-item" id="profile-btn">
+        <a href="{{ route('psychiatrist.profile') }}" class="nav-item {{ $page === 'profile' ? 'active' : '' }}">
           <i data-feather="user"></i><span>Profile</span>
-        </button>
+        </a>
         <button type="button" class="nav-item logout-item" id="logout-btn">
           <i data-feather="log-out"></i><span>Logout</span>
         </button>
