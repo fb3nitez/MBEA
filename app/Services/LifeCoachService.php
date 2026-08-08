@@ -41,8 +41,8 @@ class LifeCoachService
             'lifeCoach',
             'lifestyleAssessment',
             'prescriptions',
-            'coachingNotes' => fn ($q) => $q->where('life_coach_id', $coachId)->latest(),
-            'coachingGoals' => fn ($q) => $q->where('life_coach_id', $coachId)->latest(),
+            'coachingNotes' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
+            'coachingGoals' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
         ])
             ->where('life_coach_id', $coachId)
             ->findOrFail($id);
@@ -150,6 +150,12 @@ class LifeCoachService
         $coachId ??= $this->currentCoach()->id;
         $this->assertAssignedPatient((int) $data['patient_record_id'], $coachId);
 
+        $weeklyCheckins = $data['weekly_checkins'] ?? array_fill(0, 7, false);
+        if (! is_array($weeklyCheckins)) {
+            $weeklyCheckins = array_fill(0, 7, false);
+        }
+        $weeklyCheckins = array_values(array_map(fn($v) => (bool) $v, array_slice(array_pad($weeklyCheckins, 7, false), 0, 7)));
+
         return CoachingGoal::create([
             'patient_record_id' => $data['patient_record_id'],
             'life_coach_id' => $coachId,
@@ -158,7 +164,60 @@ class LifeCoachService
             'description' => $data['description'] ?? null,
             'target_date' => $data['target_date'] ?? null,
             'progress' => (int) ($data['progress'] ?? 0),
+            'weekly_checkins' => $weeklyCheckins,
         ]);
+    }
+
+    public function findGoalById(int $goalId, ?int $coachId = null): CoachingGoal
+    {
+        $coachId ??= $this->currentCoach()->id;
+
+        return CoachingGoal::where('life_coach_id', $coachId)
+            ->findOrFail($goalId);
+    }
+
+    public function updateGoal(array $data, int $goalId, ?int $coachId = null): CoachingGoal
+    {
+        $coachId ??= $this->currentCoach()->id;
+        $goal = CoachingGoal::where('life_coach_id', $coachId)
+            ->findOrFail($goalId);
+
+        $weeklyCheckins = $data['weekly_checkins'] ?? null;
+        if ($weeklyCheckins !== null) {
+            if (! is_array($weeklyCheckins)) {
+                $weeklyCheckins = array_fill(0, 7, false);
+            }
+            $weeklyCheckins = array_values(array_map(fn($v) => (bool) $v, array_slice(array_pad($weeklyCheckins, 7, false), 0, 7)));
+        }
+
+        $goal->update([
+            'title' => $data['title'] ?? $goal->title,
+            'category' => $data['category'] ?? $goal->category,
+            'description' => array_key_exists('description', $data) ? $data['description'] : $goal->description,
+            'target_date' => array_key_exists('target_date', $data) ? ($data['target_date'] ?: null) : $goal->target_date,
+            'progress' => array_key_exists('progress', $data) ? (int) $data['progress'] : $goal->progress,
+            'weekly_checkins' => $weeklyCheckins ?? $goal->weekly_checkins ?? array_fill(0, 7, false),
+        ]);
+
+        return $goal->fresh();
+    }
+
+    public function updateGoalProgress(int $goalId, int $progress, ?int $coachId = null): CoachingGoal
+    {
+        $coachId ??= $this->currentCoach()->id;
+
+        return $this->updateGoal([
+            'progress' => max(0, min(100, (int) $progress)),
+        ], $goalId, $coachId);
+    }
+
+    public function deleteGoal(int $goalId, ?int $coachId = null): void
+    {
+        $coachId ??= $this->currentCoach()->id;
+
+        CoachingGoal::where('life_coach_id', $coachId)
+            ->findOrFail($goalId)
+            ->delete();
     }
 
     public function dashboardStats(?int $coachId = null): array
@@ -169,7 +228,7 @@ class LifeCoachService
         $pending = $tasks->where('is_done', false);
         $completedThisWeek = $tasks
             ->where('is_done', true)
-            ->filter(fn (CoachingTask $t) => $t->completed_at && $t->completed_at->gte(now()->startOfWeek()))
+            ->filter(fn(CoachingTask $t) => $t->completed_at && $t->completed_at->gte(now()->startOfWeek()))
             ->count();
 
         $avgProgress = $patients->isEmpty()
@@ -205,13 +264,28 @@ class LifeCoachService
             ->where('life_coach_id', $coachId)
             ->sortByDesc('created_at')
             ->values()
-            ->map(fn (CoachingNote $n) => $this->noteToArray($n));
+            ->map(fn(CoachingNote $n) => $this->noteToArray($n));
 
         $goals = $patient->coachingGoals
             ->where('life_coach_id', $coachId)
             ->sortByDesc('created_at')
             ->values()
-            ->map(fn (CoachingGoal $g) => $this->goalToArray($g));
+            ->map(fn(CoachingGoal $g) => $this->goalToArray($g));
+
+        $habitGoals = $patient->coachingGoals
+            ->where('life_coach_id', $coachId)
+            ->sortByDesc('created_at')
+            ->values();
+
+        $habitNames = $habitGoals
+            ->map(fn(CoachingGoal $g) => $g->title)
+            ->values()
+            ->all();
+
+        $habitData = $habitGoals
+            ->map(fn(CoachingGoal $g) => array_values($g->weekly_checkins ?? array_fill(0, 7, false)))
+            ->values()
+            ->all();
 
         return [
             'id' => $patient->id,
@@ -230,8 +304,8 @@ class LifeCoachService
             'metrics' => $this->metricsFromLifestyle($patient),
             'compliance' => $this->complianceSeries($patient),
             'goals' => $goals,
-            'habits' => [],
-            'habitData' => [],
+            'habits' => $habitNames,
+            'habitData' => $habitData,
             'notes' => $notes,
         ];
     }
@@ -295,18 +369,21 @@ class LifeCoachService
     {
         return [
             'id' => $goal->id,
+            'patient_record_id' => $goal->patient_record_id,
             'title' => $goal->title,
             'cat' => $goal->category,
             'desc' => $goal->description ?? '',
             'date' => $goal->target_date?->format('M j, Y') ?? 'TBD',
+            'date_raw' => $goal->target_date?->format('Y-m-d') ?? null,
             'prog' => (int) $goal->progress,
+            'weekly_checkins' => array_values($goal->weekly_checkins ?? array_fill(0, 7, false)),
         ];
     }
 
     public function patientOptions(?int $coachId = null): SupportCollection
     {
         return $this->getAssignedPatients($coachId)
-            ->map(fn (PatientRecord $p) => [
+            ->map(fn(PatientRecord $p) => [
                 'id' => $p->id,
                 'name' => $p->fullname,
                 'patient_id' => $p->patient_id,
@@ -432,7 +509,7 @@ class LifeCoachService
         $base = $ls?->health_score !== null ? (int) ($ls->health_score * 10) : 60;
 
         return collect(range(0, 6))
-            ->map(fn ($i) => max(20, min(100, $base + (($i % 3) * 5) - 5)))
+            ->map(fn($i) => max(20, min(100, $base + (($i % 3) * 5) - 5)))
             ->all();
     }
 

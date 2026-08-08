@@ -15,13 +15,13 @@ class LifecoachController extends Controller
     {
         $stats = $this->lifeCoachService->dashboardStats();
         $patients = $this->lifeCoachService->getAssignedPatients()
-            ->map(fn ($p) => $this->lifeCoachService->patientToArray($p))
+            ->map(fn($p) => $this->lifeCoachService->patientToArray($p))
             ->values();
         $tasks = $this->lifeCoachService->getTasks()
-            ->map(fn ($t) => $this->lifeCoachService->taskToArray($t))
+            ->map(fn($t) => $this->lifeCoachService->taskToArray($t))
             ->values();
         $schedules = $this->lifeCoachService->getWeekSchedules()
-            ->map(fn ($s) => $this->lifeCoachService->scheduleToArray($s))
+            ->map(fn($s) => $this->lifeCoachService->scheduleToArray($s))
             ->values();
 
         return view('lifecoach.dashboard', [
@@ -37,7 +37,7 @@ class LifecoachController extends Controller
     public function patients(): View
     {
         $patients = $this->lifeCoachService->getAssignedPatients()
-            ->map(fn ($p) => $this->lifeCoachService->patientToArray($p))
+            ->map(fn($p) => $this->lifeCoachService->patientToArray($p))
             ->values();
 
         return view('lifecoach.patients', [
@@ -50,13 +50,13 @@ class LifecoachController extends Controller
     public function notes(): View
     {
         $notes = $this->lifeCoachService->getNotes()
-            ->map(fn ($n) => $this->lifeCoachService->noteToArray($n))
+            ->map(fn($n) => $this->lifeCoachService->noteToArray($n))
             ->values();
 
         return view('lifecoach.notes', [
             'notes' => $notes,
             'patients' => $this->lifeCoachService->getAssignedPatients()
-                ->map(fn ($p) => $this->lifeCoachService->patientToArray($p))
+                ->map(fn($p) => $this->lifeCoachService->patientToArray($p))
                 ->values(),
             'patientOptions' => $this->lifeCoachService->patientOptions(),
             'coach' => $this->coachProfile(),
@@ -66,7 +66,7 @@ class LifecoachController extends Controller
     public function tasks(): View
     {
         $tasks = $this->lifeCoachService->getTasks()
-            ->map(fn ($t) => $this->lifeCoachService->taskToArray($t))
+            ->map(fn($t) => $this->lifeCoachService->taskToArray($t))
             ->values();
 
         return view('lifecoach.tasks', [
@@ -82,7 +82,7 @@ class LifecoachController extends Controller
             'coach' => $this->coachProfile(),
             'patientOptions' => $this->lifeCoachService->patientOptions(),
             'notes' => $this->lifeCoachService->getNotes()
-                ->map(fn ($n) => $this->lifeCoachService->noteToArray($n))
+                ->map(fn($n) => $this->lifeCoachService->noteToArray($n))
                 ->values(),
             'stats' => $this->lifeCoachService->dashboardStats(),
         ]);
@@ -187,11 +187,62 @@ class LifecoachController extends Controller
         ], 201);
     }
 
+    public function updateGoal(Request $request, int $id): JsonResponse
+    {
+        $data = $request->validate([
+            'title' => ['sometimes', 'string', 'max:255'],
+            'category' => ['sometimes', 'string', 'max:50'],
+            'description' => ['nullable', 'string'],
+            'target_date' => ['nullable', 'date'],
+            'progress' => ['nullable', 'integer', 'min:0', 'max:100'],
+        ]);
+
+        $goal = $this->lifeCoachService->updateGoal($data, $id);
+
+        return response()->json([
+            'message' => 'Goal updated.',
+            'goal' => $this->lifeCoachService->goalToArray($goal),
+        ]);
+    }
+
+    public function updateGoalProgress(Request $request, int $id): JsonResponse
+    {
+        $data = $request->validate([
+            'progress' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'weekly_checkins' => ['nullable', 'array'],
+            'weekly_checkins.*' => ['boolean'],
+        ]);
+
+        $goal = null;
+        if (array_key_exists('weekly_checkins', $data)) {
+            $goal = $this->lifeCoachService->updateGoal([
+                'weekly_checkins' => $data['weekly_checkins'],
+                'progress' => $data['progress'] ?? null,
+            ], $id);
+        } else {
+            $goal = $this->lifeCoachService->updateGoalProgress($id, (int) ($data['progress'] ?? 0));
+        }
+
+        return response()->json([
+            'message' => 'Goal progress updated.',
+            'goal' => $this->lifeCoachService->goalToArray($goal),
+        ]);
+    }
+
+    public function destroyGoal(int $id): JsonResponse
+    {
+        $this->lifeCoachService->deleteGoal($id);
+
+        return response()->json([
+            'message' => 'Goal deleted.',
+        ]);
+    }
+
     private function coachProfile(): array
     {
         $user = $this->lifeCoachService->currentCoach();
         $parts = preg_split('/\s+/', trim($user->name)) ?: [];
-        $initials = collect($parts)->map(fn ($w) => mb_substr($w, 0, 1))->take(2)->implode('');
+        $initials = collect($parts)->map(fn($w) => mb_substr($w, 0, 1))->take(2)->implode('');
 
         return [
             'id' => $user->id,

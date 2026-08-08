@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CoachingGoal;
 use App\Models\PatientRecord;
 use App\Models\User;
 use App\Services\LifeCoachService;
@@ -123,6 +124,44 @@ it('creates a coaching goal for an assigned patient', function () {
 
     expect($goal->title)->toBe('Walk 30 minutes daily')
         ->and($goal->progress)->toBe(0);
+});
+
+it('updates and deletes a coaching goal and synchronises it into habit progress', function () {
+    $coach = makeLifeCoachUser('coach-goals-edit@medcare.ph');
+    $patient = makeAssignedPatient($coach, 'Editable Goal Patient');
+
+    $this->actingAs($coach);
+
+    $service = app(LifeCoachService::class);
+    $goal = $service->createGoal([
+        'patient_record_id' => $patient->id,
+        'title' => 'Hydrate daily',
+        'category' => 'Nutrition',
+        'description' => 'Drink water during the day',
+        'target_date' => now()->addWeek()->toDateString(),
+        'progress' => 0,
+    ]);
+
+    $updated = $service->updateGoal([
+        'title' => 'Hydrate daily and track water intake',
+        'category' => 'Nutrition',
+        'description' => 'Drink water during the day and note intake',
+        'target_date' => now()->addWeek()->toDateString(),
+        'progress' => 4,
+    ], $goal->id);
+
+    expect($updated->title)->toBe('Hydrate daily and track water intake')
+        ->and((int) $updated->progress)->toBe(4);
+
+    $service->updateGoalProgress($goal->id, 55);
+    $fresh = $service->findGoalById($goal->id);
+
+    expect((int) $fresh->progress)->toBe(55)
+        ->and($service->goalToArray($fresh)['prog'])->toBe(55);
+
+    $service->deleteGoal($goal->id);
+
+    expect(CoachingGoal::whereKey($goal->id)->exists())->toBeFalse();
 });
 
 it('renders lifecoach dashboard with assigned patient data', function () {

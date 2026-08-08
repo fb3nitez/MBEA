@@ -12,6 +12,7 @@ class CoachingGoal extends Model
     protected $casts = [
         'target_date' => 'date',
         'progress' => 'integer',
+        'weekly_checkins' => 'array',
     ];
 
     public function patientRecord(): BelongsTo

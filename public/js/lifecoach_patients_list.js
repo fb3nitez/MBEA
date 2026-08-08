@@ -8,14 +8,46 @@ document.addEventListener('DOMContentLoaded', function () {
   var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   var urlParams = new URLSearchParams(window.location.search);
-  var urlId = urlParams.get('id');
+  var rawUrlId = urlParams.get('id');
+  var urlId = rawUrlId ? String(rawUrlId).trim() : '';
 
   buildPatientCards();
   lcFillPatientSelect(document.getElementById('note-patient'));
 
+  function hydratePatientDetailFromApi(patientId) {
+    lcApi(lcRoute('patientsShow', patientId), { method: 'GET' })
+      .then(function (data) {
+        var patient = data.patient || data;
+        if (!patient) {
+          history.replaceState(null, '', lcRoute('patients'));
+          return;
+        }
+
+        var idx = PATIENTS.findIndex(function (x) { return String(x.id) === String(patientId); });
+        if (idx >= 0) {
+          PATIENTS[idx] = Object.assign({}, PATIENTS[idx], patient);
+        } else {
+          PATIENTS.push(patient);
+        }
+
+        buildPatientCards();
+        openPatientDetail(patientId);
+      })
+      .catch(function (err) {
+        lcToast(err.message || 'Could not reload that patient detail.');
+        history.replaceState(null, '', lcRoute('patients'));
+      });
+  }
+
   if (urlId) {
     var found = PATIENTS.find(function (p) { return String(p.id) === String(urlId); });
-    if (found) openPatientDetail(urlId);
+    if (found) {
+      openPatientDetail(urlId);
+    } else {
+      hydratePatientDetailFromApi(urlId);
+    }
+  } else if (urlParams.has('id')) {
+    history.replaceState(null, '', lcRoute('patients'));
   }
 
   function buildPatientCards() {
@@ -52,15 +84,33 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  document.getElementById('lc-patients-grid').addEventListener('click', function (e) {
-    var btn = e.target.closest('[data-open-patient]');
-    if (btn) openPatientDetail(btn.getAttribute('data-open-patient'));
-  });
+  var patientsGrid = document.getElementById('lc-patients-grid');
+  if (patientsGrid) {
+    patientsGrid.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-open-patient]');
+      if (btn) openPatientDetail(btn.getAttribute('data-open-patient'));
+    });
+  }
 
   window.openPatientDetail = function (id) {
-    var p = PATIENTS.find(function (x) { return String(x.id) === String(id); });
-    if (!p) return;
-    currentPatientId = id;
+    var stableId = id === undefined || id === null ? '' : String(id).trim();
+    if (!stableId) {
+      lcShow(document.getElementById('patient-list-view'));
+      lcHide(document.getElementById('patient-detail-view'));
+      history.replaceState(null, '', lcRoute('patients'));
+      return;
+    }
+
+    var p = PATIENTS.find(function (x) { return String(x.id) === String(stableId); });
+    if (!p) {
+      lcShow(document.getElementById('patient-list-view'));
+      lcHide(document.getElementById('patient-detail-view'));
+      history.replaceState(null, '', lcRoute('patients'));
+      lcToast('That patient could not be opened from the current data snapshot.');
+      return;
+    }
+
+    currentPatientId = stableId;
 
     lcHide(document.getElementById('patient-list-view'));
     lcShow(document.getElementById('patient-detail-view'));
@@ -70,7 +120,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('pd-meta').textContent = (p.patient_id || p.id) + ' · ' + (p.status || 'Active') + ' · Age ' + (p.age || '—');
     document.getElementById('page-title').textContent = 'Patient: ' + p.name;
 
-    history.replaceState(null, '', lcRoute('patients') + '?id=' + id);
+    var selectedUrl = lcRoute('patients') + '?id=' + encodeURIComponent(stableId);
+    history.replaceState(null, '', selectedUrl);
 
     switchPatientTab('overview');
     populateDetail(p);

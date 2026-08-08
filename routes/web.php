@@ -80,6 +80,9 @@ Route::middleware(['auth', 'role:lifecoach'])
 
         Route::post('/schedules', 'storeSchedule')->name('schedules.store');
         Route::post('/goals', 'storeGoal')->name('goals.store');
+        Route::put('/goals/{id}', 'updateGoal')->name('goals.update');
+        Route::put('/goals/{id}/progress', 'updateGoalProgress')->name('goals.progress');
+        Route::delete('/goals/{id}', 'destroyGoal')->name('goals.destroy');
     });
 
 
