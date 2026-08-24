@@ -147,7 +147,7 @@
           <div class="step-card reveal">
             <div class="step-number">1</div>
             <h3>Complete Your Intake Form</h3>
-            <p>Use our self-service kiosk to fill out your patient information, medical history, and current concerns. It takes about 10&ndash;15 minutes and everything is kept confidential.</p>
+            <p>Use our self-service kiosk to fill out your patient information. It takes about 30&ndash;40 minutes and everything is kept confidential.</p>
           </div>
 
           <div class="step-connector" aria-hidden="true"></div>
