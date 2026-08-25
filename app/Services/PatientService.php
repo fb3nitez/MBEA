@@ -359,7 +359,6 @@ class PatientService
             'occupation' => $data['occupation'] ?? $patient->occupation,
             'chief_complaint' => $data['chief_complaint'] ?? $patient->chief_complaint,
             'primary_diagnosis' => $data['primary_diagnosis'] ?? $patient->primary_diagnosis,
-            'clinical_notes' => $data['clinical_notes'] ?? $patient->clinical_notes,
             'life_coach_id' => array_key_exists('life_coach_id', $data)
                 ? ($data['life_coach_id'] ?: null)
                 : $patient->life_coach_id,

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="{{ asset('css/psychiatrist.css') }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  @vite(['resources/js/clinical-notes.js', 'resources/css/clinical-notes.css'])
 </head>
 
 @php

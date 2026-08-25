@@ -183,7 +183,6 @@ class PsychiatristController extends Controller
             'occupation' => ['nullable', 'string', 'max:255'],
             'chief_complaint' => ['nullable', 'string'],
             'primary_diagnosis' => ['nullable', 'string', 'max:255'],
-            'clinical_notes' => ['nullable', 'string'],
             'life_coach_id' => ['nullable', 'exists:users,id'],
         ]);
 
@@ -359,6 +358,19 @@ class PsychiatristController extends Controller
         $this->patientService->deleteClinicalTemplate($template);
 
         return response()->json(['message' => 'Template deleted.']);
+    }
+
+    public function saveNote(Request $request, int $id): JsonResponse
+    {
+        $patient = $this->patientService->findPatient($id);
+
+        $patient->update([
+            'clinical_notes' => $request->post('content'),
+        ]);
+
+        return response()->json([
+            'message' => 'clinical notes updated!',
+        ]);
     }
 
     private function validateClinicalTemplate(Request $request, bool $partial = false): array

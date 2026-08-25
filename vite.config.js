@@ -8,8 +8,10 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/clinical-notes.css',
                 'resources/js/app.js',
                 'resources/js/intake-form.js',
+                'resources/js/clinical-notes.js',
             ],
             refresh: true,
             fonts: [

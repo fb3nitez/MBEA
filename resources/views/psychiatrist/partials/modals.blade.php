@@ -115,6 +115,7 @@ $lifeCoaches = collect();
     <div class="tab-bar" id="pm-tabs" style="padding:0 20px;">
       <button type="button" class="tab-btn active" data-pm-tab="overview">Overview</button>
       <button type="button" class="tab-btn" data-pm-tab="record">Patient Record</button>
+      <button type="button" class="tab-btn" data-pm-tab="clinical_notes">Clinical Notes</button>
       <button type="button" class="tab-btn" data-pm-tab="medical">Medical History</button>
       <button type="button" class="tab-btn" data-pm-tab="psychiatric">Personal History</button>
       <button type="button" class="tab-btn" data-pm-tab="lifestyle">Lifestyle</button>
@@ -220,13 +221,14 @@ $lifeCoaches = collect();
           <label class="field-label">Primary Diagnosis</label>
           <input type="text" class="field-input" id="pr-diagnosis" />
         </div>
-        <div class="field-group">
-          <label class="field-label">Clinical Notes</label>
-          <textarea class="field-textarea" id="pr-clinical-notes" rows="2"></textarea>
-        </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
           <button class="btn-blue" id="pm-save-record">Save Patient Record</button>
         </div>
+      </div>
+
+      <!-- Medical History -->
+      <div class="pm-tab-panel" data-pm-panel="clinical_notes">
+          <x-forms.clinical-notes />
       </div>
 
       <!-- Medical History -->
