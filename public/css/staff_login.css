@@ -44,7 +44,7 @@ body {
     background:
         radial-gradient(
             circle at top left,
-            rgba(59, 130, 246, 0.16),
+            rgba(59, 130, 246, 0.9),
             transparent 32%
         ),
         radial-gradient(
@@ -58,7 +58,7 @@ body {
             rgba(244, 247, 255, 0.78) 45%,
             rgba(244, 247, 255, 0.94) 100%
         ),
-        url("../assets/mbea_banner_bg.png") no-repeat center top / cover fixed;
+        url("../assets/mbea_bg.png") no-repeat center top / cover fixed;
     background-color: var(--bg-base);
     color: var(--text-900);
     position: relative;
