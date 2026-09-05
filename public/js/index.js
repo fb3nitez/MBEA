@@ -5,40 +5,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     attachServiceModals();
-    attachLiveClock();
 });
-
-/* --------------------------------------------------------------------------
-   Live clock tile
-   -------------------------------------------------------------------------- */
-
-function attachLiveClock() {
-    var timeEl = document.getElementById("clock-time");
-    var dateEl = document.getElementById("clock-date");
-    if (!timeEl || !dateEl) return;
-
-    var timeFormatter = new Intl.DateTimeFormat(undefined, {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    });
-
-    var dateFormatter = new Intl.DateTimeFormat(undefined, {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-    });
-
-    function render() {
-        var now = new Date();
-        timeEl.textContent = timeFormatter.format(now);
-        dateEl.textContent = dateFormatter.format(now);
-    }
-
-    render();
-    setInterval(render, 1000 * 15);
-}
 
 /* --------------------------------------------------------------------------
    Service detail modal
@@ -49,7 +16,7 @@ var SERVICE_DETAILS = {
         icon: "icon-blue",
         svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2a3.5 3.5 0 0 0-3.5 3.5V6a3 3 0 0 0-2 5.24V13a3 3 0 0 0 2 2.83V17a3.5 3.5 0 0 0 3.5 3.5"></path><path d="M14.5 2A3.5 3.5 0 0 1 18 5.5V6a3 3 0 0 1 2 5.24V13a3 3 0 0 1-2 2.83V17a3.5 3.5 0 0 1-3.5 3.5"></path></svg>',
         title: "Psychiatric Care",
-        body: "Comprehensive evaluation and treatment for depression, anxiety, bipolar disorder, schizophrenia, ADHD, and other mental health conditions — delivered by licensed psychiatrists who take the time to understand your full history before recommending a plan.",
+        body: "Comprehensive evaluation and treatment for depression, anxiety, bipolar disorder, schizophrenia, ADHD, and other mental health conditions    ",
     },
     lifestyle: {
         icon: "icon-rose",

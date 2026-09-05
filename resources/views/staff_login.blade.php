@@ -18,7 +18,8 @@
   <section id="section-portal" class="page-section">
     <header class="topbar">
       <div class="topbar-left">
-        <div class="brand-icon"><i data-feather="activity"></i></div>
+        <div class="brand-icon"><img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA" class="brand-icon-img" />
+        </div>
         <span class="brand-name">MedCare Clinic</span>
         <span class="topbar-dot">·</span>
         <span class="topbar-label">STAFF PORTAL</span>

@@ -23,8 +23,7 @@
 
     --radius-sm: 14px;
     --radius-lg: 22px;
-    --shadow:
-        0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 28px rgba(15, 23, 42, 0.06);
+    --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 28px rgba(15, 23, 42, 0.06);
 }
 
 * {
@@ -127,7 +126,7 @@ img {
     min-height: 0;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 1.55fr 1fr 0.72fr;
+    grid-template-rows: 1.72fr 0.78fr 0.55fr;
     gap: 14px;
 }
 
@@ -149,6 +148,7 @@ img {
         opacity: 0;
         transform: translateY(16px) scale(0.98);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -158,13 +158,13 @@ img {
 /* ---- Hero copy tile ---- */
 
 .cell-hero {
-    grid-column: 1 / 8;
+    grid-column: 1 / 13;
     grid-row: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 16px;
-    padding: 40px 44px;
+    padding: 30px 44px;
     color: white;
     isolation: isolate;
 }
@@ -172,11 +172,11 @@ img {
 .cell-hero::before {
     content: "";
     position: absolute;
-    inset: -14px;
+    inset: -40px;
     z-index: -2;
-    background: url("../assets/mbea_bg.png") no-repeat center 30% / cover;
-    filter: blur(3px);
-    transform: scale(1.04);
+    background: url("../assets/mbea_banner.png") no-repeat center 30% / cover;
+    filter: blur(14px);
+    transform: scale(1.1);
 }
 
 .cell-hero::after {
@@ -184,12 +184,10 @@ img {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(
-        120deg,
-        rgba(15, 23, 42, 0.72) 0%,
-        rgba(15, 23, 42, 0.5) 45%,
-        rgba(15, 23, 42, 0.32) 100%
-    );
+    background: linear-gradient(120deg,
+            rgba(15, 23, 42, 0.72) 0%,
+            rgba(15, 23, 42, 0.5) 45%,
+            rgba(15, 23, 42, 0.32) 100%);
 }
 
 .cell-hero .tag {
@@ -258,9 +256,7 @@ img {
     font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
-    transition:
-        background 0.15s ease,
-        transform 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .btn-primary:hover {
@@ -273,88 +269,34 @@ img {
     color: var(--muted);
 }
 
-/* ---- Clock tile ---- */
-
-.cell-clock {
-    grid-column: 8 / 13;
-    grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-    background:
-        radial-gradient(
-            circle at 15% 20%,
-            rgba(37, 99, 235, 0.08),
-            transparent 45%
-        ),
-        radial-gradient(
-            circle at 85% 85%,
-            rgba(21, 128, 61, 0.08),
-            transparent 45%
-        ),
-        var(--surface);
-}
-
-.clock-label {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-
-.clock-time {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: clamp(2.1rem, 3.4vw, 2.9rem);
-    font-weight: 600;
-    color: var(--ink);
-    letter-spacing: -0.01em;
-    font-variant-numeric: tabular-nums;
-}
-
-.clock-date {
-    font-family: "Fraunces", serif;
-    font-weight: 500;
-    font-size: 1.0625rem;
-    color: var(--muted);
-}
-
 /* ---- Service tiles (interactive — open a modal) ---- */
 
 .cell-svc {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
+    padding: 16px 18px;
     font: inherit;
     text-align: left;
     appearance: none;
     -webkit-appearance: none;
     cursor: pointer;
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease,
-        border-color 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .cell-svc:hover,
 .cell-svc:focus-visible {
     transform: translateY(-3px);
-    box-shadow:
-        0 4px 8px rgba(15, 23, 42, 0.05),
-        0 18px 34px rgba(15, 23, 42, 0.09);
+    box-shadow: 0 4px 8px rgba(15, 23, 42, 0.05), 0 18px 34px rgba(15, 23, 42, 0.09);
     border-color: var(--blue-soft);
 }
 
 .cell-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 11px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -406,14 +348,17 @@ img {
     background: var(--blue-soft);
     color: var(--blue);
 }
+
 .icon-rose {
     background: var(--rose-soft);
     color: var(--rose);
 }
+
 .icon-green {
     background: var(--green-soft);
     color: var(--green);
 }
+
 .icon-violet {
     background: var(--violet-soft);
     color: var(--violet);
@@ -423,14 +368,17 @@ img {
     grid-column: 1 / 4;
     grid-row: 2;
 }
+
 .cell-svc-b {
     grid-column: 4 / 7;
     grid-row: 2;
 }
+
 .cell-svc-c {
     grid-column: 7 / 10;
     grid-row: 2;
 }
+
 .cell-svc-d {
     grid-column: 10 / 13;
     grid-row: 2;
@@ -452,11 +400,11 @@ img {
 
 .footer-col {
     flex: 1;
-    padding: 20px 26px;
+    padding: 14px 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 4px;
+    gap: 2px;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     height: 100%;
 }
@@ -467,56 +415,68 @@ img {
 
 .footer-col .brand-word {
     color: white;
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
 }
 
 .footer-col p {
     margin: 0;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.65);
 }
 
 .footer-col .label {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 0.625rem;
+    font-size: 0.5625rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.45);
-    margin: 0 0 4px;
+    margin: 0 0 2px;
 }
 
 .footer-col .footer-value {
     color: white;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     margin: 0;
 }
 
-.footer-trust {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 16px;
+.footer-contact,
+.footer-schedule {
+    flex: 0.7;
 }
 
-.trust-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+.footer-hospitals {
+    flex: 1.9;
+    gap: 4px;
+}
+
+.hospital-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 3px;
+}
+
+.hospital-list li {
+    position: relative;
+    padding-left: 11px;
     font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.trust-item svg {
-    flex-shrink: 0;
-}
-
-.footer-trust .trust-item {
+    line-height: 1.4;
     color: rgba(255, 255, 255, 0.75);
 }
 
-.footer-trust .trust-item svg {
-    color: var(--green);
+.hospital-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--green);
 }
 
 /* --------------------------------------------------------------------------
@@ -574,9 +534,7 @@ img {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
 .modal-close:hover {
@@ -613,6 +571,7 @@ img {
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+
     .btn-primary,
     .cell,
     .cell-svc,
@@ -631,6 +590,7 @@ img {
    -------------------------------------------------------------------------- */
 
 @media (max-width: 980px) {
+
     html,
     body {
         height: auto;
@@ -650,12 +610,6 @@ img {
         grid-column: 1 / 3;
         grid-row: auto;
         padding: 32px 26px;
-    }
-
-    .cell-clock {
-        grid-column: 1 / 3;
-        grid-row: auto;
-        padding: 26px;
     }
 
     .cell-svc-a,

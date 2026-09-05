@@ -41,34 +41,50 @@ body {
     flex-direction: column;
     font-family:
         -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background:
-        radial-gradient(
-            circle at top left,
-            rgba(59, 130, 246, 0.9),
-            transparent 32%
-        ),
-        radial-gradient(
-            circle at bottom right,
-            rgba(34, 197, 94, 0.14),
-            transparent 36%
-        ),
-        linear-gradient(
-            180deg,
-            rgba(244, 247, 255, 0.55) 0%,
-            rgba(244, 247, 255, 0.78) 45%,
-            rgba(244, 247, 255, 0.94) 100%
-        ),
-        url("../assets/mbea_bg.png") no-repeat center top / cover fixed;
     background-color: var(--bg-base);
     color: var(--text-900);
     position: relative;
     overflow-x: hidden;
+    isolation: isolate;
+}
+
+/* Blurred background photo — lives on its own layer so only the
+   photo blurs, not the text/cards sitting on top of it. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: -40px;
+    /* overscan so the blur doesn't reveal edges */
+    z-index: -2;
+    background: url("../assets/mbea_bg.png") no-repeat center top / cover;
+    filter: blur(12px);
+}
+
+/* Tint/overlay layer, separate from the photo layer above */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(circle at top left,
+            rgba(59, 130, 246, 0.16),
+            transparent 32%),
+        radial-gradient(circle at bottom right,
+            rgba(34, 197, 94, 0.14),
+            transparent 36%),
+        linear-gradient(180deg,
+            rgba(244, 247, 255, 0.55) 0%,
+            rgba(244, 247, 255, 0.78) 45%,
+            rgba(244, 247, 255, 0.94) 100%);
 }
 
 @media (max-width: 480px) {
-    body {
-        /* background-attachment: fixed is unreliable / janky on mobile Safari */
-        background-attachment: scroll;
+
+    body::before,
+    body::after {
+        /* position: fixed can be unreliable / janky on mobile Safari */
+        position: absolute;
     }
 }
 
@@ -211,15 +227,13 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(219, 234, 254, 0.35),
-        rgba(220, 252, 231, 0.25)
-    );
+    background: linear-gradient(135deg,
+            rgba(219, 234, 254, 0.35),
+            rgba(220, 252, 231, 0.25));
     pointer-events: none;
 }
 
-.portal-card > * {
+.portal-card>* {
     position: relative;
     z-index: 1;
 }
@@ -346,6 +360,7 @@ body {
 .role-button.coach {
     color: var(--green-600);
 }
+
 .role-card {
     width: 100%;
     background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
@@ -785,256 +800,336 @@ body {
 
 /* ── Role card buttons ───────────────────────────────────── */
 .role-card-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: rgba(0,0,0,.03);
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 12px;
-  padding: 14px 16px;
-  cursor: pointer;
-  text-align: left;
-  transition: background .18s, border-color .18s, transform .15s;
-  margin-bottom: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(0, 0, 0, .03);
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: background .18s, border-color .18s, transform .15s;
+    margin-bottom: 10px;
 }
 
 .role-card-btn:hover {
-  background: rgba(0,0,0,.06);
-  border-color: rgba(0,0,0,.15);
-  transform: translateY(-1px);
+    background: rgba(0, 0, 0, .06);
+    border-color: rgba(0, 0, 0, .15);
+    transform: translateY(-1px);
 }
 
 .role-chevron {
-  margin-left: auto;
-  width: 16px;
-  height: 16px;
-  color: rgba(0,0,0,.25);
-  flex-shrink: 0;
+    margin-left: auto;
+    width: 16px;
+    height: 16px;
+    color: rgba(0, 0, 0, .25);
+    flex-shrink: 0;
 }
 
 /* ── Role pill on login form ─────────────────────────────── */
 .role-pill-wrap {
-  margin-top: 8px;
+    margin-top: 8px;
 }
 
 .role-pill {
-  display: inline-block;
-  padding: 3px 12px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .04em;
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
 }
 
-.role-pill-blue  { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
-.role-pill-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.role-pill-blue {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.role-pill-green {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
 
 /* ── Floating label inputs ───────────────────────────────── */
 .fl-group {
-  position: relative;
-  margin-top: 24px;
+    position: relative;
+    margin-top: 24px;
 }
 
 .fl-input {
-  font-size: 16px;
-  padding: 10px 48px 10px 2px; /* right padding for eye toggle */
-  display: block;
-  width: 100%;
-  border: none;
-  border-bottom: 1.5px solid #cbd5e1;
-  background: transparent;
-  color: #0f172a;
-  outline: none;
-  font-family: inherit;
-  box-shadow: none;
-  border-radius: 0;
+    font-size: 16px;
+    padding: 10px 48px 10px 2px;
+    /* right padding for eye toggle */
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px solid #cbd5e1;
+    background: transparent;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+    box-shadow: none;
+    border-radius: 0;
 }
 
-.fl-input:focus { outline: none; }
+.fl-input:focus {
+    outline: none;
+}
 
 /* placeholder must be transparent so :not(:placeholder-shown) works */
-.fl-input::placeholder { color: transparent; }
+.fl-input::placeholder {
+    color: transparent;
+}
 
 .fl-label {
-  color: #94a3b8;
-  font-size: 15px;
-  font-weight: 400;
-  position: absolute;
-  pointer-events: none;
-  left: 2px;
-  top: 10px;
-  transition: top 0.2s ease, font-size 0.2s ease, color 0.2s ease;
+    color: #94a3b8;
+    font-size: 15px;
+    font-weight: 400;
+    position: absolute;
+    pointer-events: none;
+    left: 2px;
+    top: 10px;
+    transition: top 0.2s ease, font-size 0.2s ease, color 0.2s ease;
 }
 
 /* Float label up when focused OR when field has a value */
-.fl-input:focus ~ .fl-label,
-.fl-input:not(:placeholder-shown) ~ .fl-label {
-  top: -18px;
-  font-size: 11px;
-  color: #5264ae;
-  font-weight: 700;
-  letter-spacing: .05em;
-  text-transform: uppercase;
+.fl-input:focus~.fl-label,
+.fl-input:not(:placeholder-shown)~.fl-label {
+    top: -18px;
+    font-size: 11px;
+    color: #5264ae;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
 }
 
 /* Animated underline bar */
 .fl-bar {
-  position: relative;
-  display: block;
-  width: 100%;
+    position: relative;
+    display: block;
+    width: 100%;
 }
 
 .fl-bar::before,
 .fl-bar::after {
-  content: '';
-  height: 2px;
-  width: 0;
-  bottom: 0;
-  position: absolute;
-  background: #5264ae;
-  transition: width 0.2s ease;
+    content: '';
+    height: 2px;
+    width: 0;
+    bottom: 0;
+    position: absolute;
+    background: #5264ae;
+    transition: width 0.2s ease;
 }
 
-.fl-bar::before { left: 50%; }
-.fl-bar::after  { right: 50%; }
+.fl-bar::before {
+    left: 50%;
+}
 
-.fl-input:focus ~ .fl-bar::before,
-.fl-input:focus ~ .fl-bar::after { width: 50%; }
+.fl-bar::after {
+    right: 50%;
+}
+
+.fl-input:focus~.fl-bar::before,
+.fl-input:focus~.fl-bar::after {
+    width: 50%;
+}
 
 /* Eye toggle */
 .eye-toggle {
-  position: absolute;
-  right: 0;
-  top: 8px;
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 2px 4px;
-  transition: color .15s;
-  font-family: inherit;
+    position: absolute;
+    right: 0;
+    top: 8px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: color .15s;
+    font-family: inherit;
 }
-.eye-toggle:hover { color: #475569; }
+
+.eye-toggle:hover {
+    color: #475569;
+}
 
 /* ── Mismatch overlay ────────────────────────────────────── */
 .mismatch-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15,23,42,.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  animation: overlay-in .2s ease;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: overlay-in .2s ease;
 }
 
 @keyframes overlay-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
-.mismatch-overlay.hidden { display: none; }
+.mismatch-overlay.hidden {
+    display: none;
+}
 
 .mismatch-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 36px 32px 28px;
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 24px 60px rgba(0,0,0,.15);
-  animation: card-in .25s cubic-bezier(.34,1.56,.64,1);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 36px 32px 28px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .15);
+    animation: card-in .25s cubic-bezier(.34, 1.56, .64, 1);
 }
 
 @keyframes card-in {
-  from { opacity: 0; transform: scale(.92) translateY(12px); }
-  to   { opacity: 1; transform: scale(1)   translateY(0); }
+    from {
+        opacity: 0;
+        transform: scale(.92) translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
-.mismatch-icon-wrap { margin-bottom: 16px; }
+.mismatch-icon-wrap {
+    margin-bottom: 16px;
+}
 
 .mismatch-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #fef3c7;
-  border: 2px solid #fde68a;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #d97706;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #fef3c7;
+    border: 2px solid #fde68a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #d97706;
 }
-.mismatch-icon svg { width: 28px; height: 28px; }
+
+.mismatch-icon svg {
+    width: 28px;
+    height: 28px;
+}
 
 .mismatch-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 12px;
 }
 
 .mismatch-body {
-  font-size: 14px;
-  color: #64748b;
-  line-height: 1.65;
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.65;
 }
 
-.mismatch-body strong { color: #0f172a; font-weight: 700; }
+.mismatch-body strong {
+    color: #0f172a;
+    font-weight: 700;
+}
 
 .mismatch-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
 }
 
 .mismatch-btn-yes {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 13px 20px;
-  background: linear-gradient(135deg, #2563eb, #16a34a);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity .15s, transform .15s;
-  font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 20px;
+    background: linear-gradient(135deg, #2563eb, #16a34a);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s, transform .15s;
+    font-family: inherit;
 }
-.mismatch-btn-yes:hover { opacity: .9; transform: translateY(-1px); }
-.mismatch-btn-yes svg  { width: 16px; height: 16px; }
+
+.mismatch-btn-yes:hover {
+    opacity: .9;
+    transform: translateY(-1px);
+}
+
+.mismatch-btn-yes svg {
+    width: 16px;
+    height: 16px;
+}
 
 .mismatch-btn-no {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px 20px;
-  background: transparent;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
-  font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 20px;
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+    font-family: inherit;
 }
+
 .mismatch-btn-no:hover {
-  background: #f8fafc;
-  color: #334155;
-  border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    border-color: #cbd5e1;
 }
-.mismatch-btn-no svg { width: 16px; height: 16px; }
+
+.mismatch-btn-no svg {
+    width: 16px;
+    height: 16px;
+}
+
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: transparent;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.brand-icon-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
