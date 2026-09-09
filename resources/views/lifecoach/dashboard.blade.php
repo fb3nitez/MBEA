@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   @include('lifecoach.partials.boot')
+  <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
  
 </head>
 <body>

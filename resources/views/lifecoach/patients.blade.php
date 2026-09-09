@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   @include('lifecoach.partials.boot')
+  <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
 </head>
 
 <body>
@@ -156,7 +157,8 @@
         </div>
         <div class="field-group">
           <label class="field-label">Note</label>
-          <textarea class="field-textarea" id="note-text" rows="5" placeholder="Describe session observations, progress, and next steps..."></textarea>
+          <textarea class="field-textarea" id="note-text" rows="5"
+            placeholder="Describe session observations, progress, and next steps..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -201,7 +203,8 @@
         </div>
         <div class="field-group">
           <label class="field-label">Description</label>
-          <textarea class="field-textarea" id="goal-desc" rows="3" placeholder="Describe the goal and success criteria..."></textarea>
+          <textarea class="field-textarea" id="goal-desc" rows="3"
+            placeholder="Describe the goal and success criteria..."></textarea>
         </div>
       </div>
       <div class="modal-footer">

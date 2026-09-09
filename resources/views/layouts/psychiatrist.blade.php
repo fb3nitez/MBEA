@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   @vite(['resources/js/clinical-notes.js', 'resources/css/clinical-notes.css'])
+  <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
 </head>
 
 @php
@@ -22,9 +23,13 @@
 
     <!-- ===================== SIDEBAR ===================== -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand-block">
-        <div class="sidebar-brand">MedCare System</div>
-        <div class="sidebar-role">Psychiatrist</div>
+      <div class="sidebar-brand-block" style="display:flex;align-items:center;gap:10px;">
+        <img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA"
+          style="width:36px;height:36px;object-fit:cover;border-radius:50%;flex-shrink:0;" />
+        <div>
+          <div class="sidebar-brand">MedCare System</div>
+          <div class="sidebar-role">Psychiatrist</div>
+        </div>
       </div>
 
       <nav class="sidebar-nav">

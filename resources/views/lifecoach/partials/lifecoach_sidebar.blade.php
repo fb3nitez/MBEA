@@ -2,9 +2,13 @@
 {{-- Usage: @include('partials.lifecoach_sidebar', ['activePage' => 'dashboard']) --}}
 
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand-block">
-        <div class="sidebar-brand">MedCare System</div>
-        <div class="sidebar-role">Life Coach</div>
+    <div class="sidebar-brand-block" style="display:flex;align-items:center;gap:10px;">
+        <img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA"
+            style="width:36px;height:36px;object-fit:cover;border-radius:50%;flex-shrink:0;" />
+        <div>
+            <div class="sidebar-brand">MedCare System</div>
+            <div class="sidebar-role">Life Coach</div>
+        </div>
     </div>
 
     <nav class="sidebar-nav">
@@ -32,6 +36,8 @@
     </div>
 </aside>
 
+<div class="sidebar-backdrop hidden" id="sidebar-backdrop"></div>
+<!-- Sidebar backdrop -->
 {{-- !! Logout modal OUTSIDE the sidebar so it isn't clipped by sidebar overflow/z-index !! --}}
 <div class="modal-overlay hidden" id="logout-modal">
     <div class="modal-box">

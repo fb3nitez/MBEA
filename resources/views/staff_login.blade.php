@@ -8,6 +8,7 @@
   <title>MedCare — Staff Portal</title>
   <link rel="stylesheet" href="{{ asset('css/staff_login.css') }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+  <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
 </head>
 
 <body>
@@ -76,7 +77,8 @@
   <section id="section-login" class="page-section hidden">
     <header class="topbar">
       <div class="topbar-left">
-        <div class="brand-icon"><i data-feather="activity"></i></div>
+        <div class="brand-icon"><img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA" class="brand-icon-img" />
+        </div>
         <span class="brand-name">MedCare Clinic</span>
         <span class="topbar-dot">·</span>
         <span class="topbar-label">STAFF PORTAL</span>

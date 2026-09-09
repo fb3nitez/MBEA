@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MB.EA Integrated Psychiatric &amp; Lifestyle Medicine Clinic</title>
   <link rel="stylesheet" href="{{ asset('css/index.css') }}" />
+  <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
 </head>
 
 <body>

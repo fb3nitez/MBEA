@@ -2286,7 +2286,7 @@ a.nav-item {
 
 /* ---- PRINT ---- */
 @media print {
-    body > *:not(#print-target) {
+    body>*:not(#print-target) {
         display: none !important;
     }
 
@@ -3448,23 +3448,17 @@ a.nav-item {
 
 /* ---- TAB ICONS ---- */
 /* Add icons to tab buttons via content (applied in blade) */
-.tab-btn[data-tab="biological"] {
-}
+.tab-btn[data-tab="biological"] {}
 
-.tab-btn[data-tab="psychological"] {
-}
+.tab-btn[data-tab="psychological"] {}
 
-.tab-btn[data-tab="social"] {
-}
+.tab-btn[data-tab="social"] {}
 
-.tab-btn[data-tab="spiritual"] {
-}
+.tab-btn[data-tab="spiritual"] {}
 
-.tab-btn[data-tab="prayer"] {
-}
+.tab-btn[data-tab="prayer"] {}
 
-.tab-btn[data-tab="intervention"] {
-}
+.tab-btn[data-tab="intervention"] {}
 
 /* ---- RESPONSIVE ---- */
 @media (max-width: 1024px) {
@@ -3613,6 +3607,7 @@ a.psych-page-btn:hover {
     display: flex;
     flex-direction: column;
 }
+
 .profile-right {
     display: flex;
     flex-direction: column;
@@ -3790,4 +3785,8 @@ a.psych-page-btn:hover {
     .profile-page {
         grid-template-columns: 1fr;
     }
+}
+
+.modal-footer form {
+    display: contents;
 }
