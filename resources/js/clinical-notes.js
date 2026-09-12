@@ -2,6 +2,9 @@ import { Editor } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions";
 import StarterKit from "@tiptap/starter-kit";
 
+let currentContent = "";
+const unSaveIndicator = document.getElementById('unSaveIndicator');
+
 const editor = new Editor({
     element: document.querySelector("#editor"),
     extensions: [
@@ -10,11 +13,20 @@ const editor = new Editor({
             placeholder: "Enter clinical notes...",
         }),
     ],
+    onUpdate: ({ editor }) => {
+        const content = JSON.stringify(editor.getJSON());
+        if (currentContent === content) {
+            unSaveIndicator.classList.add('hide');
+        } else {
+            unSaveIndicator.classList.remove('hide');
+        }
+    },
 });
 
 // Wire up toolbar buttons
 const saveClinicalNoteBtn = document.getElementById("saveClinicalNote");
 const buttons = document.querySelectorAll("[data-tiptap-button]");
+
 buttons.forEach((button) => {
     button.addEventListener("click", () => {
         const command = button.dataset.tiptapButton;
@@ -125,6 +137,10 @@ async function saveNotes() {
     const result = await response.json();
 
     showToast(result.message || 'internal server error!');
+
+    if (result.success) {
+        unSaveIndicator.classList.add('hide');
+    }
 }
 
 function getCsrf() {
@@ -139,7 +155,15 @@ function currentPatientId() {
 
 function displayAsHTML(data) {
     const content = JSON.parse(data);
-    editor.commands.setContent(content);
+
+    const { tr } = editor.state;
+    const slice = editor.schema.nodeFromJSON(content);
+    currentContent = data;
+
+    tr.replaceWith(0, editor.state.doc.content.size, slice);
+    tr.setMeta('addToHistory', false);
+
+    editor.view.dispatch(tr);
 }
 
 function showToast(msg) {

@@ -120,3 +120,20 @@
   height: 0;
   pointer-events: none;
 }
+
+#saveClinicalNote {
+    position: relative;
+}
+
+#unSaveIndicator {
+    position: absolute;
+    color: oklch(63.7% 0.237 25.331);
+    font-size: 24px;
+    top: 4px;
+    right: 5px;
+}
+
+#unSaveIndicator.hide {
+    display: none;
+}
+

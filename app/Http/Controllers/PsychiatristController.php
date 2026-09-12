@@ -369,6 +369,7 @@ class PsychiatristController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'clinical notes updated!',
         ]);
     }

@@ -114,7 +114,7 @@
     window.PSYCH_DATA = window.PSYCH_DATA || {};
   </script>
   @stack('scripts')
-  <script src="{{ asset('js/psychiatrist.js') }}"></script>
+  <script src="{{ asset('js/psych/psychiatrist.js') }}"></script>
   <script>
     feather.replace();
   </script>
