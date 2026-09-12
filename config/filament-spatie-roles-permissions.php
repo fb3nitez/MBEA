@@ -11,12 +11,12 @@ return [
 
     'preload_permissions' => true,
 
-    'navigation_section_group' => 'filament-spatie-roles-permissions::filament-spatie.section.roles_and_permissions', // Default uses language constant
+    'navigation_section_group' => null,
 
     'team_model' => \App\Models\Team::class,
 
     'scope_to_tenant' => true,
-    
+
     'scope_roles_to_tenant' => true,
     'scope_premissions_to_tenant' => false,
 
@@ -26,11 +26,11 @@ return [
      * Set as false to remove from navigation.
      */
     'should_register_on_navigation' => [
-        'permissions' => true,
-        'roles' => true,
+        'permissions' => false,
+        'roles' => false,
     ],
 
-    'should_show_permissions_for_roles' => true,
+    'should_show_permissions_for_roles' => false,
 
     /*
      * Set as true to use simple modal resource.

@@ -8,4 +8,11 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
+
+    protected function afterCreate(): void
+    {
+        $role = $this->data['role'] ?? null;
+
+        $this->record->syncRoles(filled($role) ? [$role] : []);
+    }
 }

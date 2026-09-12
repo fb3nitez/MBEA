@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $roles = [
+            "none",
             "admin",
             "psychiatrist",
             "lifecoach"
@@ -37,5 +38,3 @@ class DatabaseSeeder extends Seeder
         $admin->assignRole('admin');
     }
 }
-
-
