@@ -43,7 +43,8 @@
                   <div id="prof-name" style="font-size:20px;font-weight:800;color:#0f172a;">{{ $coach['name'] ?? '' }}
                   </div>
                   <div id="prof-role" style="font-size:14px;color:#16a34a;font-weight:600;margin-top:2px;">Life Coach ·
-                    {{ $coach['clinic'] ?? 'MedCare Clinic' }}</div>
+                    {{ $coach['clinic'] ?? 'MedCare Clinic' }}
+                  </div>
                 </div>
                 <div id="prof-email" style="font-size:13px;color:#64748b;">{{ $coach['email'] ?? '' }}</div>
               </div>
@@ -115,8 +116,8 @@
 
   <div class="toast hidden" id="toast"></div>
 
-  <script src="{{ asset('js/lifecoach_data.js?v=2.0') }}"></script>
-  <script src="{{ asset('js/lifecoach_profile.js?v=2.1') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_data.js?v=2.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_profile.js?v=2.1') }}"></script>
   <script>feather.replace();</script>
 </body>
 

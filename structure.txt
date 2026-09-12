@@ -1,5 +1,5 @@
 Folder PATH listing for volume Fur Fur
-Volume serial number is 000000A5 86DD:8928
+Volume serial number is 000000DC 86DD:8928
 C:.
 |   .editorconfig
 |   .env
@@ -498,6 +498,1134 @@ C:.
 |   |       \---dist
 |   |               index.d.mts
 |   |               index.mjs
+|   |               
+|   +---@tiptap
+|   |   +---core
+|   |   |   |   LICENSE.md
+|   |   |   |   package.json
+|   |   |   |   README.md
+|   |   |   |   
+|   |   |   +---dist
+|   |   |   |   |   index.cjs
+|   |   |   |   |   index.cjs.map
+|   |   |   |   |   index.d.cts
+|   |   |   |   |   index.d.cts.map
+|   |   |   |   |   index.d.ts
+|   |   |   |   |   index.d.ts.map
+|   |   |   |   |   index.js
+|   |   |   |   |   index.js.map
+|   |   |   |   |   rolldown-runtime-D7D4PA-g.js
+|   |   |   |   |   
+|   |   |   |   \---jsx-runtime
+|   |   |   |           jsx-runtime.cjs
+|   |   |   |           jsx-runtime.cjs.map
+|   |   |   |           jsx-runtime.d.cts
+|   |   |   |           jsx-runtime.d.cts.map
+|   |   |   |           jsx-runtime.d.ts
+|   |   |   |           jsx-runtime.d.ts.map
+|   |   |   |           jsx-runtime.js
+|   |   |   |           jsx-runtime.js.map
+|   |   |   |           
+|   |   |   +---jsx-dev-runtime
+|   |   |   |       index.cjs
+|   |   |   |       index.d.cts
+|   |   |   |       index.d.ts
+|   |   |   |       index.js
+|   |   |   |       
+|   |   |   +---jsx-runtime
+|   |   |   |       index.cjs
+|   |   |   |       index.d.cts
+|   |   |   |       index.d.ts
+|   |   |   |       index.js
+|   |   |   |       
+|   |   |   \---src
+|   |   |       |   CommandManager.ts
+|   |   |       |   Editor.ts
+|   |   |       |   EventEmitter.ts
+|   |   |       |   Extendable.ts
+|   |   |       |   Extension.ts
+|   |   |       |   ExtensionManager.ts
+|   |   |       |   index.ts
+|   |   |       |   InputRule.ts
+|   |   |       |   jsx-runtime.ts
+|   |   |       |   Mark.ts
+|   |   |       |   MarkView.ts
+|   |   |       |   Node.ts
+|   |   |       |   NodePos.ts
+|   |   |       |   NodeView.ts
+|   |   |       |   PasteRule.ts
+|   |   |       |   style.ts
+|   |   |       |   Tracker.ts
+|   |   |       |   types.ts
+|   |   |       |   
+|   |   |       +---commands
+|   |   |       |       blur.ts
+|   |   |       |       clearContent.ts
+|   |   |       |       clearNodes.ts
+|   |   |       |       command.ts
+|   |   |       |       createParagraphNear.ts
+|   |   |       |       cut.ts
+|   |   |       |       deleteCurrentNode.ts
+|   |   |       |       deleteNode.ts
+|   |   |       |       deleteRange.ts
+|   |   |       |       deleteSelection.ts
+|   |   |       |       enter.ts
+|   |   |       |       exitCode.ts
+|   |   |       |       extendMarkRange.ts
+|   |   |       |       first.ts
+|   |   |       |       focus.ts
+|   |   |       |       forEach.ts
+|   |   |       |       index.ts
+|   |   |       |       insertContent.ts
+|   |   |       |       insertContentAt.ts
+|   |   |       |       insertDefaultBlock.ts
+|   |   |       |       join.ts
+|   |   |       |       joinItemBackward.ts
+|   |   |       |       joinItemForward.ts
+|   |   |       |       joinTextblockBackward.ts
+|   |   |       |       joinTextblockForward.ts
+|   |   |       |       keyboardShortcut.ts
+|   |   |       |       lift.ts
+|   |   |       |       liftEmptyBlock.ts
+|   |   |       |       liftListItem.ts
+|   |   |       |       newlineInCode.ts
+|   |   |       |       resetAttributes.ts
+|   |   |       |       scrollIntoView.ts
+|   |   |       |       selectAll.ts
+|   |   |       |       selectNodeBackward.ts
+|   |   |       |       selectNodeForward.ts
+|   |   |       |       selectParentNode.ts
+|   |   |       |       selectTextblockEnd.ts
+|   |   |       |       selectTextblockStart.ts
+|   |   |       |       setContent.ts
+|   |   |       |       setMark.ts
+|   |   |       |       setMeta.ts
+|   |   |       |       setNode.ts
+|   |   |       |       setNodeSelection.ts
+|   |   |       |       setTextDirection.ts
+|   |   |       |       setTextSelection.ts
+|   |   |       |       sinkListItem.ts
+|   |   |       |       splitBlock.ts
+|   |   |       |       splitListItem.ts
+|   |   |       |       toggleList.ts
+|   |   |       |       toggleMark.ts
+|   |   |       |       toggleNode.ts
+|   |   |       |       toggleWrap.ts
+|   |   |       |       undoInputRule.ts
+|   |   |       |       unsetAllMarks.ts
+|   |   |       |       unsetMark.ts
+|   |   |       |       unsetTextDirection.ts
+|   |   |       |       updateAttributes.ts
+|   |   |       |       updateDecorations.ts
+|   |   |       |       wrapIn.ts
+|   |   |       |       wrapInList.ts
+|   |   |       |       
+|   |   |       +---decorations
+|   |   |       |   |   constants.ts
+|   |   |       |   |   createWidgetDecoration.ts
+|   |   |       |   |   Decoration.ts
+|   |   |       |   |   decorationApplyScope.ts
+|   |   |       |   |   DecorationManager.ts
+|   |   |       |   |   index.ts
+|   |   |       |   |   types.ts
+|   |   |       |   |   
+|   |   |       |   +---helpers
+|   |   |       |   |   |   buildDecorationSet.ts
+|   |   |       |   |   |   decorationsToPMDecorations.ts
+|   |   |       |   |   |   filterOutOfRangeDecorations.ts
+|   |   |       |   |   |   findDuplicateWidgetKeys.ts
+|   |   |       |   |   |   getRebuildRanges.ts
+|   |   |       |   |   |   hasResolvableChangedRange.ts
+|   |   |       |   |   |   isAttrStep.ts
+|   |   |       |   |   |   mapDecorations.ts
+|   |   |       |   |   |   mapDecorationSet.ts
+|   |   |       |   |   |   mergeDecorationSets.ts
+|   |   |       |   |   |   rangeOwnsPosition.ts
+|   |   |       |   |   |   shouldRecomputeDecoration.ts
+|   |   |       |   |   |   unionWidgetKeys.ts
+|   |   |       |   |   |   validateDecorationSpec.ts
+|   |   |       |   |   |   widgetKeyOf.ts
+|   |   |       |   |   |   
+|   |   |       |   |   \---__tests__
+|   |   |       |   |           getRebuildRanges.test.ts
+|   |   |       |   |           
+|   |   |       |   \---__tests__
+|   |   |       |           DecorationManager.test.ts
+|   |   |       |           
+|   |   |       +---extensions
+|   |   |       |       clipboardTextSerializer.ts
+|   |   |       |       commands.ts
+|   |   |       |       delete.ts
+|   |   |       |       drop.ts
+|   |   |       |       editable.ts
+|   |   |       |       focusEvents.ts
+|   |   |       |       index.ts
+|   |   |       |       keymap.ts
+|   |   |       |       paste.ts
+|   |   |       |       tabindex.ts
+|   |   |       |       textDirection.ts
+|   |   |       |       
+|   |   |       +---helpers
+|   |   |       |   |   combineTransactionSteps.ts
+|   |   |       |   |   createChainableState.ts
+|   |   |       |   |   createDocument.ts
+|   |   |       |   |   createNodeFromContent.ts
+|   |   |       |   |   defaultBlockAt.ts
+|   |   |       |   |   findChildren.ts
+|   |   |       |   |   findChildrenInRange.ts
+|   |   |       |   |   findParentNode.ts
+|   |   |       |   |   findParentNodeClosestToPos.ts
+|   |   |       |   |   flattenExtensions.ts
+|   |   |       |   |   generateHTML.ts
+|   |   |       |   |   generateJSON.ts
+|   |   |       |   |   generateText.ts
+|   |   |       |   |   getAttributes.ts
+|   |   |       |   |   getAttributesFromExtensions.ts
+|   |   |       |   |   getChangedRanges.ts
+|   |   |       |   |   getDebugJSON.ts
+|   |   |       |   |   getExtensionField.ts
+|   |   |       |   |   getHTMLFromFragment.ts
+|   |   |       |   |   getMarkAttributes.ts
+|   |   |       |   |   getMarkRange.ts
+|   |   |       |   |   getMarksBetween.ts
+|   |   |       |   |   getMarkType.ts
+|   |   |       |   |   getNodeAtPosition.ts
+|   |   |       |   |   getNodeAttributes.ts
+|   |   |       |   |   getNodeType.ts
+|   |   |       |   |   getPreviousBlockSibling.ts
+|   |   |       |   |   getRenderedAttributes.ts
+|   |   |       |   |   getSchema.ts
+|   |   |       |   |   getSchemaByResolvedExtensions.ts
+|   |   |       |   |   getSchemaTypeByName.ts
+|   |   |       |   |   getSchemaTypeNameByName.ts
+|   |   |       |   |   getSplittedAttributes.ts
+|   |   |       |   |   getText.ts
+|   |   |       |   |   getTextBetween.ts
+|   |   |       |   |   getTextContentFromNodes.ts
+|   |   |       |   |   getTextSerializersFromSchema.ts
+|   |   |       |   |   index.ts
+|   |   |       |   |   injectExtensionAttributesToParseRule.ts
+|   |   |       |   |   isActive.ts
+|   |   |       |   |   isAtEndOfNode.ts
+|   |   |       |   |   isAtStartOfNode.ts
+|   |   |       |   |   isExtensionRulesEnabled.ts
+|   |   |       |   |   isFragment.ts
+|   |   |       |   |   isList.ts
+|   |   |       |   |   isMarkActive.ts
+|   |   |       |   |   isNodeActive.ts
+|   |   |       |   |   isNodeEmpty.ts
+|   |   |       |   |   isNodeSelection.ts
+|   |   |       |   |   isNodeViewSelected.ts
+|   |   |       |   |   isProseMirrorAddMarkStep.ts
+|   |   |       |   |   isProseMirrorAddNodeMarkStep.ts
+|   |   |       |   |   isProseMirrorAttrStep.ts
+|   |   |       |   |   isProseMirrorCellSelection.ts
+|   |   |       |   |   isProseMirrorContent.ts
+|   |   |       |   |   isProseMirrorDocAttrStep.ts
+|   |   |       |   |   isProseMirrorFragment.ts
+|   |   |       |   |   isProseMirrorNodeSelection.ts
+|   |   |       |   |   isProseMirrorRemoveMarkStep.ts
+|   |   |       |   |   isProseMirrorRemoveNodeMarkStep.ts
+|   |   |       |   |   isProseMirrorReplaceAroundStep.ts
+|   |   |       |   |   isProseMirrorReplaceStep.ts
+|   |   |       |   |   isProseMirrorSlice.ts
+|   |   |       |   |   isProseMirrorStep.ts
+|   |   |       |   |   isProseMirrorStepResult.ts
+|   |   |       |   |   isTextSelection.ts
+|   |   |       |   |   MappablePosition.ts
+|   |   |       |   |   posToDOMRect.ts
+|   |   |       |   |   resolveExtensions.ts
+|   |   |       |   |   resolveFocusPosition.ts
+|   |   |       |   |   rewriteUnknownContent.ts
+|   |   |       |   |   selectionToInsertionEnd.ts
+|   |   |       |   |   sortExtensions.ts
+|   |   |       |   |   splitExtensions.ts
+|   |   |       |   |   warnOnDuplicatedProseMirrorModel.ts
+|   |   |       |   |   
+|   |   |       |   \---__tests__
+|   |   |       |           getChangedRanges.test.ts
+|   |   |       |           isProseMirrorAddMarkStep.test.ts
+|   |   |       |           isProseMirrorAddNodeMarkStep.test.ts
+|   |   |       |           isProseMirrorAttrStep.test.ts
+|   |   |       |           isProseMirrorCellSelection.test.ts
+|   |   |       |           isProseMirrorDocAttrStep.test.ts
+|   |   |       |           isProseMirrorFragment.test.ts
+|   |   |       |           isProseMirrorNodeSelection.test.ts
+|   |   |       |           isProseMirrorRemoveMarkStep.test.ts
+|   |   |       |           isProseMirrorRemoveNodeMarkStep.test.ts
+|   |   |       |           isProseMirrorReplaceAroundStep.test.ts
+|   |   |       |           isProseMirrorReplaceStep.test.ts
+|   |   |       |           isProseMirrorSlice.test.ts
+|   |   |       |           isProseMirrorStep.test.ts
+|   |   |       |           isProseMirrorStepResult.test.ts
+|   |   |       |           
+|   |   |       +---inputRules
+|   |   |       |       index.ts
+|   |   |       |       markInputRule.ts
+|   |   |       |       nodeInputRule.ts
+|   |   |       |       textblockTypeInputRule.ts
+|   |   |       |       textInputRule.ts
+|   |   |       |       wrappingInputRule.ts
+|   |   |       |       
+|   |   |       +---lib
+|   |   |       |       index.ts
+|   |   |       |       ResizableNodeView.ts
+|   |   |       |       
+|   |   |       +---pasteRules
+|   |   |       |       index.ts
+|   |   |       |       markPasteRule.ts
+|   |   |       |       nodePasteRule.ts
+|   |   |       |       textPasteRule.ts
+|   |   |       |       
+|   |   |       +---utilities
+|   |   |       |   |   attrsEqual.ts
+|   |   |       |   |   callOrReturn.ts
+|   |   |       |   |   canInsertNode.ts
+|   |   |       |   |   createStyleTag.ts
+|   |   |       |   |   deleteProps.ts
+|   |   |       |   |   elementFromString.ts
+|   |   |       |   |   escapeForRegEx.ts
+|   |   |       |   |   findDuplicates.ts
+|   |   |       |   |   fromString.ts
+|   |   |       |   |   getStyleProperty.ts
+|   |   |       |   |   htmlEntities.ts
+|   |   |       |   |   index.ts
+|   |   |       |   |   isAndroid.ts
+|   |   |       |   |   isDev.ts
+|   |   |       |   |   isEmptyObject.ts
+|   |   |       |   |   isFirefox.ts
+|   |   |       |   |   isFunction.ts
+|   |   |       |   |   isiOS.ts
+|   |   |       |   |   isMacOS.ts
+|   |   |       |   |   isNumber.ts
+|   |   |       |   |   isPlainObject.ts
+|   |   |       |   |   isRegExp.ts
+|   |   |       |   |   isSafari.ts
+|   |   |       |   |   isString.ts
+|   |   |       |   |   marksEqual.ts
+|   |   |       |   |   mergeAttributes.ts
+|   |   |       |   |   mergeDeep.ts
+|   |   |       |   |   minMax.ts
+|   |   |       |   |   objectIncludes.ts
+|   |   |       |   |   removeDuplicates.ts
+|   |   |       |   |   
+|   |   |       |   \---markdown
+|   |   |       |           createAtomBlockMarkdownSpec.ts
+|   |   |       |           createBlockMarkdownSpec.ts
+|   |   |       |           createInlineMarkdownSpec.ts
+|   |   |       |           index.ts
+|   |   |       |           parseAttributes.ts
+|   |   |       |           parseIndentedBlocks.ts
+|   |   |       |           parseShortcodeAttributes.ts
+|   |   |       |           renderNestedMarkdownContent.ts
+|   |   |       |           serializeAttributes.ts
+|   |   |       |           tokenizeAttributes.ts
+|   |   |       |           
+|   |   |       \---__tests__
+|   |   |               Editor.spec.ts
+|   |   |               htmlEntities.test.ts
+|   |   |               inputRuleInlineAtoms.test.ts
+|   |   |               isAndroid.test.ts
+|   |   |               rewriteUnknownContent.test.ts
+|   |   |               transformPastedHTML.test.ts
+|   |   |               
+|   |   +---extensions
+|   |   |   |   LICENSE.md
+|   |   |   |   package.json
+|   |   |   |   README.md
+|   |   |   |   
+|   |   |   +---dist
+|   |   |   |   |   index.cjs
+|   |   |   |   |   index.cjs.map
+|   |   |   |   |   index.d.cts
+|   |   |   |   |   index.d.cts.map
+|   |   |   |   |   index.d.ts
+|   |   |   |   |   index.d.ts.map
+|   |   |   |   |   index.js
+|   |   |   |   |   index.js.map
+|   |   |   |   |   
+|   |   |   |   +---character-count
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.cjs.map
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.cts.map
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.d.ts.map
+|   |   |   |   |       index.js
+|   |   |   |   |       index.js.map
+|   |   |   |   |       
+|   |   |   |   +---drop-cursor
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.cjs.map
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.cts.map
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.d.ts.map
+|   |   |   |   |       index.js
+|   |   |   |   |       index.js.map
+|   |   |   |   |       
+|   |   |   |   +---focus
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.cjs.map
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.cts.map
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.d.ts.map
+|   |   |   |   |       index.js
+|   |   |   |   |       index.js.map
+|   |   |   |   |       
+|   |   |   |   +---gap-cursor
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.cjs.map
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.cts.map
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.d.ts.map
+|   |   |   |   |       index.js
+|   |   |   |   |       index.js.map
+|   |   |   |   |       
+|   |   |   |   +---placeholder
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.cjs.map
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.cts.map
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.d.ts.map
+|   |   |   |   |       index.js
+|   |   |   |   |       index.js.map
+|   |   |   |   |       
+|   |   |   |   +---selection
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.cjs.map
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.cts.map
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.d.ts.map
+|   |   |   |   |       index.js
+|   |   |   |   |       index.js.map
+|   |   |   |   |       
+|   |   |   |   +---trailing-node
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.cjs.map
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.cts.map
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.d.ts.map
+|   |   |   |   |       index.js
+|   |   |   |   |       index.js.map
+|   |   |   |   |       
+|   |   |   |   \---undo-redo
+|   |   |   |           index.cjs
+|   |   |   |           index.cjs.map
+|   |   |   |           index.d.cts
+|   |   |   |           index.d.cts.map
+|   |   |   |           index.d.ts
+|   |   |   |           index.d.ts.map
+|   |   |   |           index.js
+|   |   |   |           index.js.map
+|   |   |   |           
+|   |   |   \---src
+|   |   |       |   index.ts
+|   |   |       |   
+|   |   |       +---character-count
+|   |   |       |       character-count.ts
+|   |   |       |       index.ts
+|   |   |       |       
+|   |   |       +---drop-cursor
+|   |   |       |       drop-cursor.ts
+|   |   |       |       index.ts
+|   |   |       |       
+|   |   |       +---focus
+|   |   |       |       focus.ts
+|   |   |       |       index.ts
+|   |   |       |       
+|   |   |       +---gap-cursor
+|   |   |       |       gap-cursor.ts
+|   |   |       |       index.ts
+|   |   |       |       
+|   |   |       +---placeholder
+|   |   |       |   |   constants.ts
+|   |   |       |   |   index.ts
+|   |   |       |   |   placeholder.ts
+|   |   |       |   |   types.ts
+|   |   |       |   |   
+|   |   |       |   +---plugins
+|   |   |       |   |       PlaceholderPlugin.ts
+|   |   |       |   |       
+|   |   |       |   \---utils
+|   |   |       |           buildPlaceholderDecorations.ts
+|   |   |       |           createPlaceholderDecoration.ts
+|   |   |       |           index.ts
+|   |   |       |           placeholderStateField.ts
+|   |   |       |           preparePlaceholderAttribute.ts
+|   |   |       |           resolveTopLevelRange.ts
+|   |   |       |           
+|   |   |       +---selection
+|   |   |       |       index.ts
+|   |   |       |       selection.ts
+|   |   |       |       
+|   |   |       +---trailing-node
+|   |   |       |       index.ts
+|   |   |       |       trailing-node.ts
+|   |   |       |       
+|   |   |       \---undo-redo
+|   |   |               index.ts
+|   |   |               undo-redo.ts
+|   |   |               
+|   |   +---pm
+|   |   |   |   LICENSE
+|   |   |   |   package.json
+|   |   |   |   README.md
+|   |   |   |   THIRD_PARTY_LICENSES.md
+|   |   |   |   
+|   |   |   +---changeset
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---commands
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---dist
+|   |   |   |   +---changeset
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---commands
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---dropcursor
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---gapcursor
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---history
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---inputrules
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---keymap
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---model
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---schema-list
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---state
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---tables
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   +---transform
+|   |   |   |   |       index.cjs
+|   |   |   |   |       index.d.cts
+|   |   |   |   |       index.d.ts
+|   |   |   |   |       index.js
+|   |   |   |   |       
+|   |   |   |   \---view
+|   |   |   |           index.cjs
+|   |   |   |           index.d.cts
+|   |   |   |           index.d.ts
+|   |   |   |           index.js
+|   |   |   |           
+|   |   |   +---dropcursor
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---gapcursor
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---history
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---inputrules
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---keymap
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---model
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---schema-list
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---state
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---tables
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   +---transform
+|   |   |   |       index.ts
+|   |   |   |       
+|   |   |   \---view
+|   |   |           index.ts
+|   |   |           
+|   |   \---starter-kit
+|   |       |   LICENSE.md
+|   |       |   package.json
+|   |       |   README.md
+|   |       |   
+|   |       +---dist
+|   |       |       index.cjs
+|   |       |       index.cjs.map
+|   |       |       index.d.cts
+|   |       |       index.d.cts.map
+|   |       |       index.d.ts
+|   |       |       index.d.ts.map
+|   |       |       index.js
+|   |       |       index.js.map
+|   |       |       
+|   |       +---node_modules
+|   |       |   \---@tiptap
+|   |       |       +---extension-blockquote
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           blockquote.tsx
+|   |       |       |           handleBackspace.ts
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-bold
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           bold.tsx
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-bullet-list
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-code
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           code.ts
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-code-block
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           code-block.ts
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-document
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           document.ts
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-dropcursor
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-gapcursor
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-hard-break
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           hard-break.ts
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-heading
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           heading.ts
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-horizontal-rule
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           horizontal-rule.ts
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-italic
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           italic.ts
+|   |       |       |           
+|   |       |       +---extension-link
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |       |   index.ts
+|   |       |       |       |   link.ts
+|   |       |       |       |   
+|   |       |       |       \---helpers
+|   |       |       |               autolink.ts
+|   |       |       |               clickHandler.ts
+|   |       |       |               markdownLink.ts
+|   |       |       |               pasteHandler.ts
+|   |       |       |               whitespace.ts
+|   |       |       |               
+|   |       |       +---extension-list
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |   |   index.cjs
+|   |       |       |   |   |   index.cjs.map
+|   |       |       |   |   |   index.d.cts
+|   |       |       |   |   |   index.d.cts.map
+|   |       |       |   |   |   index.d.ts
+|   |       |       |   |   |   index.d.ts.map
+|   |       |       |   |   |   index.js
+|   |       |       |   |   |   index.js.map
+|   |       |       |   |   |   rolldown-runtime-D7D4PA-g.js
+|   |       |       |   |   |   
+|   |       |       |   |   +---bullet-list
+|   |       |       |   |   |       index.cjs
+|   |       |       |   |   |       index.cjs.map
+|   |       |       |   |   |       index.d.cts
+|   |       |       |   |   |       index.d.cts.map
+|   |       |       |   |   |       index.d.ts
+|   |       |       |   |   |       index.d.ts.map
+|   |       |       |   |   |       index.js
+|   |       |       |   |   |       index.js.map
+|   |       |       |   |   |       
+|   |       |       |   |   +---item
+|   |       |       |   |   |       index.cjs
+|   |       |       |   |   |       index.cjs.map
+|   |       |       |   |   |       index.d.cts
+|   |       |       |   |   |       index.d.cts.map
+|   |       |       |   |   |       index.d.ts
+|   |       |       |   |   |       index.d.ts.map
+|   |       |       |   |   |       index.js
+|   |       |       |   |   |       index.js.map
+|   |       |       |   |   |       
+|   |       |       |   |   +---keymap
+|   |       |       |   |   |       index.cjs
+|   |       |       |   |   |       index.cjs.map
+|   |       |       |   |   |       index.d.cts
+|   |       |       |   |   |       index.d.cts.map
+|   |       |       |   |   |       index.d.ts
+|   |       |       |   |   |       index.d.ts.map
+|   |       |       |   |   |       index.js
+|   |       |       |   |   |       index.js.map
+|   |       |       |   |   |       rolldown-runtime-D7D4PA-g.js
+|   |       |       |   |   |       
+|   |       |       |   |   +---kit
+|   |       |       |   |   |       index.cjs
+|   |       |       |   |   |       index.cjs.map
+|   |       |       |   |   |       index.d.cts
+|   |       |       |   |   |       index.d.cts.map
+|   |       |       |   |   |       index.d.ts
+|   |       |       |   |   |       index.d.ts.map
+|   |       |       |   |   |       index.js
+|   |       |       |   |   |       index.js.map
+|   |       |       |   |   |       
+|   |       |       |   |   +---ordered-list
+|   |       |       |   |   |       index.cjs
+|   |       |       |   |   |       index.cjs.map
+|   |       |       |   |   |       index.d.cts
+|   |       |       |   |   |       index.d.cts.map
+|   |       |       |   |   |       index.d.ts
+|   |       |       |   |   |       index.d.ts.map
+|   |       |       |   |   |       index.js
+|   |       |       |   |   |       index.js.map
+|   |       |       |   |   |       
+|   |       |       |   |   +---task-item
+|   |       |       |   |   |       index.cjs
+|   |       |       |   |   |       index.cjs.map
+|   |       |       |   |   |       index.d.cts
+|   |       |       |   |   |       index.d.cts.map
+|   |       |       |   |   |       index.d.ts
+|   |       |       |   |   |       index.d.ts.map
+|   |       |       |   |   |       index.js
+|   |       |       |   |   |       index.js.map
+|   |       |       |   |   |       
+|   |       |       |   |   \---task-list
+|   |       |       |   |           index.cjs
+|   |       |       |   |           index.cjs.map
+|   |       |       |   |           index.d.cts
+|   |       |       |   |           index.d.cts.map
+|   |       |       |   |           index.d.ts
+|   |       |       |   |           index.d.ts.map
+|   |       |       |   |           index.js
+|   |       |       |   |           index.js.map
+|   |       |       |   |           
+|   |       |       |   \---src
+|   |       |       |       |   index.ts
+|   |       |       |       |   
+|   |       |       |       +---bullet-list
+|   |       |       |       |       bullet-list.ts
+|   |       |       |       |       index.ts
+|   |       |       |       |       
+|   |       |       |       +---helpers
+|   |       |       |       |       createBranchingListDeleteKeymap.ts
+|   |       |       |       |       getBranchingNestedListAtCursor.ts
+|   |       |       |       |       handleDeleteBranchingNestedList.ts
+|   |       |       |       |       hasBranchingNestedListAfterCursor.ts
+|   |       |       |       |       hoistBranchingNestedList.ts
+|   |       |       |       |       
+|   |       |       |       +---item
+|   |       |       |       |       index.ts
+|   |       |       |       |       list-item.ts
+|   |       |       |       |       
+|   |       |       |       +---keymap
+|   |       |       |       |   |   index.ts
+|   |       |       |       |   |   list-keymap.ts
+|   |       |       |       |   |   
+|   |       |       |       |   \---listHelpers
+|   |       |       |       |           findListItemPos.ts
+|   |       |       |       |           getNextListDepth.ts
+|   |       |       |       |           handleBackspace.ts
+|   |       |       |       |           handleDelete.ts
+|   |       |       |       |           handleTab.ts
+|   |       |       |       |           hasListBefore.ts
+|   |       |       |       |           hasListItemAfter.ts
+|   |       |       |       |           hasListItemBefore.ts
+|   |       |       |       |           index.ts
+|   |       |       |       |           listItemHasSubList.ts
+|   |       |       |       |           nextListIsDeeper.ts
+|   |       |       |       |           nextListIsHigher.ts
+|   |       |       |       |           
+|   |       |       |       +---kit
+|   |       |       |       |       index.ts
+|   |       |       |       |       
+|   |       |       |       +---ordered-list
+|   |       |       |       |       index.ts
+|   |       |       |       |       ordered-list.ts
+|   |       |       |       |       roman.ts
+|   |       |       |       |       utils.ts
+|   |       |       |       |       
+|   |       |       |       +---task-item
+|   |       |       |       |       index.ts
+|   |       |       |       |       task-item.ts
+|   |       |       |       |       
+|   |       |       |       \---task-list
+|   |       |       |               index.ts
+|   |       |       |               task-list.ts
+|   |       |       |               
+|   |       |       +---extension-list-item
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-list-keymap
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-ordered-list
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           
+|   |       |       +---extension-paragraph
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           paragraph.ts
+|   |       |       |           
+|   |       |       +---extension-strike
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           strike.ts
+|   |       |       |           
+|   |       |       +---extension-text
+|   |       |       |   |   LICENSE.md
+|   |       |       |   |   package.json
+|   |       |       |   |   README.md
+|   |       |       |   |   
+|   |       |       |   +---dist
+|   |       |       |   |       index.cjs
+|   |       |       |   |       index.cjs.map
+|   |       |       |   |       index.d.cts
+|   |       |       |   |       index.d.cts.map
+|   |       |       |   |       index.d.ts
+|   |       |       |   |       index.d.ts.map
+|   |       |       |   |       index.js
+|   |       |       |   |       index.js.map
+|   |       |       |   |       
+|   |       |       |   \---src
+|   |       |       |           index.ts
+|   |       |       |           text.ts
+|   |       |       |           
+|   |       |       \---extension-underline
+|   |       |           |   LICENSE.md
+|   |       |           |   package.json
+|   |       |           |   README.md
+|   |       |           |   
+|   |       |           +---dist
+|   |       |           |       index.cjs
+|   |       |           |       index.cjs.map
+|   |       |           |       index.d.cts
+|   |       |           |       index.d.cts.map
+|   |       |           |       index.d.ts
+|   |       |           |       index.d.ts.map
+|   |       |           |       index.js
+|   |       |           |       index.js.map
+|   |       |           |       
+|   |       |           \---src
+|   |       |                   index.ts
+|   |       |                   underline.ts
+|   |       |                   
+|   |       \---src
+|   |               index.ts
+|   |               starter-kit.ts
 |   |               
 |   +---ansi-regex
 |   |       index.d.ts
@@ -1413,6 +2541,19 @@ C:.
 |   |       package.json
 |   |       README.md
 |   |       
+|   +---linkifyjs
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   \---dist
+|   |           linkify.cjs
+|   |           linkify.d.cts
+|   |           linkify.d.mts
+|   |           linkify.js
+|   |           linkify.min.js
+|   |           linkify.mjs
+|   |           
 |   +---magic-string
 |   |   |   LICENSE
 |   |   |   package.json
@@ -1462,6 +2603,17 @@ C:.
 |   |           index.cjs
 |   |           index.js
 |   |           package.json
+|   |           
+|   +---orderedmap
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   \---dist
+|   |           index.cjs
+|   |           index.d.cts
+|   |           index.d.ts
+|   |           index.js
 |   |           
 |   +---picocolors
 |   |       LICENSE
@@ -1545,6 +2697,290 @@ C:.
 |   |           warning.d.ts
 |   |           warning.js
 |   |           
+|   +---prosemirror-changeset
+|   |   |   CHANGELOG.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   +---src
+|   |   |       change.ts
+|   |   |       changeset.ts
+|   |   |       diff.ts
+|   |   |       README.md
+|   |   |       simplify.ts
+|   |   |       
+|   |   \---test
+|   |           test-changed-range.ts
+|   |           test-changes.ts
+|   |           test-diff.ts
+|   |           test-merge.ts
+|   |           test-simplify.ts
+|   |           
+|   +---prosemirror-commands
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           commands.ts
+|   |           README.md
+|   |           
+|   +---prosemirror-dropcursor
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           dropcursor.ts
+|   |           
+|   +---prosemirror-gapcursor
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   +---src
+|   |   |       gapcursor.ts
+|   |   |       index.ts
+|   |   |       README.md
+|   |   |       
+|   |   \---style
+|   |           gapcursor.css
+|   |           
+|   +---prosemirror-history
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           history.ts
+|   |           README.md
+|   |           
+|   +---prosemirror-inputrules
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           index.ts
+|   |           inputrules.ts
+|   |           README.md
+|   |           rulebuilders.ts
+|   |           rules.ts
+|   |           
+|   +---prosemirror-keymap
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           keymap.ts
+|   |           README.md
+|   |           
+|   +---prosemirror-model
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           comparedeep.ts
+|   |           content.ts
+|   |           diff.ts
+|   |           dom.ts
+|   |           fragment.ts
+|   |           from_dom.ts
+|   |           index.ts
+|   |           mark.ts
+|   |           node.ts
+|   |           README.md
+|   |           replace.ts
+|   |           resolvedpos.ts
+|   |           schema.ts
+|   |           to_dom.ts
+|   |           
+|   +---prosemirror-schema-list
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           README.md
+|   |           schema-list.ts
+|   |           
+|   +---prosemirror-state
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           index.ts
+|   |           plugin.ts
+|   |           README.md
+|   |           selection.ts
+|   |           state.ts
+|   |           transaction.ts
+|   |           
+|   +---prosemirror-tables
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.cts.map
+|   |   |       index.d.ts
+|   |   |       index.d.ts.map
+|   |   |       index.js
+|   |   |       index.js.map
+|   |   |       
+|   |   \---style
+|   |           tables.css
+|   |           
+|   +---prosemirror-transform
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   \---src
+|   |           attr_step.ts
+|   |           index.ts
+|   |           map.ts
+|   |           mark.ts
+|   |           mark_step.ts
+|   |           README.md
+|   |           replace.ts
+|   |           replace_step.ts
+|   |           step.ts
+|   |           structure.ts
+|   |           transform.ts
+|   |           
+|   +---prosemirror-view
+|   |   |   .tern-project
+|   |   |   CHANGELOG.md
+|   |   |   CONTRIBUTING.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---dist
+|   |   |       index.cjs
+|   |   |       index.d.cts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       
+|   |   +---src
+|   |   |       browser.ts
+|   |   |       capturekeys.ts
+|   |   |       clipboard.ts
+|   |   |       decoration.ts
+|   |   |       dom.ts
+|   |   |       domchange.ts
+|   |   |       domcoords.ts
+|   |   |       domobserver.ts
+|   |   |       index.ts
+|   |   |       input.ts
+|   |   |       README.md
+|   |   |       selection.ts
+|   |   |       viewdesc.ts
+|   |   |       
+|   |   \---style
+|   |           prosemirror.css
+|   |           
 |   +---rolldown
 |   |   |   LICENSE
 |   |   |   package.json
@@ -1601,6 +3037,19 @@ C:.
 |   |               transform-7xCUVrpL.d.mts
 |   |               watch-BZza93fH.mjs
 |   |               
+|   +---rope-sequence
+|   |   |   index.js
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   test.js
+|   |   |   
+|   |   \---dist
+|   |           index.cjs
+|   |           index.d.cts
+|   |           index.d.ts
+|   |           index.js
+|   |           
 |   +---rxjs
 |   |   |   CHANGELOG.md
 |   |   |   CODE_OF_CONDUCT.md
@@ -4302,6 +5751,16 @@ C:.
 |   |                   scan.js
 |   |                   utils.js
 |   |                   
+|   +---w3c-keyname
+|   |       .tern-port
+|   |       index.cjs
+|   |       index.d.cts
+|   |       index.d.ts
+|   |       index.js
+|   |       LICENSE
+|   |       package.json
+|   |       README.md
+|   |       
 |   +---wrap-ansi
 |   |       index.d.ts
 |   |       index.js
@@ -4433,8 +5892,10 @@ C:.
 |   |   |   manifest.json
 |   |   |   
 |   |   \---assets
-|   |           app-Br0qDkeo.css
 |   |           app-BvRk9kiK.js
+|   |           app-CvhoYa-z.css
+|   |           clinical-notes-BEwHkR2Y.css
+|   |           clinical-notes-D5p2vdR9.js
 |   |           fonts-DkuEHybc.css
 |   |           instrument-sans-400-normal-D1W7dsQl.woff
 |   |           instrument-sans-400-normal-DRC__1Mx.woff2
@@ -4484,7 +5945,6 @@ C:.
 |   |   |   lifecoach_patients_list.js
 |   |   |   lifecoach_profile.js
 |   |   |   lifecoach_tasks.js
-|   |   |   psychiatrist.js
 |   |   |   psychiatrist_profile.js
 |   |   |   staff_login.js
 |   |   |   
@@ -4544,6 +6004,7 @@ C:.
 |   |   |                       chart.js
 |   |   |                       
 |   |   \---psych
+|   |           psychiatrist.js
 |   |           psychiatrist_assessments.js
 |   |           psychiatrist_consultations.js
 |   |           psychiatrist_core.js
@@ -4655,7 +6116,7 @@ C:.
 |   |   |           
 |   |   +---sessions
 |   |   |       .gitignore
-|   |   |       IsvqAdG86xADP2Cf0hnv5eWljFh1T8hhf5XIJOD0
+|   |   |       xckT9XwxqIeJhjUNd3ZfSDBhxEJuy2yenXSVtn6N
 |   |   |       
 |   |   +---testing
 |   |   |       .gitignore
@@ -4674,6 +6135,7 @@ C:.
 |   |           270671803688945f0b3fde3375f36623.php
 |   |           28ae706b61eacf6ecf39a77e77787686.php
 |   |           28ba8d43713a1769ff7f2f8941350346.php
+|   |           31d531dda2262b650c2100b959ddc324.php
 |   |           32894486266c6eb48bec6fc078ef82ff.php
 |   |           36505061399d1fd90873e8b70ce673f1.php
 |   |           38481e12068f19c7715528a42e61b595.php
@@ -4685,6 +6147,7 @@ C:.
 |   |           42b9729562f60b171ebc4d5fee845008.php
 |   |           42e5500d76599d2005702e856ab5dad2.php
 |   |           4302af13ddb7dcf75a646d2946a7678f.php
+|   |           43b457cfe8495e56e01fd7b00ccb6fce.php
 |   |           4943bc92ebba41e8b0e508149542e0ad.blade.php
 |   |           4a6fd8ed5dc402f4425378e9b18c951f.php
 |   |           4ad427b7928496b1716b6107cdfd5aad.php
@@ -4717,6 +6180,7 @@ C:.
 |   |           8058e82f98dabf91b1c370be1765f030.php
 |   |           8081ca6aa128e0c422fa1444ad88266f.php
 |   |           821a14f98bd9c29f3f8210cfbc840bc1.php
+|   |           8678d18bfc239725eec1df9e50e6c680.php
 |   |           86f4eb02fe5a1d8428fb5d76bf16437d.php
 |   |           87346c404fd3f7dc7cbafa7090592611.php
 |   |           88126b71566613a25931d0131d4de4ca.php
@@ -4737,6 +6201,7 @@ C:.
 |   |           a49cdfbf1cafe75ccf829a40140c7ace.php
 |   |           a5233f5cf93d08b1788b209481a9f67c.php
 |   |           a5dc96d98d3d989d6552396b8830a0e5.php
+|   |           ab8af12277cdaa06c7c2bc8e7feac06f.php
 |   |           acbcc5f2b14937d807e7b985aec78e2a.php
 |   |           ada08279a42c789716611318f5fdf4fd.php
 |   |           af3c2634b8209b85d3621ab3d897c57c.php
@@ -4753,6 +6218,7 @@ C:.
 |   |           c5c5867d26233d948375a3f586d7e485.php
 |   |           c79f6c5bada68ec0a8257f829f7cc96c.php
 |   |           c8964d2c43f1b395704038bb0ca7e415.php
+|   |           c8b30964d31bcf20c7a621399119a752.php
 |   |           cabf9ad851a3076178c85ba86396c17c.php
 |   |           cb6d6dffb780e57d1d2d6a4e300c57c5.php
 |   |           cca033f62d6ce928d2c9e2904802a92a.php
@@ -4773,6 +6239,7 @@ C:.
 |   |           f6d4660ab3945177e99e14390a2450e4.php
 |   |           f858a77287b367161f090aab0d877f2a.php
 |   |           fa5718051c83e4432c5730c6288cd9e3.php
+|   |           fd23601ee1bdc90b6c6104dcf91a7629.php
 |   |           fe93b5b8854107525f05295e2c7fc5d3.php
 |   |           fea105171a2aa3bf61c107ecdc912aa2.php
 |   |           fea5c238c7f40c9988d06d4c623e0c25.php

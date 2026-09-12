@@ -89,8 +89,8 @@
 
   <div class="toast hidden" id="toast"></div>
 
-  <script src="{{ asset('js/lifecoach_data.js?v=3.0') }}"></script>
-  <script src="{{ asset('js/lifecoach_notes.js?v=3.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_data.js?v=3.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_notes.js?v=3.0') }}"></script>
   <script>feather.replace();</script>
 </body>
 

@@ -216,8 +216,8 @@
 
   <div class="toast hidden" id="toast"></div>
 
-  <script src="{{ asset('js/lifecoach_data.js?v=2.0') }}"></script>
-  <script src="{{ asset('js/lifecoach_patients.js?v=2.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_data.js?v=2.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_patients.js?v=2.0') }}"></script>F
   <script>
     feather.replace();
   </script>
