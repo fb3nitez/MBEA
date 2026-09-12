@@ -36,6 +36,7 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::get('/profile', 'profile')->name('profile');
 
         Route::post('/save-note/{id}', 'saveNote')->name('notes.save');
+        Route::post('/patients/{id}/clinical-images', 'uploadClinicalImage')->name('notes.images.store');
 
         Route::get('/patients/search', 'searchPatients')->name('patients.search');
         Route::get('/patients/{id}', 'showPatient')->name('patients.show');

@@ -7,15 +7,14 @@ use App\Models\ConsultationSchedule;
 use App\Models\PatientRecord;
 use App\Services\PatientService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Models\BiopsychosocialAssessment;
 
 class PsychiatristController extends Controller
 {
-    public function __construct(private PatientService $patientService)
-    {
-    }
+    public function __construct(private PatientService $patientService) {}
 
     public function dashboard(): View
     {
@@ -372,6 +371,26 @@ class PsychiatristController extends Controller
             'success' => true,
             'message' => 'clinical notes updated!',
         ]);
+    }
+
+    public function uploadClinicalImage(Request $request, int $id): JsonResponse
+    {
+        $patient = $this->patientService->findPatient($id);
+        $image = $request->validate([
+            'image' => ['required', 'image', 'mimes:jpeg,png,gif,webp', 'max:10240'],
+        ])['image'];
+
+        $path = $image->store("clinical-notes/{$patient->id}", 'public');
+        $upload = $patient->clinicalUploads()->create([
+            'path' => $path,
+            'original_name' => $image->getClientOriginalName(),
+            'size' => $image->getSize(),
+        ]);
+
+        return response()->json([
+            'url' => Storage::disk('public')->url($upload->path),
+            'original_name' => $upload->original_name,
+        ], 201);
     }
 
     private function validateClinicalTemplate(Request $request, bool $partial = false): array

@@ -1,6 +1,20 @@
 import { Editor } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions";
+import BaseImage from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
+
+const Image = BaseImage.extend({
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            width: {
+                default: null,
+                parseHTML: (element) => element.getAttribute("width") || element.style.width || null,
+                renderHTML: (attributes) => attributes.width ? { style: `width: ${attributes.width}` } : {},
+            },
+        };
+    },
+});
 
 let currentContent = "";
 const unSaveIndicator = document.getElementById('unSaveIndicator');
@@ -9,22 +23,21 @@ const editor = new Editor({
     element: document.querySelector("#editor"),
     extensions: [
         StarterKit,
+        Image.configure({ allowBase64: false }),
         Placeholder.configure({
             placeholder: "Enter clinical notes...",
         }),
     ],
     onUpdate: ({ editor }) => {
-        const content = JSON.stringify(editor.getJSON());
-        if (currentContent === content) {
-            unSaveIndicator.classList.add('hide');
-        } else {
-            unSaveIndicator.classList.remove('hide');
-        }
+        updateUnsavedIndicator(JSON.stringify(editor.getJSON()));
     },
 });
 
 // Wire up toolbar buttons
 const saveClinicalNoteBtn = document.getElementById("saveClinicalNote");
+const uploadClinicalImageBtn = document.getElementById("uploadClinicalImage");
+const clinicalImageInput = document.getElementById("clinicalImageInput");
+const clinicalImageWidth = document.getElementById("clinicalImageWidth");
 const buttons = document.querySelectorAll("[data-tiptap-button]");
 
 buttons.forEach((button) => {
@@ -112,10 +125,19 @@ function updateToolbar() {
             button.disabled = isDisabledCheck();
         }
     });
+
+    const imageSelected = editor.isActive("image");
+    clinicalImageWidth.disabled = !imageSelected;
+    clinicalImageWidth.value = imageSelected ? (editor.getAttributes("image").width || "") : "";
+}
+
+function updateUnsavedIndicator(content = JSON.stringify(editor.getJSON())) {
+    unSaveIndicator.classList.toggle('hide', currentContent === content);
 }
 
 async function saveNotes() {
     const content = editor.getJSON();
+    const savedContent = JSON.stringify(content);
     const patient_id = currentPatientId();
 
     const response = await fetch(`/psychiatrist/save-note/${patient_id}`, {
@@ -139,8 +161,33 @@ async function saveNotes() {
     showToast(result.message || 'internal server error!');
 
     if (result.success) {
-        unSaveIndicator.classList.add('hide');
+        currentContent = savedContent;
+        updateUnsavedIndicator();
     }
+}
+
+async function uploadClinicalImage(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(`/psychiatrist/patients/${currentPatientId()}/clinical-images`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+            Accept: "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-TOKEN": getCsrf(),
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || "Failed to upload image");
+    }
+
+    const result = await response.json();
+    editor.chain().focus().setImage({ src: result.url, alt: result.original_name }).run();
 }
 
 function getCsrf() {
@@ -158,12 +205,13 @@ function displayAsHTML(data) {
 
     const { tr } = editor.state;
     const slice = editor.schema.nodeFromJSON(content);
-    currentContent = data;
+    currentContent = JSON.stringify(slice.toJSON());
 
     tr.replaceWith(0, editor.state.doc.content.size, slice);
     tr.setMeta('addToHistory', false);
 
     editor.view.dispatch(tr);
+    updateUnsavedIndicator();
 }
 
 function showToast(msg) {
@@ -184,4 +232,26 @@ editor.on("transaction", updateToolbar);
 // Set the initial toolbar state (e.g. undo/redo disabled on load)
 updateToolbar();
 saveClinicalNoteBtn.addEventListener("click", saveNotes);
+uploadClinicalImageBtn.addEventListener("click", () => clinicalImageInput.click());
+clinicalImageWidth.addEventListener("change", () => {
+    if (!editor.isActive("image")) return;
+
+    editor.chain().focus().updateAttributes("image", {
+        width: clinicalImageWidth.value || null,
+    }).run();
+});
+clinicalImageInput.addEventListener("change", async () => {
+    const [file] = clinicalImageInput.files;
+    if (!file) return;
+
+    uploadClinicalImageBtn.disabled = true;
+    try {
+        await uploadClinicalImage(file);
+    } catch (error) {
+        showToast(error.message);
+    } finally {
+        clinicalImageInput.value = "";
+        uploadClinicalImageBtn.disabled = false;
+    }
+});
 window.displayAsHTML = displayAsHTML;

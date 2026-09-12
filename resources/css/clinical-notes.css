@@ -77,6 +77,21 @@
   color: var(--muted);
 }
 
+.image-width-select {
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.image-width-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .tiptap {
   padding: 1rem 1.25rem;
   min-height: 12rem;
@@ -84,15 +99,29 @@
   line-height: 1.6;
 }
 
-.tiptap p { margin: 0.5rem 0; }
-.tiptap h1, .tiptap h2, .tiptap h3 { margin: 1rem 0 0.5rem; line-height: 1.25; }
-.tiptap ul, .tiptap ol { padding-left: 1.5rem; }
+.tiptap p {
+  margin: 0.5rem 0;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  margin: 1rem 0 0.5rem;
+  line-height: 1.25;
+}
+
+.tiptap ul,
+.tiptap ol {
+  padding-left: 1.5rem;
+}
+
 .tiptap blockquote {
   border-left: 3px solid var(--border);
   margin: 0.75rem 0;
   padding-left: 1rem;
   color: var(--muted);
 }
+
 .tiptap pre {
   background: #0f172a;
   color: #f1f5f9;
@@ -101,15 +130,24 @@
   font-size: 0.875rem;
   overflow-x: auto;
 }
+
 .tiptap code {
   background: #f1f5f9;
   padding: 0.125rem 0.35rem;
   border-radius: 0.3rem;
   font-size: 0.875rem;
 }
+
 .tiptap pre code {
   background: transparent;
   padding: 0;
+}
+
+.tiptap img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.75rem 0;
 }
 
 
@@ -122,18 +160,17 @@
 }
 
 #saveClinicalNote {
-    position: relative;
+  position: relative;
 }
 
 #unSaveIndicator {
-    position: absolute;
-    color: oklch(63.7% 0.237 25.331);
-    font-size: 24px;
-    top: 4px;
-    right: 5px;
+  position: absolute;
+  color: oklch(63.7% 0.237 25.331);
+  font-size: 24px;
+  top: 4px;
+  right: 5px;
 }
 
 #unSaveIndicator.hide {
-    display: none;
+  display: none;
 }
-
