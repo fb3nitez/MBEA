@@ -136,21 +136,137 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // <edit-marker SimpforLyla> View Intake Form button handler
+    var viewIntakeBtn = document.getElementById("view-intake-btn");
+    if (viewIntakeBtn) {
+        viewIntakeBtn.addEventListener("click", function () {
+            var p = PATIENTS.find(function (x) {
+                return String(x.id) === String(currentPatientId);
+            });
+            if (!p) return;
+            buildIntakeModal(p.intake || {});
+            lcOpenModal("intake-modal");
+        });
+    }
+
+    function buildIntakeModal(intake) {
+        var body = document.getElementById("intake-modal-body");
+        if (!body) return;
+
+        function row(label, value) {
+            return (
+                '<div class="intake-row">' +
+                '<span class="intake-label">' +
+                lcEscape(label) +
+                "</span>" +
+                '<span class="intake-value">' +
+                lcEscape(value || "—") +
+                "</span>" +
+                "</div>"
+            );
+        }
+
+        function section(title, html) {
+            return (
+                '<div class="intake-section">' +
+                '<div class="intake-section-title">' +
+                lcEscape(title) +
+                "</div>" +
+                html +
+                "</div>"
+            );
+        }
+
+        function tags(arr) {
+            if (!arr || !arr.length) {
+                return '<span class="intake-empty">None reported</span>';
+            }
+            return (
+                '<div class="intake-tags">' +
+                arr
+                    .map(function (t) {
+                        return (
+                            '<span class="intake-tag">' +
+                            lcEscape(t) +
+                            "</span>"
+                        );
+                    })
+                    .join("") +
+                "</div>"
+            );
+        }
+
+        var html = "";
+
+        // Personal Information
+        var personalHtml = "";
+        (intake.personal || []).forEach(function (f) {
+            personalHtml += row(f.label, f.value);
+        });
+        html += section(
+            "Personal Information",
+            personalHtml ||
+                '<span class="intake-empty">No data on file.</span>',
+        );
+
+        // Medical History — conditions
+        var condHtml =
+            '<div class="intake-row">' +
+            '<span class="intake-label">Conditions</span>' +
+            '<span class="intake-value">' +
+            tags(intake.conditions) +
+            "</span>" +
+            "</div>" +
+            row("Current Medications", intake.medications);
+        html += section("Medical History", condHtml);
+
+        // Family History
+        var famHtml =
+            '<div class="intake-row">' +
+            '<span class="intake-label">Family History</span>' +
+            '<span class="intake-value">' +
+            tags(intake.family) +
+            "</span>" +
+            "</div>";
+        html += section("Family History", famHtml);
+
+        // Psychiatric History
+        var psychHtml = "";
+        (intake.psychiatric || []).forEach(function (f) {
+            psychHtml += row(f.label, f.value);
+        });
+        html += section(
+            "Psychiatric History",
+            psychHtml || '<span class="intake-empty">No data on file.</span>',
+        );
+
+        // Lifestyle Assessment
+        var lsHtml = "";
+        (intake.lifestyle || []).forEach(function (f) {
+            lsHtml += row(f.label, f.value);
+        });
+        html += section(
+            "Lifestyle Assessment",
+            lsHtml ||
+                '<span class="intake-empty">No assessment on file.</span>',
+        );
+
+        body.innerHTML = html;
+        lcRi();
+    }
+    // </edit-marker>
+
     function syncGoalHabitData(p) {
         if (!p) return;
-
         var goals = p.goals || [];
         var priorRows = Array.isArray(p.habitData) ? p.habitData : [];
-
         p.habits = [];
         p.habitData = [];
-
         goals.forEach(function (goal, index) {
             var priorRow = Array.isArray(priorRows[index])
                 ? priorRows[index].slice()
                 : [];
             var row = [];
-
             for (var i = 0; i < DAYS.length; i++) {
                 row.push(
                     Boolean(
@@ -160,7 +276,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     ),
                 );
             }
-
             p.habits.push(goal.title || "Goal");
             p.habitData.push(row);
         });
@@ -821,7 +936,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ── URL deep-link: must be LAST, after switchPatientTab is defined ──
+    // URL deep-link — must be LAST, after switchPatientTab is defined
     if (urlId) {
         var found = PATIENTS.find(function (p) {
             return String(p.id) === String(urlId);

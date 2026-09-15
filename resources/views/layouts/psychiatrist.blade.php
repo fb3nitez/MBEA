@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>MedCare — @yield('title')</title>
+  <title>MB.EA — @yield('title')</title>
   <link rel="stylesheet" href="{{ asset('css/psychiatrist.css') }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -27,7 +27,7 @@
         <img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA"
           style="width:36px;height:36px;object-fit:cover;border-radius:50%;flex-shrink:0;" />
         <div>
-          <div class="sidebar-brand">MedCare System</div>
+          <div class="sidebar-brand">MB.EA Wellness Center</div>
           <div class="sidebar-role">Psychiatrist</div>
         </div>
       </div>

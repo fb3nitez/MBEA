@@ -6,7 +6,7 @@
         <img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA"
             style="width:36px;height:36px;object-fit:cover;border-radius:50%;flex-shrink:0;" />
         <div>
-            <div class="sidebar-brand">MedCare System</div>
+            <div class="sidebar-brand">MB.EA Wellness Center</div>
             <div class="sidebar-role">Life Coach</div>
         </div>
     </div>

@@ -248,7 +248,7 @@ class LifecoachController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'role' => 'Life Coach',
-            'clinic' => 'MedCare Clinic',
+            'clinic' => 'MB.EA Wellness Center',
             'email' => $user->email,
             'license' => 'LC-' . str_pad((string) $user->id, 4, '0', STR_PAD_LEFT),
             'specializations' => [

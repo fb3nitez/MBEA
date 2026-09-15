@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>MedCare — Staff Portal</title>
+  <title>MB.EA — Staff Portal</title>
   <link rel="stylesheet" href="{{ asset('css/staff_login.css') }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
@@ -21,7 +21,7 @@
       <div class="topbar-left">
         <div class="brand-icon"><img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA" class="brand-icon-img" />
         </div>
-        <span class="brand-name">MedCare Clinic</span>
+        <span class="brand-name">MB.EA Wellness Center</span>
         <span class="topbar-dot">·</span>
         <span class="topbar-label">STAFF PORTAL</span>
       </div>
@@ -66,7 +66,7 @@
     </main>
 
     <footer class="page-footer">
-      © 2026 MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic
+      © 2026 MB.EA Wellness Center
     </footer>
   </section>
 
@@ -79,7 +79,7 @@
       <div class="topbar-left">
         <div class="brand-icon"><img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA" class="brand-icon-img" />
         </div>
-        <span class="brand-name">MedCare Clinic</span>
+        <span class="brand-name">MB.EA Wellness Center</span>
         <span class="topbar-dot">·</span>
         <span class="topbar-label">STAFF PORTAL</span>
       </div>
@@ -97,7 +97,7 @@
             <i data-feather="lock" id="login-role-icon"></i>
           </div>
           <h1 class="portal-heading">Sign In</h1>
-          <p class="portal-sub" id="role-subtitle">Access your MedCare staff dashboard</p>
+          <p class="portal-sub" id="role-subtitle">Access your MB.EA staff dashboard</p>
           <!-- Selected role pill -->
           <div class="role-pill-wrap">
             <span class="role-pill" id="role-pill">Psychiatrist</span>

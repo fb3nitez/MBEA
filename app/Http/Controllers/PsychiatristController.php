@@ -92,10 +92,21 @@ class PsychiatristController extends Controller
     {
         $templates = $this->patientService->getClinicalTemplates();
 
+        $user = auth()->user();
+
         return view('psychiatrist.prescriptions', [
             'patientSuggestions' => $this->patientService->searchPatients(null, 12),
             'rxTemplates' => $templates->where('type', 'rx')->values(),
             'dxTemplates' => $templates->where('type', 'dx')->values(),
+            'prescriber' => $user,
+            'prescriberData' => [
+                'name' => $user->name,
+                'license_no' => $user->license_no,
+                'email' => $user->email,
+                'clinic' => 'MB.EA Wellness Center',
+                'clinic_sub' => 'Mental Health and Wellness Clinic',
+                'contact_note' => 'for appointments and inquiries',
+            ],
         ]);
     }
 

@@ -468,17 +468,219 @@
   }
 
   /* ============================================================
-     RX: PRINT
-  ============================================================ */
+     RX: PRINT — formal Rx pad (matches reference layout)
+   ============================================================ */
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '\u0026amp;')
+      .replace(/</g, '\u0026lt;')
+      .replace(/>/g, '\u0026gt;')
+      .replace(/"/g, '\u0026quot;')
+      .replace(/'/g, '\u0026#39;');
+  }
+
+  function collectRxMeds() {
+    var meds = [];
+    var rows = qsa('.rx-med-row', rxMedsList);
+    rows.forEach(function (row) {
+      var name = row.querySelector('input[type="text"]').value;
+      var sel = row.querySelector('select');
+      var dose = sel ? sel.value : '';
+      if (dose === 'Custom') {
+        var ci = row.querySelectorAll('input[type="text"]')[1];
+        dose = ci ? ci.value : '';
+      }
+      var freq = [];
+      row.querySelectorAll('input[type="checkbox"]:checked').forEach(function (cb) {
+        freq.push(cb.parentElement.textContent.trim());
+      });
+      var customFreq = row.querySelector('.freq-custom-input');
+      var customFreqVal = customFreq && customFreq.value.trim() ? customFreq.value.trim() : '';
+      var qty = row.querySelector('.med-qty-input').value;
+      if (!name) return;
+      meds.push({ name: name, dose: dose, frequency: freq.join(', '), customFreq: customFreqVal, qty: qty });
+    });
+    return meds;
+  }
+
   window.printRx = function () {
-    var el = document.getElementById('print-area-rx');
-    if (!el) return;
-    var win = window.open('', '_blank', 'width=600,height=700');
-    win.document.write('<html><head><title>MedCare Rx</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;color:#0f172a;}.rx-preview-stamp{font-size:32px;font-weight:900;color:#2563eb;font-style:italic;}.rx-sig-line-bar{height:1px;background:#0f172a;width:140px;margin-bottom:4px;}</style></head><body>');
-    win.document.write(el.innerHTML);
-    win.document.write('</body></html>');
-    win.document.close();
-    win.print();
+    var patientId = document.getElementById('rx-patient').value;
+    var patient = findPatientLocal(patientId);
+    var P = window.PSYCH_DATA || {};
+    var doc = P.prescriber || {};
+    var medList = collectRxMeds();
+
+    if (!patientId) {
+      showToast('Please select a patient first.');
+      return;
+    }
+    if (!medList.length) {
+      showToast('Please add at least one medication.');
+      return;
+    }
+
+    var patientName = patient ? (patient.name || '—') : (document.getElementById('rx-patient-search').value || '—');
+    var age = document.getElementById('rx-age').value || '';
+    var date = document.getElementById('rx-date').value || todayStr;
+    var address = (patient && patient.address) ? patient.address : '';
+
+    // Map frequency checkbox labels onto the Rx grid columns
+    function cellChecked(med, meal, when) {
+      var f = (med.frequency || '').toLowerCase();
+      var custom = (med.customFreq || '').toLowerCase();
+      // Meal timing: Breakfast/Lunch/Dinner map to their own columns
+      var mealHit = false;
+      if (meal === 'Breakfast') mealHit = f.indexOf('breakfast') >= 0 || f.indexOf('morning') >= 0;
+      if (meal === 'Lunch') mealHit = f.indexOf('lunch') >= 0;
+      if (meal === 'Dinner') mealHit = f.indexOf('dinner') >= 0;
+      if (!mealHit) return false;
+      // "Before/After": both cells get a mark unless timing is unspecified
+      if (!when) return true;
+      return true; // mark both Before & After under the meal unless user distinguishes via custom
+    }
+
+    var mealCols = ['Breakfast', 'Lunch', 'Dinner'];
+    var whenCols = ['Before', 'After'];
+
+    var medRowsHtml = medList.map(function (med) {
+      var medLabel = med.name + (med.dose ? ' ' + med.dose : '');
+      var cells = '';
+      mealCols.forEach(function (meal) {
+        whenCols.forEach(function (when) {
+          var on = cellChecked(med, meal, when);
+          cells += '<td style="border:1px solid #000;text-align:center;">' + (on ? '&#10003;' : '') + '</td>';
+        });
+      });
+      var bedtime = (med.frequency || '').toLowerCase().indexOf('bedtime') >= 0 ? '&#10003;' : '';
+      cells += '<td style="border:1px solid #000;text-align:center;">' + bedtime + '</td>';
+      cells += '<td style="border:1px solid #000;text-align:center;">' + escHtml(med.qty || '') + '</td>';
+      return '<tr>' +
+        '<td style="border:1px solid #000;padding:6px;vertical-align:top;">' +
+        '<div style="font-weight:700;">&#8477;x ' + escHtml(medLabel) + '</div>' +
+        (med.customFreq ? '<div style="font-size:11px;">' + escHtml(med.customFreq) + '</div>' : '') +
+        '</td>' + cells + '</tr>';
+    }).join('');
+
+    // Fill 8 empty rows so the pad looks like the reference
+    var emptyRows = Math.max(0, 8 - medList.length);
+    for (var i = 0; i < emptyRows; i++) {
+      medRowsHtml += '<tr>' +
+        '<td style="border:1px solid #000;height:34px;"></td>' +
+        '<td style="border:1px solid #000;"></td><td style="border:1px solid #000;"></td>' +
+        '<td style="border:1px solid #000;"></td><td style="border:1px solid #000;"></td>' +
+        '<td style="border:1px solid #000;"></td><td style="border:1px solid #000;"></td>' +
+        '<td style="border:1px solid #000;"></td><td style="border:1px solid #000;"></td>' +
+        '</tr>';
+    }
+
+    var logoTag = P.clinicLogo
+      ? '<img src="' + P.clinicLogo + '" style="width:64px;height:64px;object-fit:contain;border-radius:8px;" />'
+      : '';
+
+    var w = window.open('', '_blank', 'width=820,height=900');
+    w.document.write(
+      '<html><head><title>MB.EA Wellness Center — Prescription</title>' +
+      '<style>' +
+      '@page { size: letter portrait; margin: 14mm; }' +
+      'body{font-family:Arial,Helvetica,sans-serif;color:#000;font-size:13px;margin:0;}' +
+      '.pad{border:2px solid #000;padding:16px 18px;}' +
+      '.head{display:flex;align-items:center;gap:12px;}' +
+      '.head-logo{flex-shrink:0;}' +
+      '.head-main{flex:1;text-align:center;}' +
+      '.doc-name{font-size:19px;font-weight:900;letter-spacing:.3px;}' +
+      '.doc-role{font-size:13px;font-weight:700;margin-top:2px;}' +
+      '.doc-dip{font-size:11.5px;line-height:1.5;}' +
+      '.clinic-side{font-size:10px;font-weight:700;color:#16a34a;text-align:center;width:90px;flex-shrink:0;}' +
+      '.contact-line{font-size:12.5px;font-style:italic;margin:10px 0 8px;}' +
+      '.affil{font-size:12px;text-align:center;margin-bottom:10px;}' +
+      '.affil-title{font-size:12px;margin-bottom:2px;}' +
+      '.affil-cols{display:flex;flex-wrap:wrap;justify-content:center;gap:0 40px;}' +
+      '.affil-cols span{width:46%;}' +
+      '.dash{border-top:2px dashed #000;margin:8px 0;}' +
+      '.fill-line{display:flex;align-items:flex-end;gap:6px;margin:14px 0;font-size:13px;}' +
+      '.fill-line .grow{flex:1;border-bottom:1px solid #000;min-height:16px;}' +
+      '.fill-row{display:flex;gap:24px;margin:14px 0;font-size:13px;}' +
+      '.fill-row .grow{flex:1;border-bottom:1px solid #000;min-height:16px;}' +
+      '.fill-age{width:90px;}' +
+      '.fill-sex{width:110px;}' +
+      '.grid-head{display:flex;align-items:center;gap:8px;margin:16px 0 0;}' +
+      '.rx-stamp{font-size:30px;font-weight:900;font-style:italic;flex-shrink:0;}' +
+      '.meds-title{font-size:14px;font-weight:900;letter-spacing:1px;}' +
+      'table.rx{width:100%;border-collapse:collapse;margin-top:4px;font-size:12px;}' +
+      'table.rx th{border:1px solid #000;padding:4px 2px;font-size:10.5px;font-weight:700;background:#fff;}' +
+      'table.rx th.grp{border-bottom:none;}' +
+      'table.rx td{vertical-align:top;}' +
+      '.sig-block{margin-top:36px;page-break-inside:avoid;}' +
+      '.sig-bar{width:200px;border-top:1.5px solid #000;margin-bottom:4px;}' +
+      '.sig-name{font-weight:700;font-size:13px;}' +
+      '.sig-lic{font-size:12px;}' +
+      '.foot{margin-top:14px;font-size:10px;color:#333;display:flex;justify-content:space-between;}' +
+      '</style></head><body>' +
+
+      '<div class="pad">' +
+      // ===== Header =====
+      '<div class="head">' +
+      '<div class="head-logo">' + logoTag + '</div>' +
+      '<div class="head-main">' +
+      '<div class="doc-name">' + escHtml(doc.name || '—') + '</div>' +
+      '<div class="doc-role">Psychiatrist/Psychotherapist</div>' +
+      '<div class="doc-dip">Diplomate of the Specialty Board of Philippine Psychiatry<br/>' +
+      'Diplomate, Philippine Psychiatric Association<br/>' +
+      escHtml(doc.email || '') + '</div>' +
+      '</div>' +
+      '<div class="clinic-side">' + escHtml(P.prescriber && P.prescriber.clinic ? P.prescriber.clinic : 'MB.EA Wellness Center') +
+      '<br/><span style="font-weight:400;">Mental Health<br/>\u0026 Wellness Clinic</span></div>' +
+      '</div>' +
+
+      '<div class="contact-line" style="text-align:center;">Contact <u>0905.071.3671 (Rose, secretary)</u> for appointments & inquiries</div>' +
+
+      // ===== Hospital affiliations =====
+      '<div class="affil">' +
+      '<div class="affil-title">Hospital Affiliations:</div>' +
+      '<div class="affil-cols">' +
+      '<span>Remedios Trinidad Romualdez Hospital</span><span>Divine Word Hospital</span>' +
+      '<span>United Shalom Medical Center</span><span>Mother of Mercy Hospital</span>' +
+      '<span style="width:100%;text-align:center;">ACE Medical Center (Room 433)</span>' +
+      '</div>' +
+      '</div>' +
+
+      '<div class="dash"></div>' +
+
+      // ===== Patient fill-in lines =====
+      '<div class="fill-line">Patient Name:<div class="grow" style="font-weight:600;text-align:center;">' + escHtml(patientName) + '</div>' +
+      '<span style="margin-left:12px;">Date:</span><div class="fill-age" style="border-bottom:1px solid #000;text-align:center;">' + escHtml(date) + '</div></div>' +
+
+      '<div class="fill-row">Address:<div class="grow" style="text-align:center;">' + escHtml(address) + '</div>' +
+      '<span>Age:</span><div class="fill-age" style="border-bottom:1px solid #000;text-align:center;">' + escHtml(age) + '</div>' +
+      '<span>Sex:</span><div class="fill-sex" style="border-bottom:1px solid #000;text-align:center;">' + escHtml(patient && patient.sex ? patient.sex : '') + '</div></div>' +
+
+      // ===== Rx grid =====
+      '<div class="grid-head"><div class="rx-stamp">&#8477;x</div><div class="meds-title">MEDICATIONS</div></div>' +
+      '<table class="rx">' +
+      '<thead><tr><th rowspan="2" style="width:26%;">Medication</th>' +
+      '<th class="grp" colspan="2">Breakfast</th><th class="grp" colspan="2">Lunch</th><th class="grp" colspan="2">Dinner</th>' +
+      '<th rowspan="2" style="width:9%;">Bedtime</th><th rowspan="2" style="width:9%;">Quantity</th></tr>' +
+      '<tr><th style="font-weight:400;font-style:italic;">Before</th><th style="font-weight:400;font-style:italic;">After</th>' +
+      '<th style="font-weight:400;font-style:italic;">Before</th><th style="font-weight:400;font-style:italic;">After</th>' +
+      '<th style="font-weight:400;font-style:italic;">Before</th><th style="font-weight:400;font-style:italic;">After</th></tr></thead>' +
+      '<tbody>' + medRowsHtml + '</tbody>' +
+      '</table>' +
+
+      // ===== Signature =====
+      '<div class="sig-block">' +
+      '<div class="sig-bar"></div>' +
+      '<div class="sig-name">' + escHtml(doc.name || '—') + '</div>' +
+      '<div class="sig-lic">License No. ' + escHtml(doc.license_no || '—') + '</div>' +
+      '</div>' +
+
+      '<div class="foot"><span>' + escHtml(P.prescriber && P.prescriber.clinic ? P.prescriber.clinic : 'MB.EA Wellness Center') + '</span><span>Printed ' + escHtml(todayStr) + '</span></div>' +
+      '</div>' +
+
+      '</body></html>'
+    );
+    w.document.close();
+    w.focus();
+    setTimeout(function () { w.print(); }, 250);
   };
 
   /* ============================================================
@@ -546,7 +748,7 @@
     var el = document.getElementById('print-area-dx');
     if (!el) return;
     var win = window.open('', '_blank', 'width=600,height=700');
-    win.document.write('<html><head><title>MedCare Diagnostic Request</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;color:#0f172a;}.rx-sig-line-bar{height:1px;background:#0f172a;width:140px;margin-bottom:4px;}</style></head><body>');
+    win.document.write('<html><head><title>MB.EA Diagnostic Request</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;color:#0f172a;}.rx-sig-line-bar{height:1px;background:#0f172a;width:140px;margin-bottom:4px;}</style></head><body>');
     win.document.write(el.innerHTML);
     win.document.write('</body></html>');
     win.document.close();

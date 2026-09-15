@@ -23,13 +23,13 @@
       <!-- Left: Form -->
       <div class="rx-form-col">
         <div class="card">
-          <!-- Doctor Info -->
+          <!-- Doctor Info (logged-in psychiatrist) -->
           <div class="rx-doctor-block">
             <div class="rx-stamp">Rx</div>
             <div class="rx-doctor-info">
-              <div class="rx-doctor-name">Dr. Maria Santos, MD</div>
-              <div class="rx-doctor-role">Psychiatrist · MedCare Clinic</div>
-              <div class="rx-doctor-lic">Lic #: 0012345</div>
+              <div class="rx-doctor-name">{{ $prescriber->name }}</div>
+              <div class="rx-doctor-role">Psychiatrist · MB.EA Wellness Center</div>
+              <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no ?? '—' }}</div>
             </div>
           </div>
 
@@ -96,7 +96,7 @@
         <!-- Rx Preview -->
         <div class="card rx-preview-card" id="rx-preview-card">
           <div id="print-area-rx">
-            <div class="rx-preview-clinic">MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic</div>
+            <div class="rx-preview-clinic">MB.EA Wellness Center</div>
             <div class="rx-preview-addr">123 Wellness Ave, Quezon City · +63-2-8888-9999</div>
             <div class="rx-preview-stamp">Rx</div>
             <div class="rx-preview-patient-row">
@@ -111,8 +111,8 @@
             <div id="preview-notes" class="rx-preview-notes-text">—</div>
             <div class="rx-preview-sig-line">
               <div class="rx-sig-line-bar"></div>
-              <div class="rx-sig-name">Dr. Maria Santos, MD</div>
-              <div class="rx-sig-lic">License No. 0012345</div>
+              <div class="rx-sig-name">{{ $prescriber->name }}</div>
+              <div class="rx-sig-lic">License No. {{ $prescriber->license_no ?? '—' }}</div>
             </div>
           </div>
           <button class="btn-print" onclick="printRx()">
@@ -144,9 +144,9 @@
           <div class="rx-doctor-block">
             <div class="rx-stamp">Dx</div>
             <div class="rx-doctor-info">
-              <div class="rx-doctor-name">Dr. Maria Santos, MD</div>
-              <div class="rx-doctor-role">Psychiatrist · MedCare Clinic</div>
-              <div class="rx-doctor-lic">Lic #: 0012345</div>
+              <div class="rx-doctor-name">{{ $prescriber->name }}</div>
+              <div class="rx-doctor-role">Psychiatrist · MB.EA Wellness Center</div>
+              <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no ?? '—' }}</div>
             </div>
           </div>
 
@@ -205,7 +205,7 @@
         <!-- Diagnostic Preview -->
         <div class="card rx-preview-card" id="dx-preview-card">
           <div id="print-area-dx">
-            <div class="rx-preview-clinic">MedCare Integrated Psychiatric &amp; Lifestyle Medicine Clinic</div>
+            <div class="rx-preview-clinic">MB.EA Wellness Center</div>
             <div class="rx-preview-addr">123 Wellness Ave, Quezon City · +63-2-8888-9999</div>
             <div class="rx-preview-stamp" style="font-size:20px;letter-spacing:1px;">DIAGNOSTIC REQUEST FORM
             </div>
@@ -213,15 +213,15 @@
               <span>Patient: <strong id="dx-prev-patient">—</strong></span>
               <span>Date: <strong id="dx-prev-date">—</strong></span>
             </div>
-            <div class="rx-preview-diag">Requesting Physician: <strong>Dr. Maria Santos, MD</strong></div>
+            <div class="rx-preview-diag">Requesting Physician: <strong>{{ $prescriber->name }}</strong></div>
             <div class="rx-preview-notes-label">Clinical Notes:</div>
             <div id="dx-prev-notes" class="rx-preview-notes-text">—</div>
             <div class="rx-preview-meds-label">Tests Ordered:</div>
             <ul id="dx-prev-tests" class="rx-preview-meds-list"></ul>
             <div class="rx-preview-sig-line">
               <div class="rx-sig-line-bar"></div>
-              <div class="rx-sig-name">Dr. Maria Santos, MD</div>
-              <div class="rx-sig-lic">License No. 0012345</div>
+              <div class="rx-sig-name">{{ $prescriber->name }}</div>
+              <div class="rx-sig-lic">License No. {{ $prescriber->license_no ?? '—' }}</div>
             </div>
           </div>
           <button class="btn-print" onclick="printDx()">
@@ -253,5 +253,7 @@
   window.PSYCH_DATA.patientSuggestions = @json($patientSuggestions);
   window.PSYCH_DATA.rxTemplates = @json($rxTemplates);
   window.PSYCH_DATA.dxTemplates = @json($dxTemplates);
+  window.PSYCH_DATA.prescriber = @json($prescriberData);
+  window.PSYCH_DATA.clinicLogo = '{{ asset("assets/mbea_logo.png") }}';
 </script>
 @endpush

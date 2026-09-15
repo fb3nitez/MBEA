@@ -539,7 +539,7 @@ $lifeCoaches = collect();
     <div class="modal-body" style="text-align:center;">
       <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'DR', 0, 2)) }}</div>
       <div style="font-size:18px;font-weight:600;margin-top:12px;">{{ auth()->user()->name ?? 'Psychiatrist' }}</div>
-      <div style="color:#64748b;font-size:14px;">Psychiatrist · MedCare Clinic</div>
+      <div style="color:#64748b;font-size:14px;">Psychiatrist · MB.EA Wellness Center</div>
       <div style="margin-top:16px;font-size:13px;color:#64748b;">{{ auth()->user()->email ?? '' }}</div>
     </div>
     <div class="modal-footer">

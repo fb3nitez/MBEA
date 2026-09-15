@@ -19,7 +19,7 @@
         <button type="button" class="btn-outline-sm" id="change-photo-btn" style="margin-top:8px;">Change Photo</button>
         <input type="file" id="photo-input" accept="image/*" class="hidden" />
         <div class="profile-name" style="margin-top:8px;">{{ $user->name ?? 'Psychiatrist' }}</div>
-        <div class="profile-role">Psychiatrist · MedCare Clinic</div>
+        <div class="profile-role">Psychiatrist · MB.EA Wellness Center</div>
         <div class="profile-email">{{ $user->email ?? '' }}</div>
       </div>
 

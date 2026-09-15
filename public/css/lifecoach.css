@@ -248,6 +248,8 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
+    min-width: 0;
+    max-width: 100%;
 }
 
 .card-header {
@@ -267,7 +269,7 @@ body {
 /* ---- STATS ---- */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
 }
 
@@ -346,8 +348,12 @@ body {
 /* ---- TWO-COL ---- */
 .two-col-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
+}
+
+.two-col-grid > * {
+    min-width: 0;
 }
 
 /* ---- DASHBOARD: PATIENT ROWS ---- */
@@ -489,9 +495,13 @@ body {
 /* ---- PATIENT CARDS (Assigned Patients section) ---- */
 .lc-patients-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     padding: 16px;
+}
+
+.lc-patients-grid > * {
+    min-width: 0;
 }
 
 .lc-patient-card {
@@ -1723,15 +1733,15 @@ body {
 /* ---- RESPONSIVE ---- */
 @media (max-width: 900px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .two-col-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .lc-patients-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -1759,7 +1769,7 @@ body {
 
 @media (max-width: 480px) {
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .content-wrap {
@@ -1767,7 +1777,7 @@ body {
     }
 
     .modal-grid-2 {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -1921,4 +1931,349 @@ body {
 
 .btn-red-sm:hover {
     background: var(--red-700);
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE — ENTIRE LIFE COACH AREA
+   (extends the base breakpoints above to every lifecoach page)
+   ============================================================ */
+
+/* ---- Tablets & below (<= 900px) ---- */
+@media (max-width: 900px) {
+    .page-title {
+        font-size: 19px;
+    }
+
+    /* Patient detail header stacks */
+    .patient-detail-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .patient-detail-header .btn-ghost-back {
+        align-self: flex-start;
+    }
+
+    .patient-detail-title-block {
+        width: 100%;
+    }
+
+    /* Habit tracker scrolls sideways instead of breaking layout */
+    .habits-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .habits-table {
+        min-width: 640px;
+    }
+
+    /* Notes / tasks filter rows wrap */
+    .notes-filter-row {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .notes-filter-row .search-wrap {
+        flex: 1 1 100%;
+    }
+
+    .notes-filter-row .filter-select {
+        flex: 1 1 auto;
+        width: auto;
+    }
+
+    .tasks-filter-row {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .task-filter-pills {
+        flex-wrap: nowrap;
+        min-width: max-content;
+    }
+}
+
+/* ---- Overflow guards (apply at all widths, critical on mobile) ---- */
+html,
+body {
+    overflow-x: clip;
+}
+
+.main-area,
+.content-wrap,
+#patient-list-view,
+#patient-detail-view,
+.patient-detail-header,
+.ptab-panel,
+.card-header {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+}
+
+.page-title,
+.patient-detail-name,
+.patient-detail-meta,
+.lc-pc-name,
+.lc-pc-id,
+.lc-pc-detail-val,
+.pi-val,
+.gn-patient,
+.gn-text,
+.dash-patient-name,
+.task-full-desc,
+.goal-title-text,
+.goal-desc,
+.metric-name,
+.pd-note-text {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.tab-bar {
+    max-width: 100%;
+}
+
+.habits-table-wrap,
+.tasks-full-list,
+.global-notes-list,
+.patient-info-list,
+.goals-list,
+.metrics-list {
+    max-width: 100%;
+}
+
+/* ---- Phones (<= 768px) ---- */
+@media (max-width: 768px) {
+    .main-topbar {
+        padding: 0 16px;
+        height: 56px;
+    }
+
+    .topbar-left {
+        min-width: 0;
+    }
+
+    .page-title {
+        overflow-wrap: anywhere;
+    }
+
+    .content-wrap {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .card-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 14px 16px;
+    }
+
+    .card-header .btn-green,
+    .card-header .btn-ghost,
+    .card-header .btn-intake {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+
+    /* Rows use slimmer horizontal padding everywhere */
+    .dash-patient-row,
+    .dash-task-row,
+    .pi-row,
+    .rx-item,
+    .pd-note-row,
+    .metric-item,
+    .goal-item {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .schedule-list {
+        padding: 12px;
+    }
+
+    .schedule-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .schedule-time-block {
+        text-align: left;
+    }
+
+    /* Patient info list: label above value */
+    .pi-row {
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .pi-label {
+        min-width: 0;
+    }
+
+    /* Patient detail header compresses */
+    .patient-detail-avatar {
+        width: 42px;
+        height: 42px;
+        font-size: 15px;
+    }
+
+    .patient-detail-name {
+        font-size: 17px;
+    }
+
+    /* Patient cards */
+    .lc-pc-name {
+        font-size: 15px;
+    }
+
+    /* Stat cards compress */
+    .stat-card {
+        padding: 14px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    /* Goals: actions drop under content */
+    .goal-item {
+        flex-wrap: wrap;
+    }
+
+    .goal-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        padding-left: 24px;
+    }
+
+    /* Tasks summary row stays 4-across but tighter */
+    .task-summary-item {
+        padding: 10px 8px;
+    }
+
+    .ts-val {
+        font-size: 18px;
+    }
+
+    .ts-lbl {
+        font-size: 10px;
+    }
+
+    /* Modals go near full-screen */
+    .modal-overlay {
+        padding: 10px;
+        align-items: flex-end;
+    }
+
+    .modal-box {
+        max-width: 100%;
+        max-height: 92vh;
+        border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    /* Intake modal */
+    .intake-modal-box {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .intake-section {
+        padding: 12px 12px 8px;
+    }
+
+    .intake-row {
+        flex-direction: column;
+        gap: 2px;
+        padding: 6px 4px;
+    }
+
+    .intake-label {
+        width: 100%;
+    }
+
+    /* Profile page */
+    .profile-stats-row {
+        flex-direction: column;
+    }
+
+    .profile-stat-box {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .profile-stat-box:last-child {
+        border-bottom: none;
+    }
+
+    /* Toast fits the screen */
+    .toast {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        text-align: center;
+    }
+}
+
+/* ---- Small phones (<= 480px) ---- */
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 17px;
+    }
+
+    .card-title {
+        font-size: 14px;
+    }
+
+    /* Tasks summary: 2x2 grid */
+    .tasks-summary-row {
+        flex-wrap: wrap;
+    }
+
+    .task-summary-item {
+        flex: 1 1 50%;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .task-summary-item:nth-child(2n) {
+        border-right: none;
+    }
+
+    /* Patient detail meta wraps under avatar */
+    .patient-detail-title-block {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .rx-item {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .goal-actions {
+        padding-left: 0;
+    }
+
+    .chart-card .chart-container {
+        height: 220px;
+        padding: 12px;
+    }
+
+    /* Modal footer buttons full width */
+    .modal-footer {
+        flex-wrap: wrap;
+    }
+
+    .modal-footer .btn-outline,
+    .modal-footer .btn-green,
+    .modal-footer .btn-red-sm {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
 }

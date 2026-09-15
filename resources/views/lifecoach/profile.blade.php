@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MedCare — My Profile</title>
+  <title>MB.EA — My Profile</title>
   <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
@@ -43,7 +43,7 @@
                   <div id="prof-name" style="font-size:20px;font-weight:800;color:#0f172a;">{{ $coach['name'] ?? '' }}
                   </div>
                   <div id="prof-role" style="font-size:14px;color:#16a34a;font-weight:600;margin-top:2px;">Life Coach ·
-                    {{ $coach['clinic'] ?? 'MedCare Clinic' }}
+                    {{ $coach['clinic'] ?? 'MB.EA Wellness Center' }}
                   </div>
                 </div>
                 <div id="prof-email" style="font-size:13px;color:#64748b;">{{ $coach['email'] ?? '' }}</div>

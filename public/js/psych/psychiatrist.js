@@ -2069,7 +2069,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('print-area-rx');
     if (!el) return;
     var win = window.open('', '_blank', 'width=600,height=700');
-    win.document.write('<html><head><title>MedCare Rx</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;color:#0f172a;}.rx-preview-stamp{font-size:32px;font-weight:900;color:#2563eb;font-style:italic;}.rx-sig-line-bar{height:1px;background:#0f172a;width:140px;margin-bottom:4px;}</style></head><body>');
+    win.document.write('<html><head><title>MB.EA Rx</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;color:#0f172a;}.rx-preview-stamp{font-size:32px;font-weight:900;color:#2563eb;font-style:italic;}.rx-sig-line-bar{height:1px;background:#0f172a;width:140px;margin-bottom:4px;}</style></head><body>');
     win.document.write(el.innerHTML);
     win.document.write('</body></html>');
     win.document.close();
@@ -2141,7 +2141,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('print-area-dx');
     if (!el) return;
     var win = window.open('', '_blank', 'width=600,height=700');
-    win.document.write('<html><head><title>MedCare Diagnostic Request</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;color:#0f172a;}.rx-sig-line-bar{height:1px;background:#0f172a;width:140px;margin-bottom:4px;}</style></head><body>');
+    win.document.write('<html><head><title>MB.EA Diagnostic Request</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;color:#0f172a;}.rx-sig-line-bar{height:1px;background:#0f172a;width:140px;margin-bottom:4px;}</style></head><body>');
     win.document.write(el.innerHTML);
     win.document.write('</body></html>');
     win.document.close();

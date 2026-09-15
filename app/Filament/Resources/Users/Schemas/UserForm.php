@@ -21,6 +21,11 @@ class UserForm
                     ->label('Email address')
                     ->email()
                     ->required(),
+                TextInput::make('license_no')
+                    ->label('License No.')
+                    ->maxLength(50)
+                    ->placeholder('e.g. 0012345')
+                    ->visible(fn(?User $record): bool => $record === null || $record->hasRole('psychiatrist')),
                 Select::make('role')
                     ->label('Role')
                     ->options(fn() => ['' => 'No role'] + Role::query()->orderBy('name')->pluck('name', 'name')->all())

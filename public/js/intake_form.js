@@ -1,6 +1,6 @@
 /* ==========================================================================
    Patient Intake Form — Logic
-   MedCare Integrated Psychiatric & Lifestyle Medicine Clinic
+   MB.EA Wellness Center
    ========================================================================== */
 
 'use strict';

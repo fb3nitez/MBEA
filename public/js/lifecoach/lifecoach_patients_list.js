@@ -39,17 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  if (urlId) {
-    var found = PATIENTS.find(function (p) { return String(p.id) === String(urlId); });
-    if (found) {
-      openPatientDetail(urlId);
-    } else {
-      hydratePatientDetailFromApi(urlId);
-    }
-  } else if (urlParams.has('id')) {
-    history.replaceState(null, '', lcRoute('patients'));
-  }
-
   function buildPatientCards() {
     var grid = document.getElementById('lc-patients-grid');
     if (!grid) return;
@@ -228,6 +217,62 @@ document.addEventListener('DOMContentLoaded', function () {
     buildGoals(p);
     buildHabits(p);
     buildPatientNotes(p);
+  }
+
+  // Intake form read-only modal (merged from lifecoach_patients.js)
+  var viewIntakeBtn = document.getElementById('view-intake-btn');
+  if (viewIntakeBtn) {
+    viewIntakeBtn.addEventListener('click', function () {
+      var p = PATIENTS.find(function (x) { return String(x.id) === String(currentPatientId); });
+      if (!p) return;
+      buildIntakeModal(p.intake || {});
+      lcOpenModal('intake-modal');
+    });
+  }
+
+  function buildIntakeModal(intake) {
+    var body = document.getElementById('intake-modal-body');
+    if (!body) return;
+
+    function row(label, value) {
+      return '<div class="intake-row"><span class="intake-label">' + lcEscape(label) + '</span><span class="intake-value">' + lcEscape(value || '—') + '</span></div>';
+    }
+
+    function section(title, html) {
+      return '<div class="intake-section"><div class="intake-section-title">' + lcEscape(title) + '</div>' + html + '</div>';
+    }
+
+    function tags(arr) {
+      if (!arr || !arr.length) return '<span class="intake-empty">None reported</span>';
+      return '<div class="intake-tags">' + arr.map(function (t) {
+        return '<span class="intake-tag">' + lcEscape(t) + '</span>';
+      }).join('') + '</div>';
+    }
+
+    var html = '';
+
+    var personalHtml = '';
+    (intake.personal || []).forEach(function (f) { personalHtml += row(f.label, f.value); });
+    html += section('Personal Information', personalHtml || '<span class="intake-empty">No data on file.</span>');
+
+    var condHtml =
+      '<div class="intake-row"><span class="intake-label">Conditions</span><span class="intake-value">' + tags(intake.conditions) + '</span></div>' +
+      row('Current Medications', intake.medications);
+    html += section('Medical History', condHtml);
+
+    var famHtml = '<div class="intake-row"><span class="intake-label">Family History</span><span class="intake-value">' + tags(intake.family) + '</span></div>';
+    html += section('Family History', famHtml);
+
+    var psychHtml = '';
+    (intake.psychiatric || []).forEach(function (f) { psychHtml += row(f.label, f.value); });
+    html += section('Psychiatric History', psychHtml || '<span class="intake-empty">No data on file.</span>');
+
+    var lsHtml = '';
+    (intake.lifestyle || []).forEach(function (f) { lsHtml += row(f.label, f.value); });
+    html += section('Lifestyle Assessment', lsHtml || '<span class="intake-empty">No assessment on file.</span>');
+
+    body.innerHTML = html;
+    lcRi();
   }
 
   function openGoalModalForEdit(goalId) {
@@ -614,6 +659,18 @@ document.addEventListener('DOMContentLoaded', function () {
         saveNoteBtn.disabled = false;
       });
     });
+  }
+
+  // URL deep-link — must run LAST, after openPatientDetail is defined
+  if (urlId) {
+    var found = PATIENTS.find(function (p) { return String(p.id) === String(urlId); });
+    if (found) {
+      openPatientDetail(urlId);
+    } else {
+      hydratePatientDetailFromApi(urlId);
+    }
+  } else if (urlParams.has('id')) {
+    history.replaceState(null, '', lcRoute('patients'));
   }
 
   lcRi();
