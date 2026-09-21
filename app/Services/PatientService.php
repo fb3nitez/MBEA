@@ -6,6 +6,7 @@ use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
 use App\Models\LifestyleAssessment;
+use App\Models\LifestylePrescription;
 use App\Models\MedicalHistory;
 use App\Models\PatientRecord;
 use App\Models\Prescription;
@@ -15,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as SupportCollection;
+use Spatie\Permission\Models\Role;
 
 class PatientService
 {
@@ -65,7 +67,7 @@ class PatientService
 
     public function getLifeCoaches(): Collection
     {
-        if (! \Spatie\Permission\Models\Role::where('name', 'lifecoach')->exists()) {
+        if (! Role::where('name', 'lifecoach')->exists()) {
             return new Collection;
         }
 
@@ -268,6 +270,55 @@ class PatientService
                 ],
                 'sort_order' => 4,
             ],
+            [
+                'type' => 'lx',
+                'name' => 'Insomnia — Sleep Hygiene Plan',
+                'tag' => 'Sleep',
+                'tag_class' => 'tag-lifestyle',
+                'description' => 'Fixed wake time, no screens 1h before bed',
+                'payload' => [
+                    'focus' => 'Insomnia / poor sleep',
+                    'items' => [
+                        ['category' => 'sleep', 'title' => 'Fixed wake-up time', 'target' => '7-8 h sleep', 'frequency' => 'Daily', 'duration' => '4 weeks', 'instructions' => 'Wake at the same time every day, including weekends.'],
+                        ['category' => 'sleep', 'title' => 'No screens before bed', 'target' => '60 min buffer', 'frequency' => 'Nightly', 'duration' => '4 weeks', 'instructions' => 'Stop phone, TV and computer use one hour before bedtime.'],
+                        ['category' => 'sleep', 'title' => 'Bed is for sleep only', 'target' => 'Leave bed if awake > 20 min', 'frequency' => 'Nightly', 'duration' => '4 weeks', 'instructions' => 'If unable to sleep, get up, do a quiet activity in dim light, return when sleepy.'],
+                        ['category' => 'stress', 'title' => 'Wind-down breathing', 'target' => '10 minutes', 'frequency' => 'Nightly', 'duration' => '4 weeks', 'instructions' => 'Slow diaphragmatic breathing or guided relaxation before lights out.'],
+                    ],
+                ],
+                'sort_order' => 1,
+            ],
+            [
+                'type' => 'lx',
+                'name' => 'Depression — Graded Exercise',
+                'tag' => 'Exercise',
+                'tag_class' => 'tag-lifestyle',
+                'description' => 'Build up to 150 min/week moderate activity',
+                'payload' => [
+                    'focus' => 'Major Depressive Disorder — behavioural activation',
+                    'items' => [
+                        ['category' => 'exercise', 'title' => 'Walking', 'target' => '150 min/week', 'frequency' => '5x/week, 30 min', 'duration' => '8 weeks', 'instructions' => 'Start at an easy pace; increase duration before intensity.'],
+                        ['category' => 'exercise', 'title' => 'Resistance / bodyweight routine', 'target' => '2 sessions/week', 'frequency' => '2x/week', 'duration' => '8 weeks', 'instructions' => 'Major muscle groups; stop short of exhaustion.'],
+                        ['category' => 'social', 'title' => 'Planned social contact', 'target' => '1 activity/week', 'frequency' => 'Weekly', 'duration' => '8 weeks', 'instructions' => 'Schedule one social or group activity each week and record mood after.'],
+                    ],
+                ],
+                'sort_order' => 2,
+            ],
+            [
+                'type' => 'lx',
+                'name' => 'Mediterranean-Style Nutrition Plan',
+                'tag' => 'Nutrition',
+                'tag_class' => 'tag-lifestyle',
+                'description' => 'Whole foods, fish twice weekly, limit ultra-processed',
+                'payload' => [
+                    'focus' => 'Mood-supportive nutrition',
+                    'items' => [
+                        ['category' => 'nutrition', 'title' => 'Fruits & vegetables', 'target' => '5 servings/day', 'frequency' => 'Daily', 'duration' => 'Ongoing', 'instructions' => 'Aim for a variety of colours across meals.'],
+                        ['category' => 'nutrition', 'title' => 'Fish / seafood meals', 'target' => '2 servings/week', 'frequency' => '2x/week', 'duration' => 'Ongoing', 'instructions' => 'Prefer oily fish such as salmon, sardines or mackerel.'],
+                        ['category' => 'nutrition', 'title' => 'Limit sugary drinks & fast food', 'target' => '≤ 1x/week', 'frequency' => 'Ongoing', 'duration' => 'Ongoing', 'instructions' => 'Replace with water and home-prepared meals.'],
+                    ],
+                ],
+                'sort_order' => 3,
+            ],
         ];
 
         foreach ($defaults as $row) {
@@ -283,6 +334,11 @@ class PatientService
         if ($payload === null) {
             if ($type === 'dx') {
                 $payload = ['tests' => $data['tests'] ?? ($existing?->payload['tests'] ?? [])];
+            } elseif ($type === 'lx') {
+                $payload = [
+                    'focus' => $data['focus'] ?? ($existing?->payload['focus'] ?? null),
+                    'items' => $data['items'] ?? ($existing?->payload['items'] ?? []),
+                ];
             } else {
                 $payload = [
                     'diag' => $data['diag'] ?? ($existing?->payload['diag'] ?? null),
@@ -319,9 +375,19 @@ class PatientService
             'psychiatric' => 'tag-psychiatric',
             'metabolic' => 'tag-metabolic',
             'comprehensive' => 'tag-comprehensive',
+            'sleep' => 'tag-lifestyle',
+            'exercise' => 'tag-lifestyle',
+            'nutrition' => 'tag-lifestyle',
+            'stress' => 'tag-lifestyle',
+            'mindfulness' => 'tag-lifestyle',
+            'social' => 'tag-lifestyle',
         ];
 
         $key = strtolower($tag);
+
+        if ($type === 'lx') {
+            return $map[$key] ?? 'tag-lifestyle';
+        }
 
         return $map[$key] ?? ($type === 'dx' ? 'tag-psychiatric' : 'tag-depression');
     }
@@ -680,6 +746,26 @@ class PatientService
         return Prescription::where('patient_record_id', $patient->id)->first();
     }
 
+    public function saveLifestylePrescription(PatientRecord $patient, array $data, ?int $prescribedBy = null): LifestylePrescription
+    {
+        return LifestylePrescription::create([
+            'patient_record_id' => $patient->id,
+            'prescribed_by' => $prescribedBy,
+            'focus' => $data['focus'] ?? null,
+            'items' => $data['items'] ?? [],
+            'notes' => $data['notes'] ?? null,
+            'status' => $data['status'] ?? 'Draft',
+            'follow_up_date' => $data['follow_up_date'] ?? null,
+        ]);
+    }
+
+    public function getLifestylePrescriptions(PatientRecord $patient): Collection
+    {
+        return LifestylePrescription::where('patient_record_id', $patient->id)
+            ->latest()
+            ->get();
+    }
+
     public function patientToArray(PatientRecord $patient): array
     {
         $patient->loadMissing(['lifeCoach', 'medicalHistory', 'psychiatricHistory', 'lifestyleAssessment']);
@@ -713,7 +799,7 @@ class PatientService
     {
         $time = $c->time;
         if (is_string($time) && preg_match('/^\d{2}:\d{2}/', $time)) {
-            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time . ':00' : $time)->format('g:i A');
+            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time.':00' : $time)->format('g:i A');
         } else {
             try {
                 $displayTime = Carbon::parse($time)->format('g:i A');

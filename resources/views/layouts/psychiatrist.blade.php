@@ -107,6 +107,7 @@
       assessmentsStore: @json(route('psychiatrist.assessments.store', ['id' => '__ID__'])),
       assessmentsShow: @json(route('psychiatrist.assessments.show', ['id' => '__ID__'])),
       prescriptionsStore: @json(route('psychiatrist.prescriptions.store', ['id' => '__ID__'])),
+      lifestylePrescriptionsStore: @json(route('psychiatrist.lifestyle-prescriptions.store', ['id' => '__ID__'])),
       templatesStore: @json(route('psychiatrist.templates.store')),
       templatesUpdate: @json(url('/psychiatrist/clinical-templates')),
       recordsUpdate: @json(url('/psychiatrist/records')),

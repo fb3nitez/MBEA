@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreLifestylePrescriptionRequest;
+use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
 use App\Models\PatientRecord;
 use App\Services\PatientService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use App\Models\BiopsychosocialAssessment;
 
 class PsychiatristController extends Controller
 {
@@ -41,7 +42,7 @@ class PsychiatristController extends Controller
     {
         $patientsPage = $this->patientService->getPaginatedPatients(10);
         $patients = $patientsPage->getCollection()
-            ->map(fn(PatientRecord $p) => $this->patientService->patientToArray($p))
+            ->map(fn (PatientRecord $p) => $this->patientService->patientToArray($p))
             ->values();
 
         return view('psychiatrist.patients', [
@@ -55,7 +56,7 @@ class PsychiatristController extends Controller
     {
         $consultationsPage = $this->patientService->getPaginatedConsultations(10);
         $consultations = $consultationsPage->getCollection()
-            ->map(fn($c) => $this->patientService->consultationToArray($c))
+            ->map(fn ($c) => $this->patientService->consultationToArray($c))
             ->values();
 
         return view('psychiatrist.consultations', [
@@ -98,6 +99,7 @@ class PsychiatristController extends Controller
             'patientSuggestions' => $this->patientService->searchPatients(null, 12),
             'rxTemplates' => $templates->where('type', 'rx')->values(),
             'dxTemplates' => $templates->where('type', 'dx')->values(),
+            'lxTemplates' => $templates->where('type', 'lx')->values(),
             'prescriber' => $user,
             'prescriberData' => [
                 'name' => $user->name,
@@ -105,11 +107,11 @@ class PsychiatristController extends Controller
                 'email' => $user->email,
                 'clinic' => 'MB.EA Wellness Center',
                 'clinic_sub' => 'Mental Health and Wellness Clinic',
+                'clinic_email' => 'mbea.psychclinic@gmail.com',
                 'contact_note' => 'for appointments and inquiries',
             ],
         ]);
     }
-
 
     public function profile()
     {
@@ -132,7 +134,6 @@ class PsychiatristController extends Controller
             'recentConsultations'
         ));
     }
-
 
     public function searchPatients(Request $request): JsonResponse
     {
@@ -339,6 +340,22 @@ class PsychiatristController extends Controller
         ]);
     }
 
+    public function storeLifestylePrescription(StoreLifestylePrescriptionRequest $request, int $id): JsonResponse
+    {
+        $patient = $this->patientService->findPatient($id);
+
+        $prescription = $this->patientService->saveLifestylePrescription(
+            $patient,
+            $request->validatedForStorage(),
+            (int) auth()->id()
+        );
+
+        return response()->json([
+            'message' => 'Lifestyle prescription saved.',
+            'prescription' => $prescription->load('prescriber:id,name'),
+        ], 201);
+    }
+
     public function storeClinicalTemplate(Request $request): JsonResponse
     {
         $data = $this->validateClinicalTemplate($request);
@@ -407,7 +424,7 @@ class PsychiatristController extends Controller
     private function validateClinicalTemplate(Request $request, bool $partial = false): array
     {
         $rules = [
-            'type' => [$partial ? 'sometimes' : 'required', 'in:rx,dx'],
+            'type' => [$partial ? 'sometimes' : 'required', 'in:rx,dx,lx'],
             'name' => [$partial ? 'sometimes' : 'required', 'string', 'max:255'],
             'tag' => ['nullable', 'string', 'max:100'],
             'tag_class' => ['nullable', 'string', 'max:100'],
@@ -416,6 +433,9 @@ class PsychiatristController extends Controller
             'desc' => ['nullable', 'string', 'max:500'],
             'payload' => ['nullable', 'array'],
             'meds' => ['nullable', 'array'],
+            'focus' => ['nullable', 'string', 'max:255'],
+            'items' => ['nullable', 'array'],
+            'items.*' => ['array'],
             'diag' => ['nullable', 'string', 'max:255'],
             'tests' => ['nullable', 'array'],
             'tests.*' => ['string', 'max:255'],

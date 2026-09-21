@@ -14,6 +14,9 @@
     <button class="subtab-btn" data-subtab="diagnostic">
       <i data-feather="activity"></i> Diagnostic Request
     </button>
+    <button class="subtab-btn" data-subtab="lifestyle">
+      <i data-feather="heart"></i> Lifestyle Prescription
+    </button>
   </div>
 
   <!-- SUB-TAB: MEDICATION RX -->
@@ -244,6 +247,159 @@
       </div>
     </div>
   </div>
+  <!-- SUB-TAB: LIFESTYLE PRESCRIPTION -->
+  <div class="subtab-panel" id="subtab-lifestyle">
+    <div class="rx-layout">
+
+      <!-- Left: Form -->
+      <div class="rx-form-col">
+        <div class="card">
+          <!-- Doctor Info (logged-in psychiatrist) -->
+          <div class="rx-doctor-block">
+            <div class="rx-stamp">Lx</div>
+            <div class="rx-doctor-info">
+              <div class="rx-doctor-name">{{ $prescriber->name }}</div>
+              <div class="rx-doctor-role">Psychiatrist · MB.EA Wellness Center</div>
+              <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no ?? '—' }}</div>
+            </div>
+          </div>
+
+          <!-- Patient & Date -->
+          <div class="rx-patient-row">
+            <div class="field-group">
+              <label class="field-label">Patient Name</label>
+              <div class="typeahead-wrap">
+                <input type="text" class="field-input" id="lx-patient-search" placeholder="Search patient by name or ID..." autocomplete="off" />
+                <div class="typeahead-dropdown hidden" id="lx-patient-dropdown" style="max-height:220px;overflow:auto;"></div>
+              </div>
+              <input type="hidden" id="lx-patient" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Age</label>
+              <input type="number" class="field-input" id="lx-age" placeholder="Age" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Date</label>
+              <input type="text" class="field-input" id="lx-date" readonly />
+            </div>
+          </div>
+
+          <!-- Current baseline from the patient's lifestyle assessment -->
+          <div class="lx-baseline hidden" id="lx-baseline">
+            <div class="lx-baseline-title"><i data-feather="activity" style="width:12px;height:12px;vertical-align:middle;"></i>
+              Current baseline</div>
+            <div class="lx-baseline-grid">
+              <span class="lx-baseline-item"><span class="lx-baseline-key">Sleep</span> <strong id="lx-base-sleep">—</strong></span>
+              <span class="lx-baseline-item"><span class="lx-baseline-key">Exercise</span> <strong id="lx-base-exercise">—</strong></span>
+              <span class="lx-baseline-item"><span class="lx-baseline-key">Fruits/Veg</span> <strong id="lx-base-nutrition">—</strong></span>
+              <span class="lx-baseline-item"><span class="lx-baseline-key">Motivation</span> <strong id="lx-base-motivation">—</strong></span>
+            </div>
+          </div>
+
+          <!-- Focus / Diagnosis -->
+          <div class="field-group" style="margin:12px 16px;">
+            <label class="field-label">Focus / Diagnosis</label>
+            <input type="text" class="field-input" id="lx-focus" placeholder="e.g. Insomnia, MDD — behavioural activation..." />
+          </div>
+
+          <!-- Lifestyle Items -->
+          <div class="rx-meds-header">
+            <span class="field-label">Lifestyle Interventions</span>
+          </div>
+          <div class="lx-items-table-header">
+            <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
+          </div>
+          <div id="lx-items-list">
+            <!-- Lifestyle item rows injected by JS -->
+          </div>
+          <button class="btn-outline-add" id="add-lx-item-btn">
+            <i data-feather="plus"></i> Add Item
+          </button>
+
+          <!-- Special Instructions -->
+          <div class="field-group" style="margin-top:12px;padding:0 16px;">
+            <label class="field-label">Notes / Instructions</label>
+            <textarea class="field-textarea" id="lx-notes" rows="3"
+              placeholder="General guidance, follow-up plan, monitoring notes..."></textarea>
+          </div>
+
+          <!-- Follow-up -->
+          <div class="field-group" style="margin:12px 16px;">
+            <label class="field-label">Follow-up Date</label>
+            <input type="date" class="field-input" id="lx-follow-up" />
+          </div>
+
+          <button class="btn-generate" id="generate-lx-btn">
+            <i data-feather="file-text"></i> Generate Lifestyle Plan
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Preview + Templates -->
+      <div class="rx-right-col">
+        <!-- Lifestyle Preview -->
+        <div class="card rx-preview-card" id="lx-preview-card">
+          <div id="print-area-lx">
+            <div class="rx-preview-clinic">MB.EA Wellness Center</div>
+            <div class="rx-preview-addr">123 Wellness Ave, Quezon City · +63-2-8888-9999</div>
+            <div class="rx-preview-stamp" style="font-size:20px;letter-spacing:1px;">LIFESTYLE PRESCRIPTION</div>
+            <div class="rx-preview-patient-row">
+              <span>Patient: <strong id="lx-prev-patient">—</strong></span>
+              <span>Age: <strong id="lx-prev-age">—</strong></span>
+              <span>Date: <strong id="lx-prev-date">—</strong></span>
+            </div>
+            <div class="rx-preview-diag">Focus: <strong id="lx-prev-focus">—</strong></div>
+            <div class="rx-preview-meds-label">Prescribed Interventions:</div>
+            <div id="lx-prev-items" class="lx-prev-items"></div>
+            <div class="rx-preview-notes-label">Instructions:</div>
+            <div id="lx-prev-notes" class="rx-preview-notes-text">—</div>
+            <div id="lx-prev-followup" class="lx-prev-followup"></div>
+            <div class="rx-preview-sig-line">
+              <div class="rx-sig-line-bar"></div>
+              <div class="rx-sig-name">{{ $prescriber->name }}</div>
+              <div class="rx-sig-lic">License No. {{ $prescriber->license_no ?? '—' }}</div>
+            </div>
+          </div>
+          <button class="btn-print" onclick="printLx()">
+            <i data-feather="printer"></i> Print Plan
+          </button>
+        </div>
+
+        <!-- Lifestyle Template Library -->
+        <div class="card rx-templates-card">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span class="card-title"><i data-feather="star"
+                style="width:14px;height:14px;vertical-align:middle;color:#f59e0b;"></i> Lifestyle
+              Templates</span>
+            <button type="button" class="btn-outline-sm" id="lx-template-add-btn">+ Manage / Add</button>
+          </div>
+          <div class="template-list" id="lx-template-list">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="rx-print-modal">
+    <div class="modal-box rx-print-modal-box">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="modal-icon-print"><i data-feather="printer"></i></div>
+          <h3 id="rx-print-modal-title">Print Preview</h3>
+        </div>
+        <button class="modal-close" data-close="rx-print-modal"><i data-feather="x"></i></button>
+      </div>
+      <div class="rx-print-frame-wrap">
+        <iframe id="rx-print-frame" title="Print preview"></iframe>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" data-close="rx-print-modal">Close</button>
+        <button type="button" class="btn-print-confirm" id="rx-print-now-btn"><i data-feather="printer"></i>
+          Print</button>
+      </div>
+    </div>
+  </div>
 </section>
 @endsection
 
@@ -253,6 +409,7 @@
   window.PSYCH_DATA.patientSuggestions = @json($patientSuggestions);
   window.PSYCH_DATA.rxTemplates = @json($rxTemplates);
   window.PSYCH_DATA.dxTemplates = @json($dxTemplates);
+  window.PSYCH_DATA.lxTemplates = @json($lxTemplates);
   window.PSYCH_DATA.prescriber = @json($prescriberData);
   window.PSYCH_DATA.clinicLogo = '{{ asset("assets/mbea_logo.png") }}';
 </script>
