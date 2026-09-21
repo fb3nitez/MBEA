@@ -1,13 +1,14 @@
 class PatientIntakeForm {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 5;
+        this.totalSteps = 6;
         this.formData = {};
         this.stepValidators = {
             1: this.validateStep1.bind(this),
             2: this.validateStep2.bind(this),
             3: this.validateStep3.bind(this),
             4: this.validateStep4.bind(this),
+            5: this.validateStep5.bind(this),
         };
 
         this.init();
@@ -319,6 +320,10 @@ class PatientIntakeForm {
         }
 
         return errors;
+    }
+
+    validateStep5() {
+        return {};
     }
 
     validateAllSteps() {
@@ -642,7 +647,7 @@ class PatientIntakeForm {
 
     populateSummary() {
         const data = this.collectFormData();
-        const gender = data.gender.toLowerCase() === 'other'? data.gender_other : data.gender;
+        const gender = data.gender.toLowerCase() === 'other' ? data.gender_other : data.gender;
 
         // Patient Information
         document.getElementById('summary-name').textContent = data.name || 'Not provided';
@@ -660,9 +665,9 @@ class PatientIntakeForm {
         // Medical History
         const pmhList = [];
         const pmhFields = ['pmhHypertension', 'pmhStroke', 'pmhTuberculosis', 'pmhThyroid',
-                           'pmhDiabetes', 'pmhChronicPain', 'pmhAsthma', 'pmhEpilepsy'];
+            'pmhDiabetes', 'pmhChronicPain', 'pmhAsthma', 'pmhEpilepsy'];
         const pmhLabels = ['Hypertension', 'Stroke/TIA', 'Tuberculosis', 'Thyroid Disorders',
-                           'Diabetes Mellitus', 'Chronic Pain', 'Bronchial Asthma', 'Epilepsy'];
+            'Diabetes Mellitus', 'Chronic Pain', 'Bronchial Asthma', 'Epilepsy'];
 
         pmhFields.forEach((field, index) => {
             if (data[field]) pmhList.push(pmhLabels[index]);
@@ -719,8 +724,8 @@ class PatientIntakeForm {
 
         // PHQ-9 Summary
         const phqFields = ['phqLittleInterest', 'phqFeelingDown', 'phqTroubleSleeping',
-                           'phqFeelingTired', 'phqPoorAppetite', 'phqFeelingBad',
-                           'phqTroubleConcentrating', 'phqMovingSlow', 'phqThoughtsHurting'];
+            'phqFeelingTired', 'phqPoorAppetite', 'phqFeelingBad',
+            'phqTroubleConcentrating', 'phqMovingSlow', 'phqThoughtsHurting'];
         const phqAnswered = phqFields.filter(f => data[f]);
         document.getElementById('summary-phq').textContent = phqAnswered.length > 0 ?
             `${phqAnswered.length}/9 questions answered` : 'Not answered';
@@ -739,11 +744,18 @@ class PatientIntakeForm {
 
         document.getElementById('summary-motivation-text').textContent = data.lifestyleMotivation || 'Not provided';
         document.getElementById('summary-motivation').textContent = data.motivationLevel || 'Not provided';
+
+        document.getElementById('summary-spiritual-hypnosis').textContent = data.spiritualExplainHypnosis || 'Not provided';
+        document.getElementById('summary-spiritual-guide').textContent = data.spiritualGuidanceQuestion || 'Not provided';
+        document.getElementById('summary-spiritual-voices').textContent = data.spiritualVoicesQuestion || 'Not provided';
+        document.getElementById('summary-spiritual-experiences').textContent = data.spiritualUnusualExperiencesQuestion || 'Not provided';
+        document.getElementById('summary-spiritual-vow').textContent = data.spiritualPrayerQuestion || 'Not provided';
+        document.getElementById('summary-spiritual-ritual').textContent = data.spiritualRitualWorshipQuestion || 'Not provided';
     }
 }
 
 // Make toggleReviewCard globally accessible
-window.toggleReviewCard = function(cardId) {
+window.toggleReviewCard = function (cardId) {
     if (window.intakeForm) {
         window.intakeForm.toggleReviewCard(cardId);
     }
