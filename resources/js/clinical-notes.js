@@ -7,10 +7,29 @@ const Image = BaseImage.extend({
     addAttributes() {
         return {
             ...this.parent?.(),
+
             width: {
                 default: null,
-                parseHTML: (element) => element.getAttribute("width") || element.style.width || null,
-                renderHTML: (attributes) => attributes.width ? { style: `width: ${attributes.width}` } : {},
+                parseHTML: (element) =>
+                    element.getAttribute("width") ||
+                    element.style.width ||
+                    null,
+                renderHTML: (attributes) =>
+                    attributes.width
+                        ? { style: `width: ${attributes.width}` }
+                        : {},
+            },
+
+            height: {
+                default: null,
+                parseHTML: (element) =>
+                    element.getAttribute("height") ||
+                    element.style.height ||
+                    null,
+                renderHTML: (attributes) =>
+                    attributes.height
+                        ? { style: `height: ${attributes.height}` }
+                        : {},
             },
         };
     },
@@ -201,17 +220,33 @@ function currentPatientId() {
 }
 
 function displayAsHTML(data) {
-    const content = JSON.parse(data);
+    try {
+        if (!data) {
+            editor.commands.clearContent(false);
+            currentContent = JSON.stringify(editor.getJSON());
+            updateUnsavedIndicator();
+            return;
+        }
 
-    const { tr } = editor.state;
-    const slice = editor.schema.nodeFromJSON(content);
-    currentContent = JSON.stringify(slice.toJSON());
+        const content = typeof data === "string"
+            ? JSON.parse(data)
+            : data;
 
-    tr.replaceWith(0, editor.state.doc.content.size, slice);
-    tr.setMeta('addToHistory', false);
+        if (!content || content.type !== "doc") {
+            console.warn("Invalid clinical note content:", content);
+            return;
+        }
 
-    editor.view.dispatch(tr);
-    updateUnsavedIndicator();
+        editor.commands.setContent(content, false);
+
+        currentContent = JSON.stringify(editor.getJSON());
+
+        updateUnsavedIndicator();
+
+    } catch (error) {
+        console.error("Failed to load clinical note:", error);
+        console.error("Received data:", data);
+    }
 }
 
 function showToast(msg) {
