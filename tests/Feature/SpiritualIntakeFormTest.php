@@ -8,5 +8,6 @@ it('renders the spiritual intake questionnaire in the patient intake form', func
         ->assertSee('Religious Background')
         ->assertSee('Church Involvement')
         ->assertSee('Have you ever been hypnotized')
-        ->assertSee('Have you ever been involved in satanic ritual worship');
+        ->assertSee('Have you ever been involved in satanic ritual worship')
+        ->assertSee('summary-spiritual-religion');
 });

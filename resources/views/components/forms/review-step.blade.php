@@ -256,6 +256,10 @@
             </div>
             <div id="spiritual-review" class="space-y-2 hidden">
                 <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">Religion</span>
+                    <span id="summary-spiritual-religion" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
                     <span class="font-medium">Hypnosis / Seminar / Medium</span>
                     <span id="summary-spiritual-hypnosis" class="text-base-content/80 text-right">Not provided</span>
                 </div>

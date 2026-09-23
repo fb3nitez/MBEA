@@ -745,6 +745,7 @@ class PatientIntakeForm {
         document.getElementById('summary-motivation-text').textContent = data.lifestyleMotivation || 'Not provided';
         document.getElementById('summary-motivation').textContent = data.motivationLevel || 'Not provided';
 
+        document.getElementById('summary-spiritual-religion').textContent = data.religion || 'Not provided';
         document.getElementById('summary-spiritual-hypnosis').textContent = data.spiritualExplainHypnosis || 'Not provided';
         document.getElementById('summary-spiritual-guide').textContent = data.spiritualGuidanceQuestion || 'Not provided';
         document.getElementById('summary-spiritual-voices').textContent = data.spiritualVoicesQuestion || 'Not provided';
