@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateLifestyleAssessmentRequest;
 use App\Http\Requests\UpdateMedicalHistoryRequest;
 use App\Http\Requests\UpdatePsychiatricHistoryRequest;
+use App\Http\Requests\UpdateSpiritualIntakeRequest;
 use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
@@ -44,7 +45,7 @@ class PsychiatristController extends Controller
     {
         $patientsPage = $this->patientService->getPaginatedPatients(10);
         $patients = $patientsPage->getCollection()
-            ->map(fn (PatientRecord $p) => $this->patientService->patientToArray($p))
+            ->map(fn(PatientRecord $p) => $this->patientService->patientToArray($p))
             ->values();
 
         return view('psychiatrist.patients', [
@@ -58,7 +59,7 @@ class PsychiatristController extends Controller
     {
         $consultationsPage = $this->patientService->getPaginatedConsultations(10);
         $consultations = $consultationsPage->getCollection()
-            ->map(fn ($c) => $this->patientService->consultationToArray($c))
+            ->map(fn($c) => $this->patientService->consultationToArray($c))
             ->values();
 
         return view('psychiatrist.consultations', [
@@ -236,6 +237,17 @@ class PsychiatristController extends Controller
         return response()->json([
             'message' => 'Lifestyle assessment updated.',
             'lifestyle_assessment' => $assessment,
+        ]);
+    }
+
+    public function updateSpiritualIntake(UpdateSpiritualIntakeRequest $request, int $id): JsonResponse
+    {
+        $patient = $this->patientService->findPatient($id);
+        $intake = $this->patientService->updateSpiritualIntake($patient, $request->validated());
+
+        return response()->json([
+            'message' => 'Spiritual intake updated.',
+            'spiritual_intake' => $intake,
         ]);
     }
 

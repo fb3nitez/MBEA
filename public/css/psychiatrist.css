@@ -1921,8 +1921,13 @@ a.nav-item {
 }
 
 @keyframes template-skeleton-shimmer {
-    from { background-position: 200% 0; }
-    to { background-position: -200% 0; }
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
 }
 
 .template-empty strong {
@@ -1966,13 +1971,25 @@ a.nav-item {
 }
 
 @keyframes template-choice-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes template-choice-slide-in {
-    from { opacity: 0; transform: translateY(10px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .template-choice-header {
@@ -2243,7 +2260,7 @@ a.nav-item {
     cursor: pointer;
 }
 
-.dx-cat-label > span:first-child {
+.dx-cat-label>span:first-child {
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -2621,6 +2638,40 @@ a.nav-item {
     width: 15px;
     height: 15px;
     accent-color: var(--blue-600);
+}
+
+.spiritual-group {
+    margin-bottom: 20px;
+}
+
+.spiritual-check-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.spiritual-check-item {
+    min-height: 38px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #f8fafc;
+    cursor: default;
+}
+
+.spiritual-check-item input:disabled {
+    opacity: 1;
+}
+
+@media (max-width: 760px) {
+    .spiritual-check-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .spiritual-check-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .check-card {
@@ -4384,6 +4435,7 @@ a.psych-page-btn:hover {
 .modal-footer form {
     display: contents;
 }
+
 /* ---- PRINT PREVIEW MODAL (Rx / Diagnostic) ---- */
 .rx-print-modal-box {
     width: 820px;

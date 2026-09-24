@@ -17,7 +17,7 @@ Route::get('/intake-form', [IntakeFormController::class, 'create'])->name('intak
 Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
 
 // Auth routes
-Route::middleware('guest')->get('/login', fn () => view('staff_login'))->name('login');
+Route::middleware('guest')->get('/login', fn() => view('staff_login'))->name('login');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
@@ -46,6 +46,7 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::put('/patients/{id}/medical-history', 'updateMedicalHistory')->name('patients.medical-history');
         Route::put('/patients/{id}/psychiatric-history', 'updatePsychiatricHistory')->name('patients.psychiatric-history');
         Route::put('/patients/{id}/lifestyle', 'updateLifestyle')->name('patients.lifestyle');
+        Route::put('/patients/{id}/spiritual-intake', 'updateSpiritualIntake')->name('patients.spiritual-intake');
 
         Route::post('/consultations', 'storeConsultation')->name('consultations.store');
         Route::put('/consultations/{id}', 'updateConsultation')->name('consultations.update');

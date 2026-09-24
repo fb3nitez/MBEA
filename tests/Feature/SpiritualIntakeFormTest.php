@@ -29,3 +29,21 @@ it('stores spiritual intake answers in relational columns', function () {
         ->and($spiritualIntake->new_age_tarot_cards)->toBeTrue()
         ->and($spiritualIntake->spiritual_guidance_question)->toBe('Test answer');
 });
+
+it('updates spiritual intake answers for an existing patient', function () {
+    $patient = app(\App\Services\IntakeFormService::class)->submit([
+        'name' => 'Spiritual Update Patient',
+        'birthday' => '1990-01-01',
+        'sex' => 'female',
+        'maritalStatus' => 'single',
+        'chiefComplaint' => 'Test complaint',
+    ]);
+
+    $spiritualIntake = app(\App\Services\PatientService::class)->updateSpiritualIntake($patient, [
+        'new_age_tarot_cards' => true,
+        'spiritual_guidance_question' => 'Updated answer',
+    ]);
+
+    expect($spiritualIntake->new_age_tarot_cards)->toBeTrue()
+        ->and($spiritualIntake->spiritual_guidance_question)->toBe('Updated answer');
+});
