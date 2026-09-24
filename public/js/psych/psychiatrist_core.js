@@ -363,7 +363,6 @@
     window.location.href = url;
   }
 
-  // Legacy data-goto attributes → real page navigation
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-goto]');
     if (!el) return;

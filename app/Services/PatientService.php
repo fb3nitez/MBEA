@@ -19,27 +19,12 @@ use Spatie\Permission\Models\Role;
 
 class PatientService
 {
-    public function getTodayPatients(): Collection
-    {
-        return PatientRecord::with('lifeCoach')
-            ->whereBetween('created_at', [Carbon::today(), Carbon::tomorrow()])
-            ->latest()
-            ->get();
-    }
-
     public function getPaginatedTodayPatients(int $perPage = 10): LengthAwarePaginator
     {
         return PatientRecord::with('lifeCoach')
             ->whereBetween('created_at', [Carbon::today(), Carbon::tomorrow()])
             ->latest()
             ->paginate($perPage);
-    }
-
-    public function getAllPatients(): Collection
-    {
-        return PatientRecord::with(['lifeCoach', 'lifestyleAssessment'])
-            ->oldest('created_at')
-            ->get();
     }
 
     public function getPaginatedPatients(int $perPage = 10): LengthAwarePaginator
@@ -581,12 +566,17 @@ class PatientService
         );
     }
 
-    public function getConsultations(): Collection
+    /**
+     * Return dashboard consultation counts without loading every consultation row.
+     *
+     * @return array{pending:int,completed:int}
+     */
+    public function getConsultationCounts(): array
     {
-        return ConsultationSchedule::with('patientRecord')
-            ->orderBy('date')
-            ->orderBy('time')
-            ->get();
+        return [
+            'pending' => ConsultationSchedule::where('status', 'Scheduled')->count(),
+            'completed' => ConsultationSchedule::where('status', 'Completed')->count(),
+        ];
     }
 
     public function getPaginatedConsultations(int $perPage = 10): LengthAwarePaginator
@@ -751,11 +741,6 @@ class PatientService
                 'status' => $data['status'] ?? 'Draft',
             ]
         );
-    }
-
-    public function getPrescription(PatientRecord $patient): ?Prescription
-    {
-        return Prescription::where('patient_record_id', $patient->id)->first();
     }
 
     public function patientToArray(PatientRecord $patient): array

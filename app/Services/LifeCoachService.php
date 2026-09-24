@@ -34,6 +34,8 @@ class LifeCoachService
             'prescriptions',
             'medicalHistory',
             'psychiatricHistory',
+            'coachingNotes' => fn ($query) => $query->where('life_coach_id', $coachId)->latest(),
+            'coachingGoals' => fn ($query) => $query->where('life_coach_id', $coachId)->latest(),
         ])
             ->where('life_coach_id', $coachId)
             ->orderBy('fullname')
@@ -49,8 +51,8 @@ class LifeCoachService
             'lifeCoach',
             'lifestyleAssessment',
             'prescriptions',
-            'coachingNotes' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
-            'coachingGoals' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
+            'coachingNotes' => fn ($q) => $q->where('life_coach_id', $coachId)->latest(),
+            'coachingGoals' => fn ($q) => $q->where('life_coach_id', $coachId)->latest(),
         ])
             ->where('life_coach_id', $coachId)
             ->findOrFail($id);
@@ -159,11 +161,11 @@ class LifeCoachService
         $this->assertAssignedPatient((int) $data['patient_record_id'], $coachId);
 
         $weeklyCheckins = $data['weekly_checkins'] ?? array_fill(0, 7, false);
-        if (!is_array($weeklyCheckins)) {
+        if (! is_array($weeklyCheckins)) {
             $weeklyCheckins = array_fill(0, 7, false);
         }
         $weeklyCheckins = array_values(array_map(
-            fn($v) => (bool) $v,
+            fn ($v) => (bool) $v,
             array_slice(array_pad($weeklyCheckins, 7, false), 0, 7)
         ));
 
@@ -195,11 +197,11 @@ class LifeCoachService
 
         $weeklyCheckins = $data['weekly_checkins'] ?? null;
         if ($weeklyCheckins !== null) {
-            if (!is_array($weeklyCheckins)) {
+            if (! is_array($weeklyCheckins)) {
                 $weeklyCheckins = array_fill(0, 7, false);
             }
             $weeklyCheckins = array_values(array_map(
-                fn($v) => (bool) $v,
+                fn ($v) => (bool) $v,
                 array_slice(array_pad($weeklyCheckins, 7, false), 0, 7)
             ));
         }
@@ -242,7 +244,7 @@ class LifeCoachService
         $pending = $tasks->where('is_done', false);
         $completedThisWeek = $tasks
             ->where('is_done', true)
-            ->filter(fn(CoachingTask $t) => $t->completed_at && $t->completed_at->gte(now()->startOfWeek()))
+            ->filter(fn (CoachingTask $t) => $t->completed_at && $t->completed_at->gte(now()->startOfWeek()))
             ->count();
 
         $avgProgress = $patients->isEmpty()
@@ -281,13 +283,13 @@ class LifeCoachService
             ->where('life_coach_id', $coachId)
             ->sortByDesc('created_at')
             ->values()
-            ->map(fn(CoachingNote $n) => $this->noteToArray($n));
+            ->map(fn (CoachingNote $n) => $this->noteToArray($n));
 
         $goals = $patient->coachingGoals
             ->where('life_coach_id', $coachId)
             ->sortByDesc('created_at')
             ->values()
-            ->map(fn(CoachingGoal $g) => $this->goalToArray($g));
+            ->map(fn (CoachingGoal $g) => $this->goalToArray($g));
 
         $habitGoals = $patient->coachingGoals
             ->where('life_coach_id', $coachId)
@@ -295,12 +297,12 @@ class LifeCoachService
             ->values();
 
         $habitNames = $habitGoals
-            ->map(fn(CoachingGoal $g) => $g->title)
+            ->map(fn (CoachingGoal $g) => $g->title)
             ->values()
             ->all();
 
         $habitData = $habitGoals
-            ->map(fn(CoachingGoal $g) => array_values($g->weekly_checkins ?? array_fill(0, 7, false)))
+            ->map(fn (CoachingGoal $g) => array_values($g->weekly_checkins ?? array_fill(0, 7, false)))
             ->values()
             ->all();
 
@@ -402,7 +404,7 @@ class LifeCoachService
     public function patientOptions(?int $coachId = null): SupportCollection
     {
         return $this->getAssignedPatients($coachId)
-            ->map(fn(PatientRecord $p) => [
+            ->map(fn (PatientRecord $p) => [
                 'id' => $p->id,
                 'name' => $p->fullname,
                 'patient_id' => $p->patient_id,
@@ -434,7 +436,7 @@ class LifeCoachService
                 $items[] = [
                     'tag' => $rx->diagnosis ?: 'Rx',
                     'name' => is_array($med)
-                        ? trim(($med['name'] ?? 'Medication') . (isset($med['dose']) ? ' ' . $med['dose'] : ''))
+                        ? trim(($med['name'] ?? 'Medication').(isset($med['dose']) ? ' '.$med['dose'] : ''))
                         : (string) $med,
                 ];
             }
@@ -481,15 +483,19 @@ class LifeCoachService
                 'epilepsy_seizure' => 'Epilepsy / Seizure',
             ];
             foreach ($condMap as $field => $label) {
-                if ($mh->$field)
+                if ($mh->$field) {
                     $conditions[] = $label;
+                }
             }
-            if ($mh->autoimmune_disease)
-                $conditions[] = 'Autoimmune Disease' . ($mh->autoimmune_specify ? ': ' . $mh->autoimmune_specify : '');
-            if ($mh->cancer)
-                $conditions[] = 'Cancer' . ($mh->cancer_specify ? ': ' . $mh->cancer_specify : '');
-            if ($mh->other_medical)
-                $conditions[] = 'Other: ' . ($mh->other_medical_specify ?? '—');
+            if ($mh->autoimmune_disease) {
+                $conditions[] = 'Autoimmune Disease'.($mh->autoimmune_specify ? ': '.$mh->autoimmune_specify : '');
+            }
+            if ($mh->cancer) {
+                $conditions[] = 'Cancer'.($mh->cancer_specify ? ': '.$mh->cancer_specify : '');
+            }
+            if ($mh->other_medical) {
+                $conditions[] = 'Other: '.($mh->other_medical_specify ?? '—');
+            }
         }
 
         // Family history
@@ -507,7 +513,7 @@ class LifeCoachService
             foreach ($famMap as $f) {
                 if ($mh->{$f['flag']}) {
                     $rel = $mh->{$f['rel']} ?? null;
-                    $familyHistory[] = $f['label'] . ($rel ? ' (' . $rel . ')' : '');
+                    $familyHistory[] = $f['label'].($rel ? ' ('.$rel.')' : '');
                 }
             }
         }
@@ -520,8 +526,8 @@ class LifeCoachService
                 [
                     'label' => 'Psychiatric Hospitalization',
                     'value' => $ph->psychiatric_hospitalized
-                        ? 'Yes — ' . ($ph->hospitalization_count ?? '?') . 'x, ' . ($ph->hospitalization_when ?? '—')
-                        : 'No'
+                        ? 'Yes — '.($ph->hospitalization_count ?? '?').'x, '.($ph->hospitalization_when ?? '—')
+                        : 'No',
                 ],
             ];
 
@@ -532,16 +538,20 @@ class LifeCoachService
                 'neglect' => 'Neglect',
             ];
             foreach ($abuseTypes as $key => $abuseLabel) {
-                if ($ph->{$key . '_abuse'} ?? $ph->{$key}) {
+                if ($ph->{$key.'_abuse'} ?? $ph->{$key}) {
                     $timing = [];
-                    if ($ph->{$key . '_child'})
+                    if ($ph->{$key.'_child'}) {
                         $timing[] = 'Childhood';
-                    if ($ph->{$key . '_adult'})
+                    }
+                    if ($ph->{$key.'_adult'}) {
                         $timing[] = 'Adulthood';
-                    if ($ph->{$key . '_ongoing'})
+                    }
+                    if ($ph->{$key.'_ongoing'}) {
                         $timing[] = 'Ongoing';
-                    if ($ph->{$key . '_past'})
+                    }
+                    if ($ph->{$key.'_past'}) {
                         $timing[] = 'Past';
+                    }
                     $psychiatric[] = [
                         'label' => $abuseLabel,
                         'value' => implode(', ', $timing) ?: 'Yes',
@@ -554,8 +564,8 @@ class LifeCoachService
         $lifestyle = [];
         if ($ls) {
             $lifestyle = [
-                ['label' => 'Health Score', 'value' => $ls->health_score !== null ? $ls->health_score . '/10' : '—'],
-                ['label' => 'Sleep Hours', 'value' => $ls->sleep_hours ? $ls->sleep_hours . ' hrs' : '—'],
+                ['label' => 'Health Score', 'value' => $ls->health_score !== null ? $ls->health_score.'/10' : '—'],
+                ['label' => 'Sleep Hours', 'value' => $ls->sleep_hours ? $ls->sleep_hours.' hrs' : '—'],
                 ['label' => 'Tired Frequency', 'value' => $ls->tired_frequency ?? '—'],
                 ['label' => 'Weight Perception', 'value' => $ls->weight_perception ?? '—'],
                 ['label' => 'Fast Food Frequency', 'value' => $ls->fast_food_frequency ?? '—'],
@@ -578,7 +588,7 @@ class LifeCoachService
                 'phq_thoughts_hurting' => 'Thoughts of Hurting Self',
             ];
             foreach ($phqMap as $field => $label) {
-                $lifestyle[] = ['label' => 'PHQ: ' . $label, 'value' => $ls->$field ?? '—'];
+                $lifestyle[] = ['label' => 'PHQ: '.$label, 'value' => $ls->$field ?? '—'];
             }
 
             // Substance use
@@ -593,11 +603,11 @@ class LifeCoachService
             ];
             foreach ($substances as $field => $label) {
                 if ($ls->$field) {
-                    $amount = $ls->{$field . '_amount'} ?? '—';
-                    $concern = $ls->{$field . '_concern'} ?? 0;
+                    $amount = $ls->{$field.'_amount'} ?? '—';
+                    $concern = $ls->{$field.'_concern'} ?? 0;
                     $lifestyle[] = [
                         'label' => $label,
-                        'value' => 'Amount: ' . $amount . ' | Concern level: ' . $concern . '/5',
+                        'value' => 'Amount: '.$amount.' | Concern level: '.$concern.'/5',
                     ];
                 }
             }
@@ -617,7 +627,7 @@ class LifeCoachService
     private function metricsFromLifestyle(PatientRecord $patient): array
     {
         $ls = $patient->lifestyleAssessment;
-        if (!$ls) {
+        if (! $ls) {
             return [];
         }
 
@@ -650,13 +660,13 @@ class LifeCoachService
         };
 
         return [
-            ['name' => 'Sleep Quality', 'value' => $sleep ? $sleep . ' hrs' : '—', 'pct' => $sleepPct, 'bar' => $this->barClass($sleepPct), 'val' => $this->valClass($sleepPct), 'icon' => 'moon'],
+            ['name' => 'Sleep Quality', 'value' => $sleep ? $sleep.' hrs' : '—', 'pct' => $sleepPct, 'bar' => $this->barClass($sleepPct), 'val' => $this->valClass($sleepPct), 'icon' => 'moon'],
             ['name' => 'Exercise', 'value' => $exercise ?: '—', 'pct' => $exercisePct, 'bar' => $this->barClass($exercisePct), 'val' => $this->valClass($exercisePct), 'icon' => 'activity'],
             ['name' => 'Nutrition', 'value' => $nutrition ?: '—', 'pct' => $nutritionPct, 'bar' => $this->barClass($nutritionPct), 'val' => $this->valClass($nutritionPct), 'icon' => 'heart'],
             ['name' => 'Mood / Stress', 'value' => $stress ?: '—', 'pct' => $stressPct, 'bar' => $this->barClass(100 - $stressPct), 'val' => $this->valClass(100 - $stressPct), 'icon' => 'zap'],
             [
                 'name' => 'Health Score',
-                'value' => $ls->health_score !== null ? $ls->health_score . '/10' : '—',
+                'value' => $ls->health_score !== null ? $ls->health_score.'/10' : '—',
                 'pct' => $ls->health_score !== null ? (int) ($ls->health_score * 10) : 0,
                 'bar' => $this->barClass($ls->health_score !== null ? (int) ($ls->health_score * 10) : 0),
                 'val' => $this->valClass($ls->health_score !== null ? (int) ($ls->health_score * 10) : 0),
@@ -671,25 +681,31 @@ class LifeCoachService
         $base = $ls?->health_score !== null ? (int) ($ls->health_score * 10) : 60;
 
         return collect(range(0, 6))
-            ->map(fn($i) => max(20, min(100, $base + (($i % 3) * 5) - 5)))
+            ->map(fn ($i) => max(20, min(100, $base + (($i % 3) * 5) - 5)))
             ->all();
     }
 
     private function barClass(int $pct): string
     {
-        if ($pct >= 70)
+        if ($pct >= 70) {
             return 'mbar-green';
-        if ($pct >= 40)
+        }
+        if ($pct >= 40) {
             return 'mbar-amber';
+        }
+
         return 'mbar-red';
     }
 
     private function valClass(int $pct): string
     {
-        if ($pct >= 70)
+        if ($pct >= 70) {
             return 'mval-green';
-        if ($pct >= 40)
+        }
+        if ($pct >= 40) {
             return 'mval-amber';
+        }
+
         return 'mval-red';
     }
 }

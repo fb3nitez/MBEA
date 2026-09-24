@@ -397,7 +397,7 @@ var TEMPLATE_LIBRARY_STATE = {
     rx: { query: "", category: "All", favoritesOnly: false },
     dx: { query: "", category: "All", favoritesOnly: false },
 };
-var APPLIED_TEMPLATE_IDS = { rx: null, dx: null };
+var APPLIED_TEMPLATE_IDS = { rx: {}, dx: {} };
 
 function templateFavoriteKey(type, id) {
     return "mbea-template-" + type + "-favorite-" + id;
@@ -449,24 +449,67 @@ function templateMatches(t) {
         (!state.favoritesOnly || isTemplateFavorite(t.type, t.id));
 }
 
+function showTemplateChoiceModal(templateName) {
+    return new Promise(function (resolve) {
+        var overlay = document.createElement("div");
+        overlay.className = "template-choice-overlay template-choice-enter";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
+        overlay.setAttribute("aria-labelledby", "template-choice-title");
+        overlay.innerHTML =
+            '<div class="template-choice-modal">' +
+            '<div class="template-choice-header"><span class="template-choice-icon"><i data-feather="layers"></i></span><div><h3 id="template-choice-title">Apply template?</h3><span class="template-choice-subtitle">Choose how to update this prescription</span></div></div>' +
+            '<p>This form already has data. Choose how to apply <strong>' + escHtml(templateName) + '</strong>.</p>' +
+            '<div class="template-choice-actions">' +
+            '<button type="button" class="template-choice-replace">Replace</button>' +
+            '<button type="button" class="template-choice-merge">Merge</button>' +
+            '<button type="button" class="template-choice-cancel">Cancel</button>' +
+            '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+        ri();
+        var closed = false;
+        var close = function (result) {
+            if (closed) return;
+            closed = true;
+            overlay.classList.remove("template-choice-enter");
+            overlay.classList.add("template-choice-closing");
+            setTimeout(function () {
+                overlay.remove();
+                resolve(result);
+            }, 160);
+        };
+        overlay.querySelector(".template-choice-replace").addEventListener("click", function () { close("replace"); });
+        overlay.querySelector(".template-choice-merge").addEventListener("click", function () { close("merge"); });
+        overlay.querySelector(".template-choice-cancel").addEventListener("click", function () { close("cancel"); });
+        overlay.addEventListener("click", function (event) {
+            if (event.target === overlay) close("cancel");
+        });
+        overlay.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") close("cancel");
+        });
+        overlay.querySelector(".template-choice-replace").focus();
+    });
+}
+
 function applyTemplateWithChoice(t, onApply) {
     var hasData = t.type === "rx"
         ? collectRxMeds().length || collectLxItems().length || getVal("rx-diagnosis").trim()
         : qsa(".dx-cb:checked").length || getVal("dx-other-imaging").trim() || getVal("dx-notes").trim();
-    var mode = "replace";
-    if (hasData && !window.confirm("This form has data. Press OK to replace it, or Cancel to merge this template.")) {
-        mode = "merge";
-    }
-    onApply(t, mode);
-    APPLIED_TEMPLATE_IDS[t.type] = String(t.id);
-    buildTemplateLibraries();
+    var choice = hasData ? showTemplateChoiceModal(t.name) : Promise.resolve("replace");
+    choice.then(function (mode) {
+        if (mode === "cancel") return;
+        onApply(t, mode);
+        APPLIED_TEMPLATE_IDS[t.type][String(t.id)] = true;
+        buildTemplateLibraries();
+    });
 }
 
 function buildTemplateItem(t, onApply) {
     var div = document.createElement("div");
     div.className = "template-item";
     var favorite = isTemplateFavorite(t.type, t.id);
-    var applied = String(APPLIED_TEMPLATE_IDS[t.type]) === String(t.id);
+    var applied = !!APPLIED_TEMPLATE_IDS[t.type][String(t.id)];
     var entries = t.type === "dx"
         ? (t.tests || []).map(function (test) { return "<li>" + escHtml(test) + "</li>"; }).join("")
         : (t.meds || []).map(function (m) {
@@ -476,10 +519,13 @@ function buildTemplateItem(t, onApply) {
             return "<li><strong>" + escHtml(item.title || "Intervention") + "</strong> <span class=\"template-detail-muted\">" + escHtml(item.category || "") + "</span></li>";
         })).join("");
     var summary = t.desc || (t.type === "dx" ? (t.tests || []).slice(0, 3).join(", ") : (t.meds || []).map(function (m) { return m.name || ""; }).concat((t.lifestyle || []).map(function (item) { return item.title || ""; })).filter(Boolean).slice(0, 3).join(", "));
+    var applyButton = applied
+        ? '<button type="button" class="template-apply-target template-applied-button" disabled aria-disabled="true" title="Applied"><i data-feather="check"></i><span class="sr-only">Applied</span></button>'
+        : '<button type="button" class="template-apply-target" aria-label="Apply ' + escHtml(t.name || "Template") + '" title="Apply template"><i data-feather="play"></i><span class="sr-only">Apply</span></button>';
     div.innerHTML =
         '<div class="template-item-top">' +
-        '<button type="button" class="template-apply-target" aria-label="Apply ' + escHtml(t.name || "Template") + '">' +
-        '<span class="template-name">' + escHtml(t.name || "Template") + "</span>" +
+        applyButton +
+        '<span class="template-heading"><span class="template-name">' + escHtml(t.name || "Template") + '</span>' +
         (t.tag
             ? '<span class="template-tag ' +
               (t.tagClass || "") +
@@ -487,7 +533,7 @@ function buildTemplateItem(t, onApply) {
               escHtml(t.tag) +
               "</span>"
             : "") +
-        '</button>' +
+          '</span>' +
         '<button type="button" class="template-favorite" aria-label="' + (favorite ? "Remove from favorites" : "Add to favorites") + '" aria-pressed="' + (favorite ? "true" : "false") + '"><i data-feather="star"></i></button>' +
         '<div class="template-overflow-wrap"><button type="button" class="template-overflow" aria-label="More actions" aria-expanded="false"><i data-feather="more-horizontal"></i></button>' +
         '<div class="template-menu"><button type="button" class="tpl-edit">Edit</button><button type="button" class="tpl-delete">Delete</button></div></div>' +
@@ -496,15 +542,19 @@ function buildTemplateItem(t, onApply) {
         escHtml(summary || "No details provided") +
         "</div>" +
         '<details class="template-preview"><summary>Preview details</summary><ul>' + (entries || "<li>No details provided</li>") + "</ul></details>" +
-        (applied ? '<div class="template-applied"><i data-feather="check"></i> Applied</div>' : "");
-    div.querySelector(".template-apply-target").addEventListener("click", function () {
-        applyTemplateWithChoice(t, onApply);
-    });
+        "";
+    if (!applied) {
+        div.querySelector(".template-apply-target").addEventListener("click", function () {
+            applyTemplateWithChoice(t, onApply);
+        });
+    }
     div.addEventListener("click", function (event) {
+        if (applied) return;
         if (event.target.closest("button, details, summary, .template-menu")) return;
         applyTemplateWithChoice(t, onApply);
     });
     div.addEventListener("keydown", function (event) {
+        if (applied) return;
         if ((event.key === "Enter" || event.key === " ") && event.target === div) {
             event.preventDefault();
             applyTemplateWithChoice(t, onApply);
@@ -745,7 +795,53 @@ function openTemplateModal(type, template) {
 
 function deleteTemplate(t) {
     if (!t.id) return;
-    if (!window.confirm('Delete template "' + t.name + '"?')) return;
+    showTemplateDeleteModal(t.name).then(function (confirmed) {
+        if (!confirmed) return;
+        performTemplateDelete(t);
+    });
+}
+
+function showTemplateDeleteModal(templateName) {
+    return new Promise(function (resolve) {
+        var overlay = document.createElement("div");
+        overlay.className = "template-choice-overlay template-choice-enter";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
+        overlay.setAttribute("aria-labelledby", "template-delete-title");
+        overlay.innerHTML =
+            '<div class="template-choice-modal template-delete-modal">' +
+            '<button type="button" class="template-choice-close" aria-label="Close"><i data-feather="x"></i></button>' +
+            '<div class="template-swal-icon">!</div>' +
+            '<h3 id="template-delete-title">Are you sure?</h3>' +
+            '<p>You can\'t revert this action. Delete <strong>' + escHtml(templateName) + '</strong>?</p>' +
+            '<div class="template-choice-actions template-delete-actions">' +
+            '<button type="button" class="template-choice-delete-confirm">Yes, delete it!</button>' +
+            '<button type="button" class="template-choice-cancel">No, keep it!</button>' +
+            '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+        ri();
+        var closed = false;
+        var close = function (confirmed) {
+            if (closed) return;
+            closed = true;
+            overlay.classList.remove("template-choice-enter");
+            overlay.classList.add("template-choice-closing");
+            setTimeout(function () {
+                overlay.remove();
+                resolve(confirmed);
+            }, 160);
+        };
+        overlay.querySelector(".template-choice-delete-confirm").addEventListener("click", function () { close(true); });
+        overlay.querySelector(".template-choice-cancel").addEventListener("click", function () { close(false); });
+        overlay.querySelector(".template-choice-close").addEventListener("click", function () { close(false); });
+        overlay.addEventListener("click", function (event) { if (event.target === overlay) close(false); });
+        overlay.addEventListener("keydown", function (event) { if (event.key === "Escape") close(false); });
+        overlay.querySelector(".template-choice-delete-confirm").focus();
+    });
+}
+
+function performTemplateDelete(t) {
     var base =
         (window.PSYCH_ROUTES || {}).templatesUpdate ||
         "/psychiatrist/clinical-templates";

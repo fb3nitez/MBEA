@@ -156,6 +156,18 @@ it('rejects a lifestyle item without a title', function () {
         ->assertInvalid(['lifestyle_interventions.0.title']);
 });
 
+it('rejects a medication with an invalid quantity', function () {
+    $psychiatrist = makeRxPsychiatristUser('rx-bad-medication@medcare.ph');
+    $patient = makeRxPatient('Rx Bad Medication');
+
+    $payload = rxPayload();
+    $payload['medications'][0]['qty'] = 0;
+
+    $this->actingAs($psychiatrist)
+        ->postJson(route('psychiatrist.prescriptions.store', $patient->id), $payload)
+        ->assertInvalid(['medications.0.qty']);
+});
+
 it('overwrites the same prescription row on a second save', function () {
     $psychiatrist = makeRxPsychiatristUser('rx-update@medcare.ph');
     $patient = makeRxPatient('Rx Update Same Row');
