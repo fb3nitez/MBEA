@@ -2871,6 +2871,40 @@ a.nav-item {
     accent-color: var(--blue-600);
 }
 
+.spiritual-group {
+    margin-bottom: 20px;
+}
+
+.spiritual-check-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.spiritual-check-item {
+    min-height: 38px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #f8fafc;
+    cursor: default;
+}
+
+.spiritual-check-item input:disabled {
+    opacity: 1;
+}
+
+@media (max-width: 760px) {
+    .spiritual-check-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .spiritual-check-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .check-card {
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);

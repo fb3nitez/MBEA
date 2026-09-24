@@ -70,8 +70,9 @@ class LifeCoachService
             'prescriptions',
             'medicalHistory',
             'psychiatricHistory',
-            'coachingNotes' => fn ($query) => $query->where('life_coach_id', $coachId)->latest(),
-            'coachingGoals' => fn ($query) => $query->where('life_coach_id', $coachId)->latest(),
+            'spiritualIntake',
+            'coachingNotes' => fn($query) => $query->where('life_coach_id', $coachId)->latest(),
+            'coachingGoals' => fn($query) => $query->where('life_coach_id', $coachId)->latest(),
         ])
             ->where('life_coach_id', $coachId)
             ->orderBy('fullname')
@@ -87,8 +88,11 @@ class LifeCoachService
             'lifeCoach',
             'lifestyleAssessment',
             'prescriptions',
-            'coachingNotes' => fn ($q) => $q->where('life_coach_id', $coachId)->latest(),
-            'coachingGoals' => fn ($q) => $q->where('life_coach_id', $coachId)->latest(),
+            'medicalHistory',
+            'psychiatricHistory',
+            'spiritualIntake',
+            'coachingNotes' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
+            'coachingGoals' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
         ])
             ->where('life_coach_id', $coachId)
             ->findOrFail($id);
@@ -201,7 +205,7 @@ class LifeCoachService
             $weeklyCheckins = array_fill(0, 7, false);
         }
         $weeklyCheckins = array_values(array_map(
-            fn ($v) => (bool) $v,
+            fn($v) => (bool) $v,
             array_slice(array_pad($weeklyCheckins, 7, false), 0, 7)
         ));
 
@@ -237,7 +241,7 @@ class LifeCoachService
                 $weeklyCheckins = array_fill(0, 7, false);
             }
             $weeklyCheckins = array_values(array_map(
-                fn ($v) => (bool) $v,
+                fn($v) => (bool) $v,
                 array_slice(array_pad($weeklyCheckins, 7, false), 0, 7)
             ));
         }
@@ -280,7 +284,7 @@ class LifeCoachService
         $pending = $tasks->where('is_done', false);
         $completedThisWeek = $tasks
             ->where('is_done', true)
-            ->filter(fn (CoachingTask $t) => $t->completed_at && $t->completed_at->gte(now()->startOfWeek()))
+            ->filter(fn(CoachingTask $t) => $t->completed_at && $t->completed_at->gte(now()->startOfWeek()))
             ->count();
 
         $avgProgress = $patients->isEmpty()
@@ -311,6 +315,7 @@ class LifeCoachService
             'coachingGoals',
             'medicalHistory',
             'psychiatricHistory',
+            'spiritualIntake',
         ]);
 
         $coachId = $this->currentCoach()->id;
@@ -319,13 +324,13 @@ class LifeCoachService
             ->where('life_coach_id', $coachId)
             ->sortByDesc('created_at')
             ->values()
-            ->map(fn (CoachingNote $n) => $this->noteToArray($n));
+            ->map(fn(CoachingNote $n) => $this->noteToArray($n));
 
         $goals = $patient->coachingGoals
             ->where('life_coach_id', $coachId)
             ->sortByDesc('created_at')
             ->values()
-            ->map(fn (CoachingGoal $g) => $this->goalToArray($g));
+            ->map(fn(CoachingGoal $g) => $this->goalToArray($g));
 
         $habitGoals = $patient->coachingGoals
             ->where('life_coach_id', $coachId)
@@ -333,12 +338,12 @@ class LifeCoachService
             ->values();
 
         $habitNames = $habitGoals
-            ->map(fn (CoachingGoal $g) => $g->title)
+            ->map(fn(CoachingGoal $g) => $g->title)
             ->values()
             ->all();
 
         $habitData = $habitGoals
-            ->map(fn (CoachingGoal $g) => array_values($g->weekly_checkins ?? array_fill(0, 7, false)))
+            ->map(fn(CoachingGoal $g) => array_values($g->weekly_checkins ?? array_fill(0, 7, false)))
             ->values()
             ->all();
 
@@ -440,7 +445,7 @@ class LifeCoachService
     public function patientOptions(?int $coachId = null): SupportCollection
     {
         return $this->getAssignedPatients($coachId)
-            ->map(fn (PatientRecord $p) => [
+            ->map(fn(PatientRecord $p) => [
                 'id' => $p->id,
                 'name' => $p->fullname,
                 'patient_id' => $p->patient_id,
@@ -472,7 +477,7 @@ class LifeCoachService
                 $items[] = [
                     'tag' => $rx->diagnosis ?: 'Rx',
                     'name' => is_array($med)
-                        ? trim(($med['name'] ?? 'Medication').(isset($med['dose']) ? ' '.$med['dose'] : ''))
+                        ? trim(($med['name'] ?? 'Medication') . (isset($med['dose']) ? ' ' . $med['dose'] : ''))
                         : (string) $med,
                 ];
             }
@@ -502,8 +507,9 @@ class LifeCoachService
             ['label' => 'Year Level', 'value' => $patient->student_year_level ?? '—'],
             ['label' => 'Chief Complaint', 'value' => $patient->chief_complaint ?? '—'],
             ['label' => 'Diagnosis', 'value' => $patient->primary_diagnosis ?? '—'],
-            ['label' => 'Clinical Notes', 'value' => $patient->clinical_notes ?? '—'],
         ];
+
+        $clinicalNotes = $patient->clinical_notes;
 
         // Medical history conditions
         $conditions = [];
@@ -524,13 +530,13 @@ class LifeCoachService
                 }
             }
             if ($mh->autoimmune_disease) {
-                $conditions[] = 'Autoimmune Disease'.($mh->autoimmune_specify ? ': '.$mh->autoimmune_specify : '');
+                $conditions[] = 'Autoimmune Disease' . ($mh->autoimmune_specify ? ': ' . $mh->autoimmune_specify : '');
             }
             if ($mh->cancer) {
-                $conditions[] = 'Cancer'.($mh->cancer_specify ? ': '.$mh->cancer_specify : '');
+                $conditions[] = 'Cancer' . ($mh->cancer_specify ? ': ' . $mh->cancer_specify : '');
             }
             if ($mh->other_medical) {
-                $conditions[] = 'Other: '.($mh->other_medical_specify ?? '—');
+                $conditions[] = 'Other: ' . ($mh->other_medical_specify ?? '—');
             }
         }
 
@@ -549,7 +555,7 @@ class LifeCoachService
             foreach ($famMap as $f) {
                 if ($mh->{$f['flag']}) {
                     $rel = $mh->{$f['rel']} ?? null;
-                    $familyHistory[] = $f['label'].($rel ? ' ('.$rel.')' : '');
+                    $familyHistory[] = $f['label'] . ($rel ? ' (' . $rel . ')' : '');
                 }
             }
         }
@@ -562,7 +568,7 @@ class LifeCoachService
                 [
                     'label' => 'Psychiatric Hospitalization',
                     'value' => $ph->psychiatric_hospitalized
-                        ? 'Yes — '.($ph->hospitalization_count ?? '?').'x, '.($ph->hospitalization_when ?? '—')
+                        ? 'Yes — ' . ($ph->hospitalization_count ?? '?') . 'x, ' . ($ph->hospitalization_when ?? '—')
                         : 'No',
                 ],
             ];
@@ -574,18 +580,18 @@ class LifeCoachService
                 'neglect' => 'Neglect',
             ];
             foreach ($abuseTypes as $key => $abuseLabel) {
-                if ($ph->{$key.'_abuse'} ?? $ph->{$key}) {
+                if ($ph->{$key . '_abuse'} ?? $ph->{$key}) {
                     $timing = [];
-                    if ($ph->{$key.'_child'}) {
+                    if ($ph->{$key . '_child'}) {
                         $timing[] = 'Childhood';
                     }
-                    if ($ph->{$key.'_adult'}) {
+                    if ($ph->{$key . '_adult'}) {
                         $timing[] = 'Adulthood';
                     }
-                    if ($ph->{$key.'_ongoing'}) {
+                    if ($ph->{$key . '_ongoing'}) {
                         $timing[] = 'Ongoing';
                     }
-                    if ($ph->{$key.'_past'}) {
+                    if ($ph->{$key . '_past'}) {
                         $timing[] = 'Past';
                     }
                     $psychiatric[] = [
@@ -598,18 +604,28 @@ class LifeCoachService
 
         // Lifestyle
         $lifestyle = [];
+        $phq = [];
+        $substancesUsed = [];
+        $motivation = [];
         if ($ls) {
-            $lifestyle = [
-                ['label' => 'Health Score', 'value' => $ls->health_score !== null ? $ls->health_score.'/10' : '—'],
-                ['label' => 'Sleep Hours', 'value' => $ls->sleep_hours ? $ls->sleep_hours.' hrs' : '—'],
-                ['label' => 'Tired Frequency', 'value' => $ls->tired_frequency ?? '—'],
-                ['label' => 'Weight Perception', 'value' => $ls->weight_perception ?? '—'],
-                ['label' => 'Fast Food Frequency', 'value' => $ls->fast_food_frequency ?? '—'],
-                ['label' => 'Fruits/Veg Servings', 'value' => $ls->fruits_veg_servings ?? '—'],
-                ['label' => 'Exercise Frequency', 'value' => $ls->exercise_frequency ?? '—'],
-                ['label' => 'Motivation Level', 'value' => $ls->motivation_level ?? '—'],
-                ['label' => 'Lifestyle Motivation', 'value' => $ls->lifestyle_motivation ?? '—'],
-            ];
+            $appendLifestyle = function ($label, $value) use (&$lifestyle): void {
+                if ($value === null || (is_string($value) && trim($value) === '')) {
+                    return;
+                }
+
+                $lifestyle[] = ['label' => $label, 'value' => $value];
+            };
+
+            $appendLifestyle('Health Score', $ls->health_score !== null ? $ls->health_score . '/10' : null);
+            $appendLifestyle('Sleep Hours', $ls->sleep_hours !== null ? $ls->sleep_hours . ' hrs' : null);
+            $appendLifestyle('Tired Frequency', $ls->tired_frequency);
+            $appendLifestyle('Weight Perception', $ls->weight_perception);
+            $appendLifestyle('Fast Food Frequency', $ls->fast_food_frequency);
+            $appendLifestyle('Fruits/Veg Servings', $ls->fruits_veg_servings);
+            $appendLifestyle('Exercise Frequency', $ls->exercise_frequency);
+            $motivation[] = ['label' => 'Motivation Level', 'value' => $ls->motivation_level];
+            $motivation[] = ['label' => 'Lifestyle Motivation', 'value' => $ls->lifestyle_motivation];
+            $motivation = array_values(array_filter($motivation, fn(array $item): bool => $item['value'] !== null && (! is_string($item['value']) || trim($item['value']) !== '')));
 
             // PHQ-9
             $phqMap = [
@@ -624,7 +640,7 @@ class LifeCoachService
                 'phq_thoughts_hurting' => 'Thoughts of Hurting Self',
             ];
             foreach ($phqMap as $field => $label) {
-                $lifestyle[] = ['label' => 'PHQ: '.$label, 'value' => $ls->$field ?? '—'];
+                $phq[] = ['label' => $label, 'value' => $ls->$field];
             }
 
             // Substance use
@@ -639,23 +655,40 @@ class LifeCoachService
             ];
             foreach ($substances as $field => $label) {
                 if ($ls->$field) {
-                    $amount = $ls->{$field.'_amount'} ?? '—';
-                    $concern = $ls->{$field.'_concern'} ?? 0;
-                    $lifestyle[] = [
+                    $amount = $ls->{$field . '_amount'} ?? '—';
+                    $concern = $ls->{$field . '_concern'} ?? 0;
+                    $substancesUsed[] = [
                         'label' => $label,
-                        'value' => 'Amount: '.$amount.' | Concern level: '.$concern.'/5',
+                        'value' => "Amount/Details: {$amount}\nConcern level: {$concern}/5",
                     ];
                 }
             }
         }
 
+        $spiritual = [];
+        if ($patient->spiritualIntake) {
+            foreach ($patient->spiritualIntake->getAttributes() as $field => $value) {
+                if (in_array($field, ['id', 'patient_record_id', 'created_at', 'updated_at'], true) || $value === null || $value === '' || $value === false || $value === 0 || $value === '0') {
+                    continue;
+                }
+
+                $label = ucwords(str_replace('_', ' ', preg_replace('/^(religious_background_|church_involvement_|new_age_|additional_spiritual_issues_)/', '', $field)));
+                $spiritual[] = ['label' => $label, 'value' => $value === true || $value === 1 || $value === '1' ? 'Yes' : $value];
+            }
+        }
+
         return [
             'personal' => $personal,
+            'clinical_notes' => $clinicalNotes,
             'conditions' => $conditions,
             'medications' => $mh?->current_medications ?? '—',
             'family' => $familyHistory,
             'psychiatric' => $psychiatric,
             'lifestyle' => $lifestyle,
+            'phq' => $phq,
+            'substances' => $substancesUsed,
+            'motivation' => $motivation,
+            'spiritual' => $spiritual,
         ];
     }
     // </edit-marker>
@@ -696,13 +729,13 @@ class LifeCoachService
         };
 
         return [
-            ['name' => 'Sleep Quality', 'value' => $sleep ? $sleep.' hrs' : '—', 'pct' => $sleepPct, 'bar' => $this->barClass($sleepPct), 'val' => $this->valClass($sleepPct), 'icon' => 'moon'],
+            ['name' => 'Sleep Quality', 'value' => $sleep ? $sleep . ' hrs' : '—', 'pct' => $sleepPct, 'bar' => $this->barClass($sleepPct), 'val' => $this->valClass($sleepPct), 'icon' => 'moon'],
             ['name' => 'Exercise', 'value' => $exercise ?: '—', 'pct' => $exercisePct, 'bar' => $this->barClass($exercisePct), 'val' => $this->valClass($exercisePct), 'icon' => 'activity'],
             ['name' => 'Nutrition', 'value' => $nutrition ?: '—', 'pct' => $nutritionPct, 'bar' => $this->barClass($nutritionPct), 'val' => $this->valClass($nutritionPct), 'icon' => 'heart'],
             ['name' => 'Mood / Stress', 'value' => $stress ?: '—', 'pct' => $stressPct, 'bar' => $this->barClass(100 - $stressPct), 'val' => $this->valClass(100 - $stressPct), 'icon' => 'zap'],
             [
                 'name' => 'Health Score',
-                'value' => $ls->health_score !== null ? $ls->health_score.'/10' : '—',
+                'value' => $ls->health_score !== null ? $ls->health_score . '/10' : '—',
                 'pct' => $ls->health_score !== null ? (int) ($ls->health_score * 10) : 0,
                 'bar' => $this->barClass($ls->health_score !== null ? (int) ($ls->health_score * 10) : 0),
                 'val' => $this->valClass($ls->health_score !== null ? (int) ($ls->health_score * 10) : 0),
@@ -717,7 +750,7 @@ class LifeCoachService
         $base = $ls?->health_score !== null ? (int) ($ls->health_score * 10) : 60;
 
         return collect(range(0, 6))
-            ->map(fn ($i) => max(20, min(100, $base + (($i % 3) * 5) - 5)))
+            ->map(fn($i) => max(20, min(100, $base + (($i % 3) * 5) - 5)))
             ->all();
     }
 

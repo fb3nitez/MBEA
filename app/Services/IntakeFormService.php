@@ -6,7 +6,9 @@ use App\Models\PatientRecord;
 use App\Models\MedicalHistory;
 use App\Models\PsychiatricHistory;
 use App\Models\LifestyleAssessment;
+use App\Models\SpiritualIntake;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class IntakeFormService
 {
@@ -24,6 +26,7 @@ class IntakeFormService
             $this->createMedicalHistory($patient, $cleanedData);
             $this->createPsychiatricHistory($patient, $cleanedData);
             $this->createLifestyleAssessment($patient, $cleanedData);
+            $this->createSpiritualIntake($patient, $cleanedData);
 
             return $patient;
         });
@@ -36,18 +39,51 @@ class IntakeFormService
     {
         // Convert checkbox values from 'on' or string to boolean
         $booleanFields = [
-            'pmhHypertension', 'pmhStroke', 'pmhTuberculosis', 'pmhThyroid',
-            'pmhDiabetes', 'pmhChronicPain', 'pmhAsthma', 'pmhEpilepsy',
-            'pmhAutoimmune', 'pmhCancer', 'pmhOther',
-            'fhHypertension', 'fhStroke', 'fhDiabetes', 'fhSubstance',
-            'fhCancer', 'fhPsychiatric', 'fhOther',
-            'traumaPhysical', 'traumaEmotional', 'traumaSexual', 'traumaNeglect',
-            'tpChild', 'tpAdult', 'tpOngoing', 'tpPast',
-            'teChild', 'teAdult', 'teOngoing', 'tePast',
-            'tsChild', 'tsAdult', 'tsOngoing', 'tsPast',
-            'tnChild', 'tnAdult', 'tnOngoing', 'tnPast',
-            'subNicotine', 'subAlcohol', 'subRecreational', 'subMarijuana',
-            'subScreentime', 'subGambling', 'subOthers',
+            'pmhHypertension',
+            'pmhStroke',
+            'pmhTuberculosis',
+            'pmhThyroid',
+            'pmhDiabetes',
+            'pmhChronicPain',
+            'pmhAsthma',
+            'pmhEpilepsy',
+            'pmhAutoimmune',
+            'pmhCancer',
+            'pmhOther',
+            'fhHypertension',
+            'fhStroke',
+            'fhDiabetes',
+            'fhSubstance',
+            'fhCancer',
+            'fhPsychiatric',
+            'fhOther',
+            'traumaPhysical',
+            'traumaEmotional',
+            'traumaSexual',
+            'traumaNeglect',
+            'tpChild',
+            'tpAdult',
+            'tpOngoing',
+            'tpPast',
+            'teChild',
+            'teAdult',
+            'teOngoing',
+            'tePast',
+            'tsChild',
+            'tsAdult',
+            'tsOngoing',
+            'tsPast',
+            'tnChild',
+            'tnAdult',
+            'tnOngoing',
+            'tnPast',
+            'subNicotine',
+            'subAlcohol',
+            'subRecreational',
+            'subMarijuana',
+            'subScreentime',
+            'subGambling',
+            'subOthers',
         ];
 
         foreach ($booleanFields as $field) {
@@ -58,8 +94,12 @@ class IntakeFormService
 
         // Convert concern levels to integers
         $concernFields = [
-            'subNicotineConcern', 'subAlcoholConcern', 'subRecreationalConcern',
-            'subMarijuanaConcern', 'subScreentimeConcern', 'subGamblingConcern',
+            'subNicotineConcern',
+            'subAlcoholConcern',
+            'subRecreationalConcern',
+            'subMarijuanaConcern',
+            'subScreentimeConcern',
+            'subGamblingConcern',
             'subOthersConcern'
         ];
 
@@ -289,6 +329,34 @@ class IntakeFormService
             // Motivation
             'lifestyle_motivation' => $data['lifestyleMotivation'] ?? null,
             'motivation_level' => $data['motivationLevel'] ?? null,
+        ]);
+    }
+
+    private function createSpiritualIntake(PatientRecord $patientRecord, array $data): void
+    {
+        $spiritualData = array_filter(
+            $data,
+            static fn($value, $key) => str_starts_with($key, 'religiousBackground')
+                || str_starts_with($key, 'churchInvolvement')
+                || str_starts_with($key, 'newAge')
+                || str_starts_with($key, 'additionalSpiritualIssues')
+                || str_starts_with($key, 'spiritual'),
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        SpiritualIntake::create([
+            'patient_record_id' => $patientRecord->id,
+            ...collect($spiritualData)
+                ->mapWithKeys(function ($value, $key) {
+                    $column = match ($key) {
+                        'additionalSpiritualIssuesRitualisticFamilyPatternsOfOppression' => 'additional_spiritual_issues_ritual_family_oppression',
+                        'additionalSpiritualIssuesRecurrentFamilyPatternsOfDepressionSadness' => 'additional_spiritual_issues_recurrent_family_depression',
+                        default => Str::snake($key),
+                    };
+
+                    return [$column => $value];
+                })
+                ->all(),
         ]);
     }
 }

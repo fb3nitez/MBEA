@@ -48,3 +48,12 @@
   --noise: 1;
 }
 
+
+.label-text {
+    text-wrap: wrap;
+}
+
+.intake-form-label {
+    display: flex;
+    align-items: start;
+}

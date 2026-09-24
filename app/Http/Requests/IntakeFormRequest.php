@@ -21,41 +21,107 @@ class IntakeFormRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $booleanFields = [
-            'pmhHypertension', 'pmhStroke', 'pmhTuberculosis', 'pmhThyroid',
-            'pmhDiabetes', 'pmhChronicPain', 'pmhAsthma', 'pmhEpilepsy',
-            'pmhAutoimmune', 'pmhCancer', 'pmhOther',
-            'fhHypertension', 'fhStroke', 'fhDiabetes', 'fhSubstance',
-            'fhCancer', 'fhPsychiatric', 'fhOther',
-            'traumaPhysical', 'traumaEmotional', 'traumaSexual', 'traumaNeglect',
-            'tpChild', 'tpAdult', 'tpOngoing', 'tpPast',
-            'teChild', 'teAdult', 'teOngoing', 'tePast',
-            'tsChild', 'tsAdult', 'tsOngoing', 'tsPast',
-            'tnChild', 'tnAdult', 'tnOngoing', 'tnPast',
-            'subNicotine', 'subAlcohol', 'subRecreational', 'subMarijuana',
-            'subScreentime', 'subGambling', 'subOthers',
+            'pmhHypertension',
+            'pmhStroke',
+            'pmhTuberculosis',
+            'pmhThyroid',
+            'pmhDiabetes',
+            'pmhChronicPain',
+            'pmhAsthma',
+            'pmhEpilepsy',
+            'pmhAutoimmune',
+            'pmhCancer',
+            'pmhOther',
+            'fhHypertension',
+            'fhStroke',
+            'fhDiabetes',
+            'fhSubstance',
+            'fhCancer',
+            'fhPsychiatric',
+            'fhOther',
+            'traumaPhysical',
+            'traumaEmotional',
+            'traumaSexual',
+            'traumaNeglect',
+            'tpChild',
+            'tpAdult',
+            'tpOngoing',
+            'tpPast',
+            'teChild',
+            'teAdult',
+            'teOngoing',
+            'tePast',
+            'tsChild',
+            'tsAdult',
+            'tsOngoing',
+            'tsPast',
+            'tnChild',
+            'tnAdult',
+            'tnOngoing',
+            'tnPast',
+            'subNicotine',
+            'subAlcohol',
+            'subRecreational',
+            'subMarijuana',
+            'subScreentime',
+            'subGambling',
+            'subOthers',
         ];
 
         $normalized = [];
 
-        foreach ($booleanFields as $field) {
+        $normalizeBoolean = function (string $field) use (&$normalized): void {
             if (! $this->has($field)) {
-                continue;
+                return;
             }
 
             $value = $this->input($field);
 
             if (is_bool($value)) {
                 $normalized[$field] = $value;
-                continue;
+                return;
             }
 
             if (is_string($value)) {
                 $normalized[$field] = in_array(strtolower($value), ['on', 'true', '1', 'yes'], true);
-                continue;
+                return;
             }
 
             if (is_numeric($value)) {
                 $normalized[$field] = (int) $value === 1;
+            }
+        };
+
+        foreach ($booleanFields as $field) {
+            $normalizeBoolean($field);
+        }
+
+        $spiritualTextFields = [
+            'religiousBackgroundChildhoodOtherText',
+            'religiousBackgroundAdolescentOtherText',
+            'religiousBackgroundCurrentOtherText',
+            'newAgeOtherText',
+            'additionalSpiritualIssuesOtherText',
+            'spiritualExplainHypnosis',
+            'spiritualGuidanceQuestion',
+            'spiritualVoicesQuestion',
+            'spiritualUnusualExperiencesQuestion',
+            'spiritualPrayerQuestion',
+            'spiritualRitualWorshipQuestion',
+        ];
+
+        foreach (array_keys($this->all()) as $field) {
+            if (! is_string($field) || in_array($field, $spiritualTextFields, true)) {
+                continue;
+            }
+
+            if (
+                str_starts_with($field, 'religiousBackground')
+                || str_starts_with($field, 'churchInvolvement')
+                || str_starts_with($field, 'newAge')
+                || str_starts_with($field, 'additionalSpiritualIssues')
+            ) {
+                $normalizeBoolean($field);
             }
         }
 
@@ -71,7 +137,7 @@ class IntakeFormRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             // ============================================================
             // STEP 1 - PATIENT INFORMATION
             // ============================================================
@@ -223,6 +289,40 @@ class IntakeFormRequest extends FormRequest
             'lifestyleMotivation' => 'nullable|string|max:5000',
             'motivationLevel' => 'nullable|string|in:Very Low,Low,Moderate,High',
         ];
+
+        $spiritualTextFields = [
+            'religiousBackgroundChildhoodOtherText',
+            'religiousBackgroundAdolescentOtherText',
+            'religiousBackgroundCurrentOtherText',
+            'newAgeOtherText',
+            'additionalSpiritualIssuesOtherText',
+            'spiritualExplainHypnosis',
+            'spiritualGuidanceQuestion',
+            'spiritualVoicesQuestion',
+            'spiritualUnusualExperiencesQuestion',
+            'spiritualPrayerQuestion',
+            'spiritualRitualWorshipQuestion',
+        ];
+
+        foreach ($this->all() as $field => $value) {
+            if (! is_string($field)) {
+                continue;
+            }
+
+            $isSpiritualField = str_starts_with($field, 'religiousBackground')
+                || str_starts_with($field, 'churchInvolvement')
+                || str_starts_with($field, 'newAge')
+                || str_starts_with($field, 'additionalSpiritualIssues')
+                || str_starts_with($field, 'spiritual');
+
+            if ($isSpiritualField && ! array_key_exists($field, $rules)) {
+                $rules[$field] = in_array($field, $spiritualTextFields, true)
+                    ? 'nullable|string|max:5000'
+                    : 'nullable|boolean';
+            }
+        }
+
+        return $rules;
     }
 
     /**

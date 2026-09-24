@@ -53,6 +53,11 @@ class PatientRecord extends Model
         return $this->hasOne(LifestyleAssessment::class);
     }
 
+    public function spiritualIntake(): HasOne
+    {
+        return $this->hasOne(SpiritualIntake::class);
+    }
+
     public function lifeCoach(): BelongsTo
     {
         return $this->belongsTo(User::class, 'life_coach_id');

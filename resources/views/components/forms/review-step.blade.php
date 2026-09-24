@@ -243,6 +243,50 @@
         </div>
     </div>
 
+    <div class="card bg-base-100 border border-base-content/10 shadow-sm">
+        <div class="card-body gap-4">
+            <div class="flex items-center justify-between gap-4">
+                <button type="button" onclick="toggleReviewCard('spiritual-review')" class="flex items-center gap-2 hover:opacity-70">
+                    <svg class="w-5 h-5 transition-transform rotate-180" id="spiritual-review-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    <h3 class="card-title text-lg">Spiritual Intake</h3>
+                </button>
+                <button type="button" onclick="goToStep(5)" class="btn btn-outline btn-sm">Edit</button>
+            </div>
+            <div id="spiritual-review" class="space-y-2 hidden">
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">Religion</span>
+                    <span id="summary-spiritual-religion" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">Hypnosis / Seminar / Medium</span>
+                    <span id="summary-spiritual-hypnosis" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">Imaginary Friend / Spirit Guide</span>
+                    <span id="summary-spiritual-guide" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">Voices / Repeating Thoughts</span>
+                    <span id="summary-spiritual-voices" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">Other Spiritual Experiences</span>
+                    <span id="summary-spiritual-experiences" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">Vows / Covenant / Pact</span>
+                    <span id="summary-spiritual-vow" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+                <div class="summary-row flex justify-between py-1">
+                    <span class="font-medium">Satanic Ritual Worship</span>
+                    <span id="summary-spiritual-ritual" class="text-base-content/80 text-right">Not provided</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card bg-base-200/50 border border-base-content/10">
         <div class="card-body">
             <h4 class="font-semibold">Privacy &amp; Confidentiality</h4>

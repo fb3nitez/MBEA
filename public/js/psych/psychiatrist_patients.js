@@ -120,6 +120,22 @@ function populatePatientModal(p) {
   });
   setVal('ls-motivation_level', ls.motivation_level);
 
+  // Spiritual intake (read-only)
+  var si = p.spiritual_intake || {};
+  qsa('.si-check').forEach(function (cb) {
+    cb.checked = !!si[cb.getAttribute('data-field')];
+  });
+  [
+    'spiritual_explain_hypnosis',
+    'spiritual_guidance_question',
+    'spiritual_voices_question',
+    'spiritual_unusual_experiences_question',
+    'spiritual_prayer_question',
+    'spiritual_ritual_worship_question'
+  ].forEach(function (field) {
+    setVal('si-' + field, si[field]);
+  });
+
   var modal = document.getElementById('patient-detail-modal');
   if (modal) modal.setAttribute('data-current-patient', p.id);
 
@@ -269,6 +285,24 @@ function collectLifestyle() {
   return data;
 }
 
+function collectSpiritualIntake() {
+  var data = {};
+  qsa('.si-check').forEach(function (cb) {
+    data[cb.getAttribute('data-field')] = cb.checked;
+  });
+  [
+    'spiritual_explain_hypnosis',
+    'spiritual_guidance_question',
+    'spiritual_voices_question',
+    'spiritual_unusual_experiences_question',
+    'spiritual_prayer_question',
+    'spiritual_ritual_worship_question'
+  ].forEach(function (field) {
+    data[field] = getVal('si-' + field);
+  });
+  return data;
+}
+
 function currentPatientId() {
   var modal = document.getElementById('patient-detail-modal');
   return modal ? modal.getAttribute('data-current-patient') : null;
@@ -352,6 +386,19 @@ function bindPatientSaves() {
       else LIFESTYLE_PATIENTS.push(entry);
       filterLifestyle();
       showToast(data.message || 'Lifestyle assessment updated.');
+    }).catch(function (err) { showToast(err.message); });
+  });
+
+  var saveSpiritual = document.getElementById('pm-save-spiritual');
+  if (saveSpiritual) saveSpiritual.addEventListener('click', function () {
+    var id = currentPatientId();
+    if (!id) return;
+    apiFetch(base + '/' + id + '/spiritual-intake', {
+      method: 'PUT',
+      body: JSON.stringify(collectSpiritualIntake()),
+    }).then(function (data) {
+      if (CURRENT_PATIENT) CURRENT_PATIENT.spiritual_intake = data.spiritual_intake;
+      showToast(data.message || 'Spiritual intake updated.');
     }).catch(function (err) { showToast(err.message); });
   });
 

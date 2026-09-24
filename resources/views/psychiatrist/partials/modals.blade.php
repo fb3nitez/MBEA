@@ -119,6 +119,7 @@ $lifeCoaches = collect();
       <button type="button" class="tab-btn" data-pm-tab="medical">Medical History</button>
       <button type="button" class="tab-btn" data-pm-tab="psychiatric">Personal History</button>
       <button type="button" class="tab-btn" data-pm-tab="lifestyle">Lifestyle</button>
+      <button type="button" class="tab-btn" data-pm-tab="spiritual">Spiritual</button>
       <button type="button" class="tab-btn" data-pm-tab="coach">Life Coach</button>
     </div>
 
@@ -228,7 +229,7 @@ $lifeCoaches = collect();
 
       <!-- Medical History -->
       <div class="pm-tab-panel" data-pm-panel="clinical_notes">
-          <x-forms.clinical-notes />
+        <x-forms.clinical-notes />
       </div>
 
       <!-- Medical History -->
@@ -497,6 +498,137 @@ $lifeCoaches = collect();
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
           <button class="btn-blue" id="pm-save-lifestyle">Save Lifestyle Related Behaviors</button>
+        </div>
+      </div>
+
+      <!-- Spiritual Intake -->
+      <div class="pm-tab-panel" data-pm-panel="spiritual">
+        @foreach ([
+        'Religious Background - Childhood' => [
+        'religious_background_childhood_christian' => 'Christian',
+        'religious_background_childhood_catholic' => 'Catholic',
+        'religious_background_childhood_none' => 'None',
+        'religious_background_childhood_other' => 'Other',
+        ],
+        'Religious Background - Adolescent' => [
+        'religious_background_adolescent_christian' => 'Christian',
+        'religious_background_adolescent_catholic' => 'Catholic',
+        'religious_background_adolescent_none' => 'None',
+        'religious_background_adolescent_other' => 'Other',
+        ],
+        'Religious Background - Current' => [
+        'religious_background_current_christian_science' => 'Christian Science',
+        'religious_background_current_mormonism' => 'Mormonism',
+        'religious_background_current_children_of_god' => 'Children of God',
+        'religious_background_current_new_age' => 'New Age',
+        'religious_background_current_unity_church' => 'Unity Church',
+        'religious_background_current_church_of_the_living_god' => 'Church of the Living God',
+        'religious_background_current_church_of_new_jerusalem' => 'Church of New Jerusalem',
+        'religious_background_current_the_forum_est' => 'The Forum (EST)',
+        'religious_background_current_the_way_international' => 'The Way International',
+        'religious_background_current_word' => 'Word',
+        'religious_background_current_jehovah_witnesses' => "Jehovah's Witnesses",
+        'religious_background_current_masons' => 'Masons',
+        'religious_background_current_other' => 'Other',
+        ],
+        'Church Involvement' => [
+        'church_involvement_attends_weekly' => 'Attends church weekly',
+        'church_involvement_occasional_attendance' => 'Occasional attendance',
+        'church_involvement_involved_ministry_service' => 'Involved in ministry/service',
+        'church_involvement_no_church_involvement' => 'No church involvement',
+        'church_involvement_needed_in_ministry_service' => 'Needed in ministry/service',
+        'church_involvement_no_church_involvement_further' => 'No church involvement (further)',
+        ],
+        'Occult & New Age Practices' => [
+        'new_age_horoscopes' => 'Horoscopes',
+        'new_age_dungeons_dragons' => 'Dungeons & Dragons',
+        'new_age_energy_healing' => 'Energy healing',
+        'new_age_speaking_in_trance' => 'Speaking in trance',
+        'new_age_manifestation_law_of_attraction' => 'Manifestation / Law of Attraction',
+        'new_age_automatic_writing' => 'Automatic writing',
+        'new_age_mediumship' => 'Mediumship',
+        'new_age_magic_eight_ball' => 'Magic 8 Ball',
+        'new_age_ancestral_worship' => 'Ancestral worship',
+        'new_age_astrology' => 'Astrology',
+        'new_age_psychic_spells_curses' => 'Psychic spells or curses',
+        'new_age_reading_palm' => 'Palm reading',
+        'new_age_tarot_cards' => 'Tarot cards',
+        'new_age_seance' => 'Séance',
+        'new_age_spiritual_guides' => 'Spirit guides',
+        'new_age_meditation' => 'Meditation',
+        'new_age_fortune_telling' => 'Fortune-telling',
+        'new_age_divination' => 'Divination',
+        'new_age_crystal_balls' => 'Crystal balls',
+        'new_age_yoga' => 'Yoga',
+        'new_age_reiki' => 'Reiki',
+        'new_age_self_hypnosis' => 'Self-hypnosis',
+        'new_age_mind_swapping' => 'Mind swapping',
+        'new_age_black_magic' => 'Black and white magic',
+        'new_age_healing_prayer' => 'Healing prayer',
+        'new_age_new_medicine' => 'New age medicine',
+        'new_age_blood_pacts' => 'Blood pacts',
+        'new_age_object_worship' => 'Object worship',
+        'new_age_narcotics_or_drugs' => 'Narcotics or drugs',
+        'new_age_incubus_and_succubus' => 'Incubus and succubus',
+        'new_age_other' => 'Other',
+        ],
+        'Additional Spiritual Issues' => [
+        'additional_spiritual_issues_unforgiveness' => 'Unforgiveness',
+        'additional_spiritual_issues_oppression' => 'Oppression',
+        'additional_spiritual_issues_demonic_family_curses' => 'Demonic family curses',
+        'additional_spiritual_issues_addiction' => 'Addiction',
+        'additional_spiritual_issues_mediation' => 'Meditation',
+        'additional_spiritual_issues_theosophical_society' => 'Theosophical Society',
+        'additional_spiritual_issues_ritual_family_oppression' => 'Ritualistic family patterns of oppression',
+        'additional_spiritual_issues_mental_disorders' => 'Mental disorders',
+        'additional_spiritual_issues_recurrent_family_depression' => 'Recurrent family depression or sadness',
+        'additional_spiritual_issues_adultery' => 'Adultery',
+        'additional_spiritual_issues_poverty' => 'Poverty',
+        'additional_spiritual_issues_pride' => 'Pride',
+        'additional_spiritual_issues_martha' => 'Martha',
+        'additional_spiritual_issues_our_house' => 'Our house',
+        'additional_spiritual_issues_fear' => 'Fear',
+        'additional_spiritual_issues_buddhism' => 'Buddhism',
+        'additional_spiritual_issues_yoga' => 'Yoga',
+        'additional_spiritual_issues_islam' => 'Islam',
+        'additional_spiritual_issues_black_magic' => 'Black magic',
+        'additional_spiritual_issues_eckankar' => 'Eckankar',
+        'additional_spiritual_issues_religion_of_martial_arts' => 'Religion of martial arts',
+        'additional_spiritual_issues_science_of_the_mind' => 'Science of the Mind',
+        'additional_spiritual_issues_transcendental_meditation' => 'Transcendental Meditation',
+        'additional_spiritual_issues_father_divine' => 'Father Divine',
+        'additional_spiritual_issues_spiritual_mediation' => 'Spiritual mediation',
+        'additional_spiritual_issues_other' => 'Other',
+        ],
+        ] as $heading => $fields)
+        <div class="pm-section spiritual-group">
+          <div class="pm-section-label" style="margin-bottom:8px;">{{ $heading }}</div>
+          <div class="check-grid spiritual-check-grid">
+            @foreach ($fields as $key => $label)
+            <label class="check-item spiritual-check-item">
+              <input type="checkbox" class="si-check" data-field="{{ $key }}" /> {{ $label }}
+            </label>
+            @endforeach
+          </div>
+        </div>
+        @endforeach
+
+        <div class="pm-section-label" style="margin:16px 0 8px;">Follow-up Questions</div>
+        @foreach ([
+        'spiritual_explain_hypnosis' => 'Hypnosis, New Age or parapsychology experiences',
+        'spiritual_guidance_question' => 'Imaginary friend or spirit guide',
+        'spiritual_voices_question' => 'Voices or foreign repeating thoughts',
+        'spiritual_unusual_experiences_question' => 'Other unusual spiritual experiences',
+        'spiritual_prayer_question' => 'Vow, covenant or pact',
+        'spiritual_ritual_worship_question' => 'Satanic ritual worship',
+        ] as $key => $label)
+        <div class="field-group">
+          <label class="field-label">{{ $label }}</label>
+          <textarea class="field-textarea" id="si-{{ $key }}" rows="2"></textarea>
+        </div>
+        @endforeach
+        <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+          <button class="btn-blue" id="pm-save-spiritual">Save Spiritual Intake</button>
         </div>
       </div>
 

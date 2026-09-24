@@ -60,10 +60,10 @@
                 <!-- Progress -->
                 <section class="space-y-2">
                     <div class="flex justify-between text-sm text-base-content/80">
-                        <p>Step <span id="step-label">1</span> of <span id="max-form-step">5</span></p>
-                        <p class="text-right"><span id="percent-label">20%</span> Complete</p>
+                        <p>Step <span id="step-label">1</span> of <span id="max-form-step">6</span></p>
+                        <p class="text-right"><span id="percent-label">17%</span> Complete</p>
                     </div>
-                    <progress id="progress-fill" class="progress w-full" value="20" max="100"></progress>
+                    <progress id="progress-fill" class="progress w-full" value="17" max="100"></progress>
                 </section>
 
                 <!-- Form -->
@@ -97,6 +97,10 @@
                     </div>
 
                     <div id="step-5" class="step-panel hidden">
+                        <x-forms.spiritual-intake class="mt-5" />
+                    </div>
+
+                    <div id="step-6" class="step-panel hidden">
                         <x-forms.review-step class="mt-5" />
                     </div>
 
