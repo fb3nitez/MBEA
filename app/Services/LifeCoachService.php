@@ -568,18 +568,28 @@ class LifeCoachService
 
         // Lifestyle
         $lifestyle = [];
+        $phq = [];
+        $substancesUsed = [];
+        $motivation = [];
         if ($ls) {
-            $lifestyle = [
-                ['label' => 'Health Score', 'value' => $ls->health_score !== null ? $ls->health_score . '/10' : '—'],
-                ['label' => 'Sleep Hours', 'value' => $ls->sleep_hours ? $ls->sleep_hours . ' hrs' : '—'],
-                ['label' => 'Tired Frequency', 'value' => $ls->tired_frequency ?? '—'],
-                ['label' => 'Weight Perception', 'value' => $ls->weight_perception ?? '—'],
-                ['label' => 'Fast Food Frequency', 'value' => $ls->fast_food_frequency ?? '—'],
-                ['label' => 'Fruits/Veg Servings', 'value' => $ls->fruits_veg_servings ?? '—'],
-                ['label' => 'Exercise Frequency', 'value' => $ls->exercise_frequency ?? '—'],
-                ['label' => 'Motivation Level', 'value' => $ls->motivation_level ?? '—'],
-                ['label' => 'Lifestyle Motivation', 'value' => $ls->lifestyle_motivation ?? '—'],
-            ];
+            $appendLifestyle = function ($label, $value) use (&$lifestyle): void {
+                if ($value === null || (is_string($value) && trim($value) === '')) {
+                    return;
+                }
+
+                $lifestyle[] = ['label' => $label, 'value' => $value];
+            };
+
+            $appendLifestyle('Health Score', $ls->health_score !== null ? $ls->health_score . '/10' : null);
+            $appendLifestyle('Sleep Hours', $ls->sleep_hours !== null ? $ls->sleep_hours . ' hrs' : null);
+            $appendLifestyle('Tired Frequency', $ls->tired_frequency);
+            $appendLifestyle('Weight Perception', $ls->weight_perception);
+            $appendLifestyle('Fast Food Frequency', $ls->fast_food_frequency);
+            $appendLifestyle('Fruits/Veg Servings', $ls->fruits_veg_servings);
+            $appendLifestyle('Exercise Frequency', $ls->exercise_frequency);
+            $motivation[] = ['label' => 'Motivation Level', 'value' => $ls->motivation_level];
+            $motivation[] = ['label' => 'Lifestyle Motivation', 'value' => $ls->lifestyle_motivation];
+            $motivation = array_values(array_filter($motivation, fn(array $item): bool => $item['value'] !== null && (! is_string($item['value']) || trim($item['value']) !== '')));
 
             // PHQ-9
             $phqMap = [
@@ -594,7 +604,7 @@ class LifeCoachService
                 'phq_thoughts_hurting' => 'Thoughts of Hurting Self',
             ];
             foreach ($phqMap as $field => $label) {
-                $lifestyle[] = ['label' => 'PHQ: ' . $label, 'value' => $ls->$field ?? '—'];
+                $phq[] = ['label' => $label, 'value' => $ls->$field];
             }
 
             // Substance use
@@ -611,9 +621,9 @@ class LifeCoachService
                 if ($ls->$field) {
                     $amount = $ls->{$field . '_amount'} ?? '—';
                     $concern = $ls->{$field . '_concern'} ?? 0;
-                    $lifestyle[] = [
+                    $substancesUsed[] = [
                         'label' => $label,
-                        'value' => 'Amount: ' . $amount . ' | Concern level: ' . $concern . '/5',
+                        'value' => "Amount/Details: {$amount}\nConcern level: {$concern}/5",
                     ];
                 }
             }
@@ -627,7 +637,7 @@ class LifeCoachService
                 }
 
                 $label = ucwords(str_replace('_', ' ', preg_replace('/^(religious_background_|church_involvement_|new_age_|additional_spiritual_issues_)/', '', $field)));
-                $spiritual[] = ['label' => $label, 'value' => $value === true || $value === '1' ? 'Yes' : $value];
+                $spiritual[] = ['label' => $label, 'value' => $value === true || $value === 1 || $value === '1' ? 'Yes' : $value];
             }
         }
 
@@ -639,6 +649,9 @@ class LifeCoachService
             'family' => $familyHistory,
             'psychiatric' => $psychiatric,
             'lifestyle' => $lifestyle,
+            'phq' => $phq,
+            'substances' => $substancesUsed,
+            'motivation' => $motivation,
             'spiritual' => $spiritual,
         ];
     }

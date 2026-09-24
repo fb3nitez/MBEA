@@ -17,7 +17,9 @@
       width: 760px;
       max-width: 96vw;
       max-height: 88vh;
-      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
       animation: intakeModalIn .22s ease;
     }
 
@@ -52,8 +54,17 @@
       display: flex;
       gap: 4px;
       flex-wrap: wrap;
+      flex: 0 0 auto;
       padding: 0 18px;
       border-bottom: 1px solid var(--border, #e2e8f0);
+      background: var(--white, #fff);
+      z-index: 2;
+    }
+
+    .intake-modal-box>#intake-modal-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
     }
 
     .intake-tab {
@@ -140,21 +151,59 @@
       margin: .75rem 0;
     }
 
+    .intake-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .intake-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .intake-table th,
+    .intake-table td {
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--border, #e2e8f0);
+      text-align: left;
+    }
+
+    .intake-table th {
+      color: var(--text-600, #475569);
+      background: var(--green-50, #f0fdf4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .intake-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .intake-form-hint {
+      margin-bottom: 10px;
+      color: var(--text-500, #64748b);
+      font-size: 13px;
+    }
+
     /* slim green scrollbar for the modal */
-    .intake-modal-box::-webkit-scrollbar {
+    .intake-modal-box>#intake-modal-body::-webkit-scrollbar {
       width: 8px;
     }
 
-    .intake-modal-box::-webkit-scrollbar-track {
+    .intake-modal-box>#intake-modal-body::-webkit-scrollbar-track {
       background: transparent;
     }
 
-    .intake-modal-box::-webkit-scrollbar-thumb {
+    .intake-modal-box>#intake-modal-body::-webkit-scrollbar-thumb {
       background: #cbd5e1;
       border-radius: 999px;
     }
 
-    .intake-modal-box::-webkit-scrollbar-thumb:hover {
+    .intake-modal-box>#intake-modal-body::-webkit-scrollbar-thumb:hover {
       background: var(--green-500, #22c55e);
     }
 
@@ -164,6 +213,48 @@
       border: 1px solid var(--border, #e2e8f0);
       border-radius: var(--radius-sm, 6px);
       padding: 14px 16px 10px;
+    }
+
+    .intake-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .intake-field {
+      min-width: 0;
+    }
+
+    .intake-field--full {
+      grid-column: 1 / -1;
+    }
+
+    .intake-field-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-600, #475569);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .intake-readonly {
+      min-height: 38px;
+      padding: 9px 11px;
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text-800, #1e293b);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .intake-check-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
     }
 
     .intake-section:last-child {
@@ -200,6 +291,16 @@
       border-radius: var(--radius-sm, 6px);
       font-size: 13px;
       transition: background .12s;
+    }
+
+    @media (max-width: 640px) {
+      .intake-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .intake-field--full {
+        grid-column: auto;
+      }
     }
 
     .intake-row:hover {
