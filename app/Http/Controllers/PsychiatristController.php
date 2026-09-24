@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreLifestylePrescriptionRequest;
 use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
@@ -99,7 +98,6 @@ class PsychiatristController extends Controller
             'patientSuggestions' => $this->patientService->searchPatients(null, 12),
             'rxTemplates' => $templates->where('type', 'rx')->values(),
             'dxTemplates' => $templates->where('type', 'dx')->values(),
-            'lxTemplates' => $templates->where('type', 'lx')->values(),
             'prescriber' => $user,
             'prescriberData' => [
                 'name' => $user->name,
@@ -332,28 +330,26 @@ class PsychiatristController extends Controller
         $patient = $this->patientService->findPatient($id);
         $payload = $request->all();
 
+        // Validate only the lifestyle interventions field; medications keep
+        // their existing (unvalidated) handling.
+        $validated = $request->validate([
+            'lifestyle_interventions' => ['nullable', 'array'],
+            'lifestyle_interventions.*.category' => ['required', 'string', 'in:sleep,exercise,nutrition,stress,social,other'],
+            'lifestyle_interventions.*.title' => ['required', 'string', 'max:255'],
+            'lifestyle_interventions.*.target' => ['nullable', 'string', 'max:100'],
+            'lifestyle_interventions.*.frequency' => ['nullable', 'string', 'max:100'],
+            'lifestyle_interventions.*.duration' => ['nullable', 'string', 'max:100'],
+            'lifestyle_interventions.*.instructions' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $payload['lifestyle_interventions'] = $validated['lifestyle_interventions'] ?? [];
+
         $prescription = $this->patientService->savePrescription($patient, $payload);
 
         return response()->json([
             'message' => 'Prescription saved.',
             'prescription' => $prescription,
         ]);
-    }
-
-    public function storeLifestylePrescription(StoreLifestylePrescriptionRequest $request, int $id): JsonResponse
-    {
-        $patient = $this->patientService->findPatient($id);
-
-        $prescription = $this->patientService->saveLifestylePrescription(
-            $patient,
-            $request->validatedForStorage(),
-            (int) auth()->id()
-        );
-
-        return response()->json([
-            'message' => 'Lifestyle prescription saved.',
-            'prescription' => $prescription->load('prescriber:id,name'),
-        ], 201);
     }
 
     public function storeClinicalTemplate(Request $request): JsonResponse
@@ -424,7 +420,7 @@ class PsychiatristController extends Controller
     private function validateClinicalTemplate(Request $request, bool $partial = false): array
     {
         $rules = [
-            'type' => [$partial ? 'sometimes' : 'required', 'in:rx,dx,lx'],
+            'type' => [$partial ? 'sometimes' : 'required', 'in:rx,dx'],
             'name' => [$partial ? 'sometimes' : 'required', 'string', 'max:255'],
             'tag' => ['nullable', 'string', 'max:100'],
             'tag_class' => ['nullable', 'string', 'max:100'],
@@ -433,10 +429,14 @@ class PsychiatristController extends Controller
             'desc' => ['nullable', 'string', 'max:500'],
             'payload' => ['nullable', 'array'],
             'meds' => ['nullable', 'array'],
-            'focus' => ['nullable', 'string', 'max:255'],
-            'items' => ['nullable', 'array'],
-            'items.*' => ['array'],
             'diag' => ['nullable', 'string', 'max:255'],
+            'lifestyle' => ['nullable', 'array'],
+            'lifestyle.*.category' => ['required', 'string', 'in:sleep,exercise,nutrition,stress,social,other'],
+            'lifestyle.*.title' => ['required', 'string', 'max:255'],
+            'lifestyle.*.target' => ['nullable', 'string', 'max:100'],
+            'lifestyle.*.frequency' => ['nullable', 'string', 'max:100'],
+            'lifestyle.*.duration' => ['nullable', 'string', 'max:100'],
+            'lifestyle.*.instructions' => ['nullable', 'string', 'max:500'],
             'tests' => ['nullable', 'array'],
             'tests.*' => ['string', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'min:0'],

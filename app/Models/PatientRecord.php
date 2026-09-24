@@ -53,11 +53,6 @@ class PatientRecord extends Model
         return $this->hasOne(LifestyleAssessment::class);
     }
 
-    public function lifestylePrescriptions(): HasMany
-    {
-        return $this->hasMany(LifestylePrescription::class)->latest();
-    }
-
     public function lifeCoach(): BelongsTo
     {
         return $this->belongsTo(User::class, 'life_coach_id');
