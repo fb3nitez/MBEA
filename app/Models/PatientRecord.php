@@ -34,7 +34,7 @@ class PatientRecord extends Model
     protected function age(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->birthday ? Carbon::parse($this->birthday)->age : null
+            get: fn () => $this->birthday ? Carbon::parse($this->birthday)->age : null
         );
     }
 

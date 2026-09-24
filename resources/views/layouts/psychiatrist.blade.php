@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>MB.EA — @yield('title')</title>
-  <link rel="stylesheet" href="{{ asset('css/psychiatrist.css') }}" />
+  <link rel="stylesheet" href="{{ asset('css/psychiatrist.css') }}?v={{ filemtime(public_path('css/psychiatrist.css')) }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   @vite(['resources/js/clinical-notes.js', 'resources/css/clinical-notes.css'])
@@ -114,7 +114,17 @@
     window.PSYCH_DATA = window.PSYCH_DATA || {};
   </script>
   @stack('scripts')
-  <script src="{{ asset('js/psych/psychiatrist.js') }}"></script>
+  @foreach([
+    'psychiatrist_core.js',
+    'psychiatrist_patients.js',
+    'psychiatrist_consultations.js',
+    'psychiatrist_assessments.js',
+    'psychiatrist_lifestyle.js',
+    'psychiatrist_prescriptions.js',
+    'psychiatrist_init.js',
+  ] as $psychScript)
+    <script src="{{ asset('js/psych/' . $psychScript) }}"></script>
+  @endforeach
   <script>
     feather.replace();
   </script>

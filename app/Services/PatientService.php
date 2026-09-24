@@ -15,30 +15,16 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as SupportCollection;
+use Spatie\Permission\Models\Role;
 
 class PatientService
 {
-    public function getTodayPatients(): Collection
-    {
-        return PatientRecord::with('lifeCoach')
-            ->whereBetween('created_at', [Carbon::today(), Carbon::tomorrow()])
-            ->latest()
-            ->get();
-    }
-
     public function getPaginatedTodayPatients(int $perPage = 10): LengthAwarePaginator
     {
         return PatientRecord::with('lifeCoach')
             ->whereBetween('created_at', [Carbon::today(), Carbon::tomorrow()])
             ->latest()
             ->paginate($perPage);
-    }
-
-    public function getAllPatients(): Collection
-    {
-        return PatientRecord::with(['lifeCoach', 'lifestyleAssessment'])
-            ->oldest('created_at')
-            ->get();
     }
 
     public function getPaginatedPatients(int $perPage = 10): LengthAwarePaginator
@@ -65,7 +51,7 @@ class PatientService
 
     public function getLifeCoaches(): Collection
     {
-        if (! \Spatie\Permission\Models\Role::where('name', 'lifecoach')->exists()) {
+        if (! Role::where('name', 'lifecoach')->exists()) {
             return new Collection;
         }
 
@@ -268,6 +254,75 @@ class PatientService
                 ],
                 'sort_order' => 4,
             ],
+            [
+                'type' => 'rx',
+                'name' => 'Insomnia — Sleep Hygiene Plan',
+                'tag' => 'Sleep',
+                'tag_class' => 'tag-lifestyle',
+                'description' => 'Fixed wake time, no screens 1h before bed',
+                'payload' => [
+                    'diag' => 'Insomnia / poor sleep',
+                    'meds' => [],
+                    'lifestyle' => [
+                        ['category' => 'sleep', 'title' => 'Fixed wake-up time', 'target' => '7-8 h sleep', 'frequency' => 'Daily', 'duration' => '4 weeks', 'instructions' => 'Wake at the same time every day, including weekends.'],
+                        ['category' => 'sleep', 'title' => 'No screens before bed', 'target' => '60 min buffer', 'frequency' => 'Nightly', 'duration' => '4 weeks', 'instructions' => 'Stop phone, TV and computer use one hour before bedtime.'],
+                        ['category' => 'sleep', 'title' => 'Bed is for sleep only', 'target' => 'Leave bed if awake > 20 min', 'frequency' => 'Nightly', 'duration' => '4 weeks', 'instructions' => 'If unable to sleep, get up, do a quiet activity in dim light, return when sleepy.'],
+                        ['category' => 'stress', 'title' => 'Wind-down breathing', 'target' => '10 minutes', 'frequency' => 'Nightly', 'duration' => '4 weeks', 'instructions' => 'Slow diaphragmatic breathing or guided relaxation before lights out.'],
+                    ],
+                ],
+                'sort_order' => 5,
+            ],
+            [
+                'type' => 'rx',
+                'name' => 'Depression — Graded Exercise',
+                'tag' => 'Exercise',
+                'tag_class' => 'tag-lifestyle',
+                'description' => 'Build up to 150 min/week moderate activity',
+                'payload' => [
+                    'diag' => 'Major Depressive Disorder — behavioural activation',
+                    'meds' => [],
+                    'lifestyle' => [
+                        ['category' => 'exercise', 'title' => 'Walking', 'target' => '150 min/week', 'frequency' => '5x/week, 30 min', 'duration' => '8 weeks', 'instructions' => 'Start at an easy pace; increase duration before intensity.'],
+                        ['category' => 'exercise', 'title' => 'Resistance / bodyweight routine', 'target' => '2 sessions/week', 'frequency' => '2x/week', 'duration' => '8 weeks', 'instructions' => 'Major muscle groups; stop short of exhaustion.'],
+                        ['category' => 'social', 'title' => 'Planned social contact', 'target' => '1 activity/week', 'frequency' => 'Weekly', 'duration' => '8 weeks', 'instructions' => 'Schedule one social or group activity each week and record mood after.'],
+                    ],
+                ],
+                'sort_order' => 6,
+            ],
+            [
+                'type' => 'rx',
+                'name' => 'Mediterranean-Style Nutrition Plan',
+                'tag' => 'Nutrition',
+                'tag_class' => 'tag-lifestyle',
+                'description' => 'Whole foods, fish twice weekly, limit ultra-processed',
+                'payload' => [
+                    'diag' => 'Mood-supportive nutrition',
+                    'meds' => [],
+                    'lifestyle' => [
+                        ['category' => 'nutrition', 'title' => 'Fruits & vegetables', 'target' => '5 servings/day', 'frequency' => 'Daily', 'duration' => 'Ongoing', 'instructions' => 'Aim for a variety of colours across meals.'],
+                        ['category' => 'nutrition', 'title' => 'Fish / seafood meals', 'target' => '2 servings/week', 'frequency' => '2x/week', 'duration' => 'Ongoing', 'instructions' => 'Prefer oily fish such as salmon, sardines or mackerel.'],
+                        ['category' => 'nutrition', 'title' => 'Limit sugary drinks & fast food', 'target' => '≤ 1x/week', 'frequency' => 'Ongoing', 'duration' => 'Ongoing', 'instructions' => 'Replace with water and home-prepared meals.'],
+                    ],
+                ],
+                'sort_order' => 7,
+            ],
+            [
+                'type' => 'rx',
+                'name' => 'Depression — SSRI + Graded Exercise',
+                'tag' => 'Depression',
+                'tag_class' => 'tag-depression',
+                'description' => 'Sertraline 50mg + graded exercise programme',
+                'payload' => [
+                    'diag' => 'F32.1 Major Depressive Disorder',
+                    'meds' => [['name' => 'Sertraline', 'dose' => '50mg', 'freq' => ['Morning'], 'qty' => 30]],
+                    'lifestyle' => [
+                        ['category' => 'exercise', 'title' => 'Walking', 'target' => '150 min/week', 'frequency' => '5x/week, 30 min', 'duration' => '8 weeks', 'instructions' => 'Start at an easy pace; increase duration before intensity.'],
+                        ['category' => 'exercise', 'title' => 'Resistance / bodyweight routine', 'target' => '2 sessions/week', 'frequency' => '2x/week', 'duration' => '8 weeks', 'instructions' => 'Major muscle groups; stop short of exhaustion.'],
+                        ['category' => 'social', 'title' => 'Planned social contact', 'target' => '1 activity/week', 'frequency' => 'Weekly', 'duration' => '8 weeks', 'instructions' => 'Schedule one social or group activity each week and record mood after.'],
+                    ],
+                ],
+                'sort_order' => 8,
+            ],
         ];
 
         foreach ($defaults as $row) {
@@ -287,6 +342,7 @@ class PatientService
                 $payload = [
                     'diag' => $data['diag'] ?? ($existing?->payload['diag'] ?? null),
                     'meds' => $data['meds'] ?? ($existing?->payload['meds'] ?? []),
+                    'lifestyle' => $data['lifestyle'] ?? ($existing?->payload['lifestyle'] ?? []),
                 ];
             }
         }
@@ -319,6 +375,12 @@ class PatientService
             'psychiatric' => 'tag-psychiatric',
             'metabolic' => 'tag-metabolic',
             'comprehensive' => 'tag-comprehensive',
+            'sleep' => 'tag-lifestyle',
+            'exercise' => 'tag-lifestyle',
+            'nutrition' => 'tag-lifestyle',
+            'stress' => 'tag-lifestyle',
+            'mindfulness' => 'tag-lifestyle',
+            'social' => 'tag-lifestyle',
         ];
 
         $key = strtolower($tag);
@@ -504,12 +566,17 @@ class PatientService
         );
     }
 
-    public function getConsultations(): Collection
+    /**
+     * Return dashboard consultation counts without loading every consultation row.
+     *
+     * @return array{pending:int,completed:int}
+     */
+    public function getConsultationCounts(): array
     {
-        return ConsultationSchedule::with('patientRecord')
-            ->orderBy('date')
-            ->orderBy('time')
-            ->get();
+        return [
+            'pending' => ConsultationSchedule::where('status', 'Scheduled')->count(),
+            'completed' => ConsultationSchedule::where('status', 'Completed')->count(),
+        ];
     }
 
     public function getPaginatedConsultations(int $perPage = 10): LengthAwarePaginator
@@ -669,15 +736,11 @@ class PatientService
             [
                 'diagnosis' => $data['diagnosis'] ?? null,
                 'medications' => $data['medications'] ?? [],
+                'lifestyle_interventions' => $data['lifestyle_interventions'] ?? [],
                 'notes' => $data['notes'] ?? null,
                 'status' => $data['status'] ?? 'Draft',
             ]
         );
-    }
-
-    public function getPrescription(PatientRecord $patient): ?Prescription
-    {
-        return Prescription::where('patient_record_id', $patient->id)->first();
     }
 
     public function patientToArray(PatientRecord $patient): array
@@ -713,7 +776,7 @@ class PatientService
     {
         $time = $c->time;
         if (is_string($time) && preg_match('/^\d{2}:\d{2}/', $time)) {
-            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time . ':00' : $time)->format('g:i A');
+            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time.':00' : $time)->format('g:i A');
         } else {
             try {
                 $displayTime = Carbon::parse($time)->format('g:i A');

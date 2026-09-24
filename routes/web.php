@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IntakeFormController;
-use App\Http\Controllers\PsychiatristController;
 use App\Http\Controllers\LifecoachController;
+use App\Http\Controllers\PsychiatristController;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::view('/', 'index');
@@ -13,12 +16,10 @@ Route::view('/test', 'test');
 Route::get('/intake-form', [IntakeFormController::class, 'create'])->name('intake');
 Route::post('/submit-intake', [IntakeFormController::class, 'store'])->name('intake.submit');
 
-
 // Auth routes
-Route::middleware('guest')->get('/login', fn() => view('staff_login'))->name('login');
+Route::middleware('guest')->get('/login', fn () => view('staff_login'))->name('login');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
-
 
 // Psychiatrist routes
 Route::middleware(['auth', 'role:psychiatrist'])
@@ -59,7 +60,6 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::delete('/clinical-templates/{id}', 'destroyClinicalTemplate')->name('templates.destroy');
     });
 
-
 // Lifecoach routes
 Route::middleware(['auth', 'role:lifecoach'])
     ->prefix('lifecoach')
@@ -88,12 +88,11 @@ Route::middleware(['auth', 'role:lifecoach'])
         Route::delete('/goals/{id}', 'destroyGoal')->name('goals.destroy');
     });
 
+// test route for role selection
+Route::post('/auth/check-role', function (Request $request) {
+    $user = User::where('email', $request->email)->first();
 
-//test route for role selection
-Route::post('/auth/check-role', function (\Illuminate\Http\Request $request) {
-    $user = \App\Models\User::where('email', $request->email)->first();
-
-    if (!$user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+    if (! $user || ! Hash::check($request->password, $user->password)) {
         return response()->json(['role' => null]);
     }
 

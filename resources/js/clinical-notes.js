@@ -222,24 +222,29 @@ function currentPatientId() {
 function displayAsHTML(data) {
     try {
         if (!data) {
-            editor.commands.clearContent(false);
+            editor.commands.clearContent(true);
             currentContent = JSON.stringify(editor.getJSON());
             updateUnsavedIndicator();
             return;
         }
 
-        const content = typeof data === "string"
-            ? JSON.parse(data)
-            : data;
+        let content = data;
+        while (typeof content === "string") {
+            content = JSON.parse(content);
+        }
 
         if (!content || content.type !== "doc") {
             console.warn("Invalid clinical note content:", content);
             return;
         }
 
-        editor.commands.setContent(content, false);
+        const { tr } = editor.state;
+        const node = editor.schema.nodeFromJSON(content);
+        currentContent = JSON.stringify(node.toJSON());
 
-        currentContent = JSON.stringify(editor.getJSON());
+        tr.replaceWith(0, editor.state.doc.content.size, node);
+        tr.setMeta("addToHistory", false);
+        editor.view.dispatch(tr);
 
         updateUnsavedIndicator();
 

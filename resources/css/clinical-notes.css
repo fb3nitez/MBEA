@@ -1,12 +1,10 @@
 .editor-container {
-  max-width: 48rem;
+  width: 100%;
   margin: 0 auto;
 }
 
 /* Shell wraps toolbar + content in a single card, like the Tiptap simple editor */
 .editor-shell {
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
   background: var(--surface);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   overflow: hidden;
@@ -18,7 +16,7 @@
   justify-content: center;
   gap: 0.125rem;
   padding: 0.375rem;
-  background: var(--surface);
+  background: white;
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
 }
@@ -173,4 +171,31 @@
 
 #unSaveIndicator.hide {
   display: none;
+}
+
+.modal-body:has(.pm-tab-panel.active[data-pm-panel="clinical_notes"]) {
+  margin: 0;
+  padding: 0;
+}
+
+.modal-box {
+  position: relative;
+}
+
+#pm-tabs {
+  margin-bottom: 1px;
+}
+
+#editor {
+  margin: 64px 12px 12px 12px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.modal-body:has(.pm-tab-panel.active[data-pm-panel="clinical_notes"]) .toolbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 127px;
+  z-index: 100;
 }

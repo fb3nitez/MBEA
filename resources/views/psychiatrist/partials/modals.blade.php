@@ -686,6 +686,11 @@ $lifeCoaches = collect();
         <label class="field-label">Tests (comma or newline separated)</label>
         <textarea class="field-textarea" id="tpl-tests" rows="4" placeholder="CBC with differential, TSH, Fasting Blood Sugar"></textarea>
       </div>
+      <div class="field-group hidden" style="margin-top:10px;" id="tpl-lifestyle-wrap">
+        <label class="field-label">Lifestyle Interventions (one per line: Category | Title | Target | Frequency | Duration | Instructions)</label>
+        <textarea class="field-textarea" id="tpl-lx-items" rows="5"
+          placeholder="Sleep | Fixed wake-up time | 7-8 h sleep | Daily | 4 weeks | Wake at the same time every day"></textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-outline" data-close="template-modal">Cancel</button>

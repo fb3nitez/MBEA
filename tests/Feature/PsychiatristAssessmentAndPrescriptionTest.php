@@ -8,6 +8,7 @@ it('stores a biopsychosocial assessment for a patient', function () {
         'fullname' => 'Assessment Patient',
         'birthday' => now()->subYears(30)->toDateString(),
         'sex' => 'female',
+        'marital_status' => 'single',
     ]);
 
     $service = app(PatientService::class);
@@ -26,6 +27,7 @@ it('merges assessment sections without wiping other sections', function () {
         'fullname' => 'Merge Assessment Patient',
         'birthday' => now()->subYears(29)->toDateString(),
         'sex' => 'female',
+        'marital_status' => 'single',
     ]);
 
     $service = app(PatientService::class);
@@ -60,6 +62,7 @@ it('paginates assessment list without embedding full assessment payloads', funct
         'fullname' => 'Light Assessment Patient',
         'birthday' => now()->subYears(40)->toDateString(),
         'sex' => 'male',
+        'marital_status' => 'single',
         'primary_diagnosis' => 'GAD',
     ]);
 
@@ -80,6 +83,7 @@ it('stores a prescription for a patient', function () {
         'fullname' => 'Prescription Patient',
         'birthday' => now()->subYears(35)->toDateString(),
         'sex' => 'male',
+        'marital_status' => 'single',
     ]);
 
     $service = app(PatientService::class);

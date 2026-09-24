@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateLifestyleAssessmentRequest;
+use App\Http\Requests\UpdateMedicalHistoryRequest;
+use App\Http\Requests\UpdatePsychiatricHistoryRequest;
+use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
 use App\Models\PatientRecord;
 use App\Services\PatientService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use App\Models\BiopsychosocialAssessment;
 
 class PsychiatristController extends Controller
 {
@@ -21,7 +24,7 @@ class PsychiatristController extends Controller
         $todayPatientsPage = $this->patientService->getPaginatedTodayPatients(10);
         $pendingConsultations = $this->patientService->getPendingConsultations();
         $highRiskPatients = $this->patientService->getHighRiskPatients();
-        $allConsultations = $this->patientService->getConsultations();
+        $consultationCounts = $this->patientService->getConsultationCounts();
 
         return view('psychiatrist.dashboard', [
             'patients' => $todayPatientsPage->getCollection(),
@@ -29,8 +32,8 @@ class PsychiatristController extends Controller
             'todayPatientsTotal' => $todayPatientsPage->total(),
             'pendingConsultations' => $pendingConsultations,
             'highRiskPatients' => $highRiskPatients,
-            'pendingCount' => $allConsultations->where('status', 'Scheduled')->count(),
-            'completedCount' => $allConsultations->where('status', 'Completed')->count(),
+            'pendingCount' => $consultationCounts['pending'],
+            'completedCount' => $consultationCounts['completed'],
             'highRiskCount' => $highRiskPatients->count(),
             'lifeCoaches' => $this->patientService->getLifeCoaches(),
             'patientSuggestions' => $this->patientService->searchPatients(null, 12),
@@ -41,7 +44,7 @@ class PsychiatristController extends Controller
     {
         $patientsPage = $this->patientService->getPaginatedPatients(10);
         $patients = $patientsPage->getCollection()
-            ->map(fn(PatientRecord $p) => $this->patientService->patientToArray($p))
+            ->map(fn (PatientRecord $p) => $this->patientService->patientToArray($p))
             ->values();
 
         return view('psychiatrist.patients', [
@@ -55,7 +58,7 @@ class PsychiatristController extends Controller
     {
         $consultationsPage = $this->patientService->getPaginatedConsultations(10);
         $consultations = $consultationsPage->getCollection()
-            ->map(fn($c) => $this->patientService->consultationToArray($c))
+            ->map(fn ($c) => $this->patientService->consultationToArray($c))
             ->values();
 
         return view('psychiatrist.consultations', [
@@ -105,11 +108,11 @@ class PsychiatristController extends Controller
                 'email' => $user->email,
                 'clinic' => 'MB.EA Wellness Center',
                 'clinic_sub' => 'Mental Health and Wellness Clinic',
+                'clinic_email' => 'mbea.psychclinic@gmail.com',
                 'contact_note' => 'for appointments and inquiries',
             ],
         ]);
     }
-
 
     public function profile()
     {
@@ -132,7 +135,6 @@ class PsychiatristController extends Controller
             'recentConsultations'
         ));
     }
-
 
     public function searchPatients(Request $request): JsonResponse
     {
@@ -204,10 +206,10 @@ class PsychiatristController extends Controller
         ]);
     }
 
-    public function updateMedicalHistory(Request $request, int $id): JsonResponse
+    public function updateMedicalHistory(UpdateMedicalHistoryRequest $request, int $id): JsonResponse
     {
         $patient = $this->patientService->findPatient($id);
-        $history = $this->patientService->updateMedicalHistory($patient, $request->all());
+        $history = $this->patientService->updateMedicalHistory($patient, $request->validated());
 
         return response()->json([
             'message' => 'Medical history updated.',
@@ -215,10 +217,10 @@ class PsychiatristController extends Controller
         ]);
     }
 
-    public function updatePsychiatricHistory(Request $request, int $id): JsonResponse
+    public function updatePsychiatricHistory(UpdatePsychiatricHistoryRequest $request, int $id): JsonResponse
     {
         $patient = $this->patientService->findPatient($id);
-        $history = $this->patientService->updatePsychiatricHistory($patient, $request->all());
+        $history = $this->patientService->updatePsychiatricHistory($patient, $request->validated());
 
         return response()->json([
             'message' => 'Personal history updated.',
@@ -226,10 +228,10 @@ class PsychiatristController extends Controller
         ]);
     }
 
-    public function updateLifestyle(Request $request, int $id): JsonResponse
+    public function updateLifestyle(UpdateLifestyleAssessmentRequest $request, int $id): JsonResponse
     {
         $patient = $this->patientService->findPatient($id);
-        $assessment = $this->patientService->updateLifestyleAssessment($patient, $request->all());
+        $assessment = $this->patientService->updateLifestyleAssessment($patient, $request->validated());
 
         return response()->json([
             'message' => 'Lifestyle assessment updated.',
@@ -329,9 +331,28 @@ class PsychiatristController extends Controller
     public function storePrescription(Request $request, int $id): JsonResponse
     {
         $patient = $this->patientService->findPatient($id);
-        $payload = $request->all();
+        $validated = $request->validate([
+            'diagnosis' => ['nullable', 'string', 'max:255'],
+            'medications' => ['nullable', 'array'],
+            'medications.*.name' => ['required', 'string', 'max:255'],
+            'medications.*.dose' => ['nullable', 'string', 'max:100'],
+            'medications.*.frequency' => ['nullable', 'string', 'max:100'],
+            'medications.*.qty' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'notes' => ['nullable', 'string', 'max:5000'],
+            'status' => ['nullable', 'string', 'in:Draft,Active,Completed,Cancelled'],
+            'lifestyle_interventions' => ['nullable', 'array'],
+            'lifestyle_interventions.*.category' => ['required', 'string', 'in:sleep,exercise,nutrition,stress,social,other'],
+            'lifestyle_interventions.*.title' => ['required', 'string', 'max:255'],
+            'lifestyle_interventions.*.target' => ['nullable', 'string', 'max:100'],
+            'lifestyle_interventions.*.frequency' => ['nullable', 'string', 'max:100'],
+            'lifestyle_interventions.*.duration' => ['nullable', 'string', 'max:100'],
+            'lifestyle_interventions.*.instructions' => ['nullable', 'string', 'max:500'],
+        ]);
 
-        $prescription = $this->patientService->savePrescription($patient, $payload);
+        $validated['medications'] = $validated['medications'] ?? [];
+        $validated['lifestyle_interventions'] = $validated['lifestyle_interventions'] ?? [];
+
+        $prescription = $this->patientService->savePrescription($patient, $validated);
 
         return response()->json([
             'message' => 'Prescription saved.',
@@ -417,6 +438,13 @@ class PsychiatristController extends Controller
             'payload' => ['nullable', 'array'],
             'meds' => ['nullable', 'array'],
             'diag' => ['nullable', 'string', 'max:255'],
+            'lifestyle' => ['nullable', 'array'],
+            'lifestyle.*.category' => ['required', 'string', 'in:sleep,exercise,nutrition,stress,social,other'],
+            'lifestyle.*.title' => ['required', 'string', 'max:255'],
+            'lifestyle.*.target' => ['nullable', 'string', 'max:100'],
+            'lifestyle.*.frequency' => ['nullable', 'string', 'max:100'],
+            'lifestyle.*.duration' => ['nullable', 'string', 'max:100'],
+            'lifestyle.*.instructions' => ['nullable', 'string', 'max:500'],
             'tests' => ['nullable', 'array'],
             'tests.*' => ['string', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
