@@ -4,13 +4,13 @@ namespace App\Services;
 
 use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
+use App\Models\ClinicalTemplateUserState;
 use App\Models\ConsultationSchedule;
 use App\Models\LifestyleAssessment;
 use App\Models\MedicalHistory;
 use App\Models\PatientRecord;
 use App\Models\Prescription;
 use App\Models\PsychiatricHistory;
-use App\Models\SpiritualIntake;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -66,7 +66,6 @@ class PatientService
             'medicalHistory',
             'psychiatricHistory',
             'lifestyleAssessment',
-            'spiritualIntake',
         ])->findOrFail($id);
     }
 
@@ -86,14 +85,14 @@ class PatientService
 
         if ($q !== '') {
             $builder->where(function ($queryBuilder) use ($q) {
-                $queryBuilder->where('fullname', 'like', '%' . $q . '%')
-                    ->orWhere('patient_id', 'like', '%' . $q . '%');
+                $queryBuilder->where('fullname', 'like', '%'.$q.'%')
+                    ->orWhere('patient_id', 'like', '%'.$q.'%');
             })->orderBy('fullname');
         } else {
             $builder->latest('created_at');
         }
 
-        return $builder->limit($limit)->get()->map(fn(PatientRecord $p) => [
+        return $builder->limit($limit)->get()->map(fn (PatientRecord $p) => [
             'id' => $p->id,
             'patient_id' => $p->patient_id,
             'name' => $p->fullname,
@@ -108,7 +107,7 @@ class PatientService
             ->whereHas('lifestyleAssessment')
             ->oldest('fullname')
             ->get()
-            ->map(fn(PatientRecord $p) => [
+            ->map(fn (PatientRecord $p) => [
                 'id' => $p->id,
                 'patient_id' => $p->patient_id,
                 'name' => $p->fullname,
@@ -128,12 +127,22 @@ class PatientService
             $builder->where('type', $type);
         }
 
-        return $builder->get()->map(fn(ClinicalTemplate $t) => $t->toArray())->values();
+        $states = ClinicalTemplateUserState::where('user_id', auth()->id())->get()->keyBy('clinical_template_id');
+
+        return $builder->get()->map(function (ClinicalTemplate $t) use ($states) {
+            $data = $t->toArray();
+            $state = $states->get($t->id);
+            $data['favorite'] = (bool) $state?->is_favorite;
+            $data['last_used_at'] = $state?->last_used_at?->toIso8601String() ?: $data['last_used_at'];
+            $data['usage_count'] = $state?->usage_count ?? $data['usage_count'];
+
+            return $data;
+        })->values();
     }
 
     public function createClinicalTemplate(array $data): ClinicalTemplate
     {
-        return ClinicalTemplate::create($this->normalizeTemplateData($data));
+        return ClinicalTemplate::create(array_merge($this->normalizeTemplateData($data), ['created_by' => auth()->id()]));
     }
 
     public function updateClinicalTemplate(ClinicalTemplate $template, array $data): ClinicalTemplate
@@ -141,6 +150,56 @@ class PatientService
         $template->update($this->normalizeTemplateData($data, $template));
 
         return $template->fresh();
+    }
+
+    public function manageClinicalTemplates(?string $type = null, ?string $search = null, ?string $sort = null): SupportCollection
+    {
+        $query = ClinicalTemplate::with('creator');
+        if ($type) {
+            $query->where('type', $type);
+        }
+        if ($search) {
+            $query->where(function ($builder) use ($search) {
+                $builder->where('name', 'like', '%'.$search.'%')->orWhere('tag', 'like', '%'.$search.'%')->orWhere('description', 'like', '%'.$search.'%');
+            });
+        }
+        if ($sort === 'updated') {
+            $query->latest('updated_at');
+        } elseif ($sort === 'usage') {
+            $query->orderByDesc('usage_count');
+        } else {
+            $query->orderBy('name');
+        }
+
+        $states = ClinicalTemplateUserState::where('user_id', auth()->id())->get()->keyBy('clinical_template_id');
+
+        return $query->get()->map(function (ClinicalTemplate $template) use ($states) {
+            $data = $template->toArray();
+            $state = $states->get($template->id);
+            $data['favorite'] = (bool) $state?->is_favorite;
+            $data['last_used_at'] = $state?->last_used_at?->toIso8601String() ?: $data['last_used_at'];
+            $data['usage_count'] = $state?->usage_count ?? $data['usage_count'];
+            $data['creator_name'] = $template->creator?->name ?? 'System';
+
+            return $data;
+        })->values();
+    }
+
+    public function setClinicalTemplateFavorite(ClinicalTemplate $template, bool $favorite): void
+    {
+        ClinicalTemplateUserState::updateOrCreate(
+            ['user_id' => auth()->id(), 'clinical_template_id' => $template->id],
+            ['is_favorite' => $favorite]
+        );
+    }
+
+    public function recordClinicalTemplateUse(ClinicalTemplate $template): void
+    {
+        $template->increment('usage_count');
+        $state = ClinicalTemplateUserState::firstOrNew(['user_id' => auth()->id(), 'clinical_template_id' => $template->id]);
+        $state->last_used_at = now();
+        $state->usage_count = (int) $state->usage_count + 1;
+        $state->save();
     }
 
     public function deleteClinicalTemplate(ClinicalTemplate $template): void
@@ -568,30 +627,6 @@ class PatientService
         );
     }
 
-    public function updateSpiritualIntake(PatientRecord $patient, array $data): SpiritualIntake
-    {
-        $textFields = [
-            'religious_background_childhood_other_text',
-            'religious_background_adolescent_other_text',
-            'religious_background_current_other_text',
-            'new_age_other_text',
-            'additional_spiritual_issues_other_text',
-            'spiritual_explain_hypnosis',
-            'spiritual_guidance_question',
-            'spiritual_voices_question',
-            'spiritual_unusual_experiences_question',
-            'spiritual_prayer_question',
-            'spiritual_ritual_worship_question',
-        ];
-        $allowedFields = array_merge(array_keys((new SpiritualIntake)->getCasts()), $textFields);
-        $payload = array_intersect_key($data, array_flip($allowedFields));
-
-        return SpiritualIntake::updateOrCreate(
-            ['patient_record_id' => $patient->id],
-            $payload
-        );
-    }
-
     /**
      * Return dashboard consultation counts without loading every consultation row.
      *
@@ -693,8 +728,8 @@ class PatientService
 
         if ($search) {
             $builder->where(function ($query) use ($search) {
-                $query->where('fullname', 'like', '%' . $search . '%')
-                    ->orWhere('patient_id', 'like', '%' . $search . '%');
+                $query->where('fullname', 'like', '%'.$search.'%')
+                    ->orWhere('patient_id', 'like', '%'.$search.'%');
             });
         }
 
@@ -740,7 +775,7 @@ class PatientService
             if (is_array($data[$section])) {
                 $hasContent = collect($data[$section])->filter(function ($value) {
                     if (is_array($value)) {
-                        return collect($value)->filter(fn($item) => filled($item))->isNotEmpty();
+                        return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
                     }
 
                     return filled($value);
@@ -771,7 +806,7 @@ class PatientService
 
     public function patientToArray(PatientRecord $patient): array
     {
-        $patient->loadMissing(['lifeCoach', 'medicalHistory', 'psychiatricHistory', 'lifestyleAssessment', 'spiritualIntake']);
+        $patient->loadMissing(['lifeCoach', 'medicalHistory', 'psychiatricHistory', 'lifestyleAssessment']);
 
         return [
             'id' => $patient->id,
@@ -795,7 +830,6 @@ class PatientService
             'medical_history' => $patient->medicalHistory,
             'psychiatric_history' => $patient->psychiatricHistory,
             'lifestyle_assessment' => $patient->lifestyleAssessment,
-            'spiritual_intake' => $patient->spiritualIntake,
         ];
     }
 
@@ -803,7 +837,7 @@ class PatientService
     {
         $time = $c->time;
         if (is_string($time) && preg_match('/^\d{2}:\d{2}/', $time)) {
-            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time . ':00' : $time)->format('g:i A');
+            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time.':00' : $time)->format('g:i A');
         } else {
             try {
                 $displayTime = Carbon::parse($time)->format('g:i A');

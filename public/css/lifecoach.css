@@ -352,7 +352,7 @@ body {
     gap: 16px;
 }
 
-.two-col-grid > * {
+.two-col-grid>* {
     min-width: 0;
 }
 
@@ -500,7 +500,7 @@ body {
     padding: 16px;
 }
 
-.lc-patients-grid > * {
+.lc-patients-grid>* {
     min-width: 0;
 }
 
@@ -1781,6 +1781,173 @@ body {
     }
 }
 
+/* ---- Profile page mobile refinement ---- */
+@media (max-width: 768px) {
+    .lc-profile-page {
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .lc-profile-page .profile-banner {
+        border-radius: var(--radius-sm);
+    }
+
+    .lc-profile-page .profile-banner img {
+        height: clamp(110px, 30vw, 180px);
+        object-position: center;
+    }
+
+    .lc-settings-layout {
+        min-width: 0;
+        gap: 12px;
+    }
+
+    .lc-settings-nav {
+        width: calc(100vw - 32px);
+        max-width: 100%;
+        margin-right: 0;
+        gap: 4px;
+        overscroll-behavior-x: contain;
+    }
+
+    .lc-settings-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .lc-settings-tab {
+        min-height: 40px;
+        padding: 9px 11px;
+        font-size: 12px;
+    }
+
+    .lc-settings-content,
+    .lc-settings-panel {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .lc-settings-panel .card-header {
+        align-items: flex-start;
+        padding: 14px 16px;
+    }
+
+    .lc-panel-caption {
+        flex: 1 1 100%;
+        line-height: 1.35;
+    }
+
+    .lc-settings-form {
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .lc-photo-editor {
+        width: 100%;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .lc-photo-editor > div:last-child {
+        min-width: 0;
+    }
+
+    .lc-photo-editor strong,
+    .lc-photo-editor p {
+        overflow-wrap: anywhere;
+    }
+
+    .lc-photo-editor p {
+        margin-bottom: 8px;
+    }
+
+    .lc-photo-editor .btn-outline-sm,
+    .lc-photo-editor .lc-remove-photo {
+        margin: 3px 6px 0 0;
+    }
+
+    .lc-form-footer {
+        align-items: stretch;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .lc-form-status {
+        flex: 1 1 100%;
+        min-height: 16px;
+    }
+
+    .lc-form-footer .btn-green {
+        width: 100%;
+    }
+
+    .lc-toggle-row {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 13px 0;
+    }
+
+    .lc-toggle-row > span:first-child {
+        min-width: 0;
+    }
+
+    .lc-toggle-row strong,
+    .lc-toggle-row small {
+        overflow-wrap: anywhere;
+    }
+
+    .lc-activity-row {
+        align-items: flex-start;
+        gap: 9px;
+        padding: 12px 16px;
+    }
+
+    .lc-activity-copy strong,
+    .lc-activity-copy small {
+        overflow-wrap: anywhere;
+    }
+
+    .lc-activity-row time {
+        flex: 0 0 auto;
+        max-width: 82px;
+        text-align: right;
+        white-space: normal;
+    }
+
+    .lc-load-more {
+        margin: 12px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lc-profile-page .profile-banner img {
+        height: 112px;
+    }
+
+    .lc-profile-page .profile-avatar-lg {
+        width: 64px;
+        height: 64px;
+        flex: 0 0 64px;
+        font-size: 22px;
+    }
+
+    .lc-photo-editor {
+        gap: 10px;
+    }
+
+    .lc-settings-form {
+        padding: 14px;
+    }
+
+    .lc-settings-panel .card-header {
+        padding: 13px 14px;
+    }
+
+    .lc-activity-row time {
+        max-width: 68px;
+        font-size: 11px;
+    }
+}
+
 .sidebar-backdrop {
     position: fixed;
     inset: 0;
@@ -1883,6 +2050,552 @@ body {
     margin-top: 2px;
 }
 
+/* ---- PROFILE SETTINGS ---- */
+.lc-profile-page {
+    gap: 20px;
+}
+
+.profile-banner {
+    overflow: hidden;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    box-shadow: var(--shadow);
+}
+
+.profile-banner img {
+    display: block;
+    width: 100%;
+    height: clamp(180px, 22vw, 320px);
+    object-fit: cover;
+    object-position: center;
+}
+
+.profile-avatar-lg.has-photo {
+    color: transparent;
+}
+
+.lc-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+}
+
+.lc-profile-header .profile-avatar-lg,
+.lc-photo-editor .profile-avatar-lg {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.lc-profile-name {
+    color: var(--text-900);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.lc-profile-role {
+    margin-top: 3px;
+    color: var(--green-600);
+    font-weight: 600;
+}
+
+.lc-profile-email,
+.lc-panel-caption {
+    color: var(--text-500);
+    font-size: 12px;
+}
+
+.lc-settings-layout {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+}
+
+.lc-settings-nav {
+    position: sticky;
+    top: 84px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lc-settings-tab {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-600);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.lc-settings-tab:hover,
+.lc-settings-tab.active {
+    background: var(--green-50);
+    color: var(--green-700);
+}
+
+.lc-settings-tab svg {
+    width: 15px;
+    height: 15px;
+}
+
+.lc-settings-panel[hidden] {
+    display: none;
+}
+
+.lc-settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px;
+}
+
+.lc-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.lc-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 6px;
+}
+
+.lc-form-status {
+    color: var(--green-600);
+    font-size: 12px;
+}
+
+.lc-form-status.is-error,
+.lc-field-error,
+.lc-inline-error {
+    color: var(--red-600);
+}
+
+.lc-photo-editor {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 4px;
+}
+
+.lc-photo-editor {
+    justify-content: flex-start;
+    width: max-content;
+    max-width: 100%;
+}
+
+.lc-photo-editor>div:last-child {
+    flex: 0 0 auto;
+}
+
+.lc-photo-editor p {
+    margin: 3px 0 10px;
+    color: var(--text-500);
+    font-size: 12px;
+}
+
+.lc-remove-photo {
+    margin-left: 6px;
+}
+
+.lc-character-count {
+    margin-top: 4px;
+    color: var(--text-400);
+    font-size: 11px;
+    text-align: right;
+}
+
+.lc-password-field {
+    position: relative;
+}
+
+.lc-password-field .field-input {
+    padding-right: 42px;
+}
+
+.lc-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    display: inline-flex;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: var(--text-500);
+    cursor: pointer;
+}
+
+.lc-password-toggle svg {
+    width: 16px;
+    height: 16px;
+}
+
+.lc-password-hint {
+    color: var(--text-500);
+    font-size: 12px;
+}
+
+.lc-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+}
+
+.lc-toggle-row:last-of-type {
+    border-bottom: 0;
+}
+
+.lc-toggle-row strong,
+.lc-toggle-row small {
+    display: block;
+}
+
+.lc-toggle-row small {
+    margin-top: 3px;
+    color: var(--text-500);
+    font-size: 12px;
+}
+
+.lc-toggle-row input {
+    position: absolute;
+    opacity: 0;
+}
+
+.lc-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex: 0 0 40px;
+    border-radius: 999px;
+    background: var(--border-dark);
+}
+
+.lc-switch::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--white);
+    content: '';
+    transition: transform .15s ease;
+}
+
+.lc-toggle-row input:checked+.lc-switch {
+    background: var(--green-600);
+}
+
+.lc-toggle-row input:checked+.lc-switch::after {
+    transform: translateX(18px);
+}
+
+.lc-toggle-row input:focus-visible+.lc-switch,
+.lc-settings-tab:focus-visible,
+.lc-password-toggle:focus-visible {
+    outline: 2px solid var(--green-500);
+    outline-offset: 2px;
+}
+
+.lc-activity-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.lc-activity-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.lc-activity-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: var(--radius-sm);
+    background: var(--green-50);
+    color: var(--green-600);
+}
+
+.lc-activity-icon svg {
+    width: 15px;
+    height: 15px;
+}
+
+.lc-activity-copy {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.lc-activity-copy small,
+.lc-activity-row time {
+    color: var(--text-500);
+    font-size: 12px;
+}
+
+.lc-load-more {
+    align-self: flex-start;
+    margin: 14px 22px;
+}
+
+.lc-empty-state {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: 36px 20px;
+    color: var(--text-500);
+    text-align: center;
+}
+
+.lc-empty-state svg {
+    width: 22px;
+    height: 22px;
+    color: var(--green-600);
+}
+
+.lc-empty-state strong {
+    color: var(--text-700);
+}
+
+.lc-profile-page .field-invalid {
+    border-color: var(--red-600);
+}
+
+.lc-update-open {
+    flex-shrink: 0
+}
+
+.lc-panel-update {
+    cursor: pointer
+}
+
+.lc-update-read {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center
+}
+
+.lc-update-read svg {
+    width: 15px;
+    height: 15px
+}
+
+.lc-update-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--green-100);
+    color: var(--green-700);
+    font-size: 11px
+}
+
+.lc-update-row {
+    cursor: pointer
+}
+
+.lc-update-row svg {
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    vertical-align: middle
+}
+
+.lc-unread-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green-600);
+    display: inline-block
+}
+
+.lc-updates-empty {
+    padding: 20px;
+    color: var(--text-500);
+    font-size: 13px;
+    text-align: center
+}
+
+.lc-updates-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 300;
+    width: min(440px, 100%);
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    box-shadow: -8px 0 28px rgba(15, 23, 42, .18);
+    transform: translateX(100%);
+    transition: transform .22s ease
+}
+
+.lc-updates-panel.is-open {
+    transform: translateX(0)
+}
+
+.lc-updates-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 299;
+    background: rgba(15, 23, 42, .35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .22s ease
+}
+
+.lc-updates-panel.is-open+.lc-updates-backdrop {
+    opacity: 1;
+    pointer-events: auto
+}
+
+.lc-updates-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid var(--border)
+}
+
+.lc-updates-panel-head h2 {
+    font-size: 18px;
+    color: var(--text-900)
+}
+
+.lc-updates-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border)
+}
+
+.lc-updates-tabs button {
+    padding: 7px 12px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-600);
+    cursor: pointer
+}
+
+.lc-updates-tabs button.active,
+.lc-updates-tabs button:hover {
+    background: var(--green-50);
+    color: var(--green-700)
+}
+
+.lc-updates-actions {
+    padding: 10px 20px;
+    text-align: right
+}
+
+.lc-updates-list {
+    flex: 1;
+    overflow-y: auto
+}
+
+.lc-panel-update {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border)
+}
+
+.lc-panel-update>svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    color: var(--green-600)
+}
+
+.lc-panel-update>div {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px
+}
+
+.lc-panel-update small {
+    color: var(--text-500)
+}
+
+.lc-panel-update.is-unread {
+    background: var(--green-50)
+}
+
+.lc-update-read {
+    border: 0;
+    background: transparent;
+    color: var(--green-600);
+    cursor: pointer
+}
+
+.lc-update-read svg {
+    width: 15px;
+    height: 15px
+}
+
+@media (max-width:768px) {
+    .lc-profile-header {
+        padding: 18px;
+    }
+
+    .lc-settings-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lc-settings-nav {
+        position: static;
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    .lc-settings-tab {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .lc-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lc-photo-editor {
+        align-items: flex-start;
+    }
+}
+
 .gn-actions {
     display: flex;
     align-items: center;
@@ -1962,7 +2675,6 @@ body {
     /* Habit tracker scrolls sideways instead of breaking layout */
     .habits-table-wrap {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     .habits-table {
@@ -1986,7 +2698,6 @@ body {
 
     .tasks-filter-row {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     .task-filter-pills {

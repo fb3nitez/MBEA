@@ -1,64 +1,33 @@
-/* psychiatrist_profile.js
-   Handles Save Profile + Change Password interactions.
-   Loaded only on /psychiatrist/profile via @push('scripts') in the blade.
-*/
-
 document.addEventListener('DOMContentLoaded', function () {
-
-    function showToast(msg) {
-        var t = document.getElementById('toast');
-        if (!t) return;
-        t.textContent = msg;
-        t.classList.remove('hidden');
-        clearTimeout(t._timer);
-        t._timer = setTimeout(function () { t.classList.add('hidden'); }, 2800);
-    }
-
-    /* ── Save Profile ──────────────────────────────────── */
-    var saveBtn = document.getElementById('save-profile-btn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', function () {
-            var name  = document.getElementById('edit-name').value.trim();
-            var email = document.getElementById('edit-email').value.trim();
-
-            if (!name || !email) {
-                showToast('Name and email are required.');
-                return;
-            }
-
-            // Update display name in profile card
-            var profileName = document.querySelector('.profile-name');
-            if (profileName) profileName.textContent = name;
-
-            var profileEmail = document.querySelector('.profile-email');
-            if (profileEmail) profileEmail.textContent = email;
-
-            // Update avatar initials
-            var avatar = document.querySelector('.profile-avatar-lg');
-            if (avatar) avatar.textContent = name.split(' ').map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase();
-
-            showToast('Profile updated successfully.');
-        });
-    }
-
-    /* ── Change Password ───────────────────────────────── */
-    var changePwBtn = document.getElementById('change-pw-btn');
-    if (changePwBtn) {
-        changePwBtn.addEventListener('click', function () {
-            var current = document.getElementById('pw-current').value;
-            var newPw   = document.getElementById('pw-new').value;
-            var confirm = document.getElementById('pw-confirm').value;
-
-            if (!current) { showToast('Please enter your current password.'); return; }
-            if (!newPw || newPw.length < 6) { showToast('New password must be at least 6 characters.'); return; }
-            if (newPw !== confirm) { showToast('Passwords do not match.'); return; }
-
-            ['pw-current', 'pw-new', 'pw-confirm'].forEach(function (id) {
-                var el = document.getElementById(id);
-                if (el) el.value = '';
-            });
-
-            showToast('Password updated successfully.');
-        });
-    }
+  var data = (window.PSYCH_DATA || {}).profile || {};
+  var routes = window.PSYCH_ROUTES || {};
+  var currentTab = 'profile';
+  var offset = 0;
+  var hasMore = true;
+  var dirty = {};
+  function qs(s,c){return (c||document).querySelector(s);} function qsa(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s));}
+  function toast(message){var el=qs('#toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');clearTimeout(el._timer);el._timer=setTimeout(function(){el.classList.add('hidden');},3000);}
+  function api(url,opts){opts=opts||{};opts.headers=Object.assign({'Accept':'application/json','X-CSRF-TOKEN':(qs('meta[name="csrf-token"]')||{}).content||'','X-Requested-With':'XMLHttpRequest'},opts.headers||{});return fetch(url,opts).then(function(r){return r.json().then(function(b){if(!r.ok){var e=new Error(b.message||'Unable to save changes.');e.errors=b.errors||{};throw e;}return b;});});}
+  function snapshot(form){var values={};new FormData(form).forEach(function(v,k){values[k]=v;});return JSON.stringify(values);}
+  function errors(form, data){qsa('.lc-field-error,.lc-inline-error',form).forEach(function(e){e.textContent='';});qsa('.field-invalid',form).forEach(function(e){e.classList.remove('field-invalid');});Object.keys(data||{}).forEach(function(k){var input=qs('[name="'+k+'"]',form), error=qs('[data-error-for="'+k+'"]',form);if(input)input.classList.add('field-invalid');if(error)error.textContent=data[k][0];});}
+  function submit(form,url,payload,type,done){errors(form,{});var status=qs('[data-form-status="'+type+'"]');if(status)status.textContent='Saving...';qsa('button',form).forEach(function(b){b.disabled=true;});api(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(result){form._initial=snapshot(form);delete dirty[type];if(status)status.textContent='Saved';toast(result.message||'Changes saved.');if(done)done(result);}).catch(function(e){if(status){status.textContent=e.message;status.classList.add('is-error');}errors(form,e.errors);}).finally(function(){qsa('button',form).forEach(function(b){b.disabled=false;});});}
+  function switchTab(tab, push){if(!qs('[data-profile-panel="'+tab+'"]'))tab='profile';currentTab=tab;qsa('[data-profile-tab]').forEach(function(a){var active=a.dataset.profileTab===tab;a.classList.toggle('active',active);a.setAttribute('aria-selected',active?'true':'false');});qsa('[data-profile-panel]').forEach(function(p){p.hidden=p.dataset.profilePanel!==tab;});if(push&&location.hash!=='#'+tab)history.pushState({tab:tab},'', '#'+tab);if(tab==='activity'&&!qs('#profile-activity').children.length)loadActivity(false);if(window.feather)feather.replace();}
+  function canLeave(tab){if(!Object.keys(dirty).length||tab===currentTab)return true;return window.confirm('You have unsaved changes. Leave this section?');}
+  function renderActivity(items,append){var list=qs('#profile-activity');if(!list)return;if(!append)list.innerHTML='';if(!items.length&&!append){list.innerHTML='<div class="lc-empty-state"><i data-feather="activity"></i><strong>Your activity will appear here</strong><span>Schedule a consultation or update a patient record to get started.</span></div>';return;}items.forEach(function(item){var row=document.createElement('div');row.className='lc-activity-row';row.innerHTML='<span class="lc-activity-icon"><i data-feather="'+String(item.icon||'activity').replace(/[^a-z-]/g,'')+'"></i></span><span class="lc-activity-copy"><strong>'+item.label+'</strong><small>'+item.detail+'</small></span><time>'+ (item.date?new Date(item.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'')+'</time>';list.appendChild(row);});if(window.feather)feather.replace();}
+  function loadActivity(append){var button=qs('#activity-load-more');if(button)button.disabled=true;api((routes.profileActivity||'')+'?offset='+offset).then(function(data){offset+=(data.items||[]).length;hasMore=!!data.has_more;renderActivity(data.items||[],append);if(button){button.disabled=false;button.hidden=!hasMore;}}).catch(function(){if(button)button.disabled=false;toast('Unable to load activity.');});}
+  qsa('[data-profile-tab]').forEach(function(a,i,all){a.addEventListener('click',function(e){if(!canLeave(a.dataset.profileTab)){e.preventDefault();return;}switchTab(a.dataset.profileTab,true);});a.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();all[(i+1)%all.length].focus();}if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();all[(i-1+all.length)%all.length].focus();}if(e.key==='Enter'||e.key===' '){e.preventDefault();a.click();}});});
+  addEventListener('hashchange',function(){var tab=location.hash.slice(1)||'profile';if(canLeave(tab))switchTab(tab,false);});addEventListener('popstate',function(){var tab=location.hash.slice(1)||'profile';if(canLeave(tab))switchTab(tab,false);});
+  var profile=qs('#profile-form'),account=qs('#account-form'),security=qs('#security-form'),notifications=qs('#notifications-form');
+  if(profile)profile.addEventListener('submit',function(e){e.preventDefault();submit(profile,routes.profileAccount,{name:qs('#profile-name').value.trim(),email:data.email,phone:qs('#profile-phone').value.trim(),bio:qs('#profile-bio').value.trim(),license_no:data.license_no},'profile');});
+  if(account)account.addEventListener('submit',function(e){e.preventDefault();submit(account,routes.profileAccount,{name:qs('#profile-name').value.trim(),email:qs('#account-email').value.trim(),phone:qs('#profile-phone').value.trim(),bio:qs('#profile-bio').value.trim(),license_no:qs('#account-license').value.trim()},'account',function(r){data=Object.assign(data,r.user||{});});});
+  if(security)security.addEventListener('submit',function(e){e.preventDefault();if(qs('#new-password').value.length<8||qs('#new-password').value!==qs('#confirm-password').value){toast('Check your password fields.');return;}submit(security,routes.profileSecurity,{current_password:qs('#current-password').value,password:qs('#new-password').value,password_confirmation:qs('#confirm-password').value},'security',function(){security.reset();});});
+  if(notifications)notifications.addEventListener('submit',function(e){e.preventDefault();var payload={};new FormData(notifications).forEach(function(v,k){payload[k]=v==='on';});submit(notifications,routes.profileNotifications,payload,'notifications');});
+  qsa('[data-profile-form]').forEach(function(form){form._initial=snapshot(form);form.addEventListener('input',function(){dirty[form.dataset.profileForm]=snapshot(form)!==form._initial;});});
+  var phone=qs('#profile-phone');if(phone)phone.addEventListener('input',function(){var d=this.value.replace(/\D/g,'').slice(0,11);this.value=d.length<=4?d:d.length<=7?d.slice(0,4)+' '+d.slice(4):d.slice(0,4)+' '+d.slice(4,7)+' '+d.slice(7);});
+  var bio=qs('#profile-bio');if(bio){var count=qs('#bio-count');var update=function(){count.textContent=bio.value.length;};bio.addEventListener('input',update);update();}
+  qsa('[data-password-toggle]').forEach(function(btn){btn.addEventListener('click',function(){var input=qs('#'+btn.dataset.passwordToggle);input.type=input.type==='password'?'text':'password';});});
+  var password=qs('#new-password');if(password)password.addEventListener('input',function(){qs('#password-strength').textContent=this.value.length>=12?'Strong password.':this.value.length>=8?'Good password. Add numbers or symbols for extra strength.':'Use at least 8 characters with a mix of letters and numbers.';});
+  var file=qs('#photo-input'),preview=qs('#profile-photo-preview'),headerAvatar=qs('#prof-avatar');if(file)file.addEventListener('change',function(){var image=this.files[0];if(!image)return;if(!['image/jpeg','image/png','image/webp'].includes(image.type)||image.size>2097152){qs('#photo-error').textContent='Choose a JPG, PNG, or WebP image under 2MB.';this.value='';return;}qs('#photo-error').textContent='';var reader=new FileReader();reader.onload=function(e){var background='url("'+e.target.result+'")';[preview,headerAvatar].forEach(function(avatar){if(!avatar)return;avatar.style.backgroundImage=background;avatar.classList.add('has-photo');avatar.textContent='';});};reader.readAsDataURL(image);var form=new FormData();form.append('avatar',image);api(routes.profileAvatar,{method:'POST',body:form}).then(function(r){toast(r.message);}).catch(function(e){qs('#photo-error').textContent=e.message;});});
+  qs('#change-photo-btn')?.addEventListener('click',function(){file.click();});qs('#remove-photo-btn')?.addEventListener('click',function(){[preview,headerAvatar].forEach(function(avatar){if(!avatar)return;avatar.style.backgroundImage='none';avatar.classList.remove('has-photo');avatar.textContent=data.initials||'DR';});});qs('#activity-load-more')?.addEventListener('click',function(){loadActivity(true);});
+  switchTab(location.hash.slice(1)||'profile',false);renderActivity([],false);if(qs('#activity-load-more'))qs('#activity-load-more').hidden=true;if(window.feather)feather.replace();
 });

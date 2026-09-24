@@ -23,6 +23,42 @@ class LifeCoachService
         return $user;
     }
 
+    public function profileActivity(?int $coachId = null, int $offset = 0, int $limit = 10): array
+    {
+        $coachId ??= $this->currentCoach()->id;
+        $limit = max(1, min($limit, 25));
+
+        $items = collect()
+            ->merge(CoachingNote::where('life_coach_id', $coachId)->latest()->get()->map(fn (CoachingNote $note) => [
+                'type' => 'note',
+                'icon' => 'edit-3',
+                'label' => 'Coaching note written',
+                'detail' => $note->session_type,
+                'date' => optional($note->created_at)->toIso8601String(),
+            ]))
+            ->merge(CoachingTask::where('life_coach_id', $coachId)->where('is_done', true)->latest('completed_at')->get()->map(fn (CoachingTask $task) => [
+                'type' => 'task',
+                'icon' => 'check-circle',
+                'label' => 'Task completed',
+                'detail' => $task->description,
+                'date' => optional($task->completed_at ?: $task->updated_at)->toIso8601String(),
+            ]))
+            ->merge(PatientRecord::where('life_coach_id', $coachId)->latest()->get()->map(fn (PatientRecord $patient) => [
+                'type' => 'patient',
+                'icon' => 'user-plus',
+                'label' => 'Patient assigned',
+                'detail' => $patient->fullname,
+                'date' => optional($patient->updated_at ?: $patient->created_at)->toIso8601String(),
+            ]))
+            ->sortByDesc('date')
+            ->values();
+
+        return [
+            'items' => $items->slice($offset, $limit)->values(),
+            'has_more' => $items->count() > $offset + $limit,
+        ];
+    }
+
     // <edit-marker SimpforLyla> added medicalHistory and psychiatricHistory to eager load
     public function getAssignedPatients(?int $coachId = null): Collection
     {
