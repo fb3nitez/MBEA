@@ -249,30 +249,96 @@ document.addEventListener('DOMContentLoaded', function () {
       }).join('') + '</div>';
     }
 
-    var html = '';
-
     var personalHtml = '';
     (intake.personal || []).forEach(function (f) { personalHtml += row(f.label, f.value); });
-    html += section('Personal Information', personalHtml || '<span class="intake-empty">No data on file.</span>');
+    var recordHtml = section('Personal Information', personalHtml || '<span class="intake-empty">No data on file.</span>');
 
     var condHtml =
       '<div class="intake-row"><span class="intake-label">Conditions</span><span class="intake-value">' + tags(intake.conditions) + '</span></div>' +
       row('Current Medications', intake.medications);
-    html += section('Medical History', condHtml);
+    var medicalHtml = section('Medical History', condHtml);
 
     var famHtml = '<div class="intake-row"><span class="intake-label">Family History</span><span class="intake-value">' + tags(intake.family) + '</span></div>';
-    html += section('Family History', famHtml);
+    medicalHtml += section('Family History', famHtml);
 
     var psychHtml = '';
     (intake.psychiatric || []).forEach(function (f) { psychHtml += row(f.label, f.value); });
-    html += section('Psychiatric History', psychHtml || '<span class="intake-empty">No data on file.</span>');
+    var psychiatricHtml = section('Personal History', psychHtml || '<span class="intake-empty">No data on file.</span>');
 
     var lsHtml = '';
     (intake.lifestyle || []).forEach(function (f) { lsHtml += row(f.label, f.value); });
-    html += section('Lifestyle Assessment', lsHtml || '<span class="intake-empty">No assessment on file.</span>');
+    var lifestyleHtml = section('Lifestyle Assessment', lsHtml || '<span class="intake-empty">No assessment on file.</span>');
+
+    var spiritualHtml = '';
+    (intake.spiritual || []).forEach(function (f) { spiritualHtml += row(f.label, f.value); });
+    var panels = {
+      record: recordHtml,
+      clinical: '<div class="intake-section"><div class="intake-section-title">Clinical Notes</div><div class="intake-tiptap-viewer" id="intake-clinical-notes-viewer"></div></div>',
+      medical: medicalHtml,
+      psychiatric: psychiatricHtml,
+      lifestyle: lifestyleHtml,
+      spiritual: section('Spiritual Intake', spiritualHtml || '<span class="intake-empty">No spiritual intake on file.</span>')
+    };
+
+    var html = Object.keys(panels).map(function (key, index) {
+      return '<div class="intake-tab-panel' + (index === 0 ? ' active' : '') + '" data-intake-panel="' + key + '">' + panels[key] + '</div>';
+    }).join('');
 
     body.innerHTML = html;
+    var clinicalViewer = document.getElementById('intake-clinical-notes-viewer');
+    if (clinicalViewer) clinicalViewer.innerHTML = renderTiptapDocument(intake.clinical_notes);
+    document.querySelectorAll('#intake-modal [data-intake-tab]').forEach(function (tab) {
+      tab.classList.toggle('active', tab.getAttribute('data-intake-tab') === 'record');
+      tab.onclick = function () {
+        var selected = this.getAttribute('data-intake-tab');
+        document.querySelectorAll('#intake-modal [data-intake-tab]').forEach(function (item) { item.classList.toggle('active', item === tab); });
+        body.querySelectorAll('[data-intake-panel]').forEach(function (panel) { panel.classList.toggle('active', panel.getAttribute('data-intake-panel') === selected); });
+      };
+    });
     lcRi();
+  }
+
+  function renderTiptapDocument(content) {
+    if (!content) return '<span class="intake-empty">No clinical notes on file.</span>';
+    try {
+      while (typeof content === 'string') content = JSON.parse(content);
+      if (!content || content.type !== 'doc') throw new Error('Invalid document');
+      return renderTiptapNode(content);
+    } catch (error) {
+      return '<span class="intake-empty">No clinical notes on file.</span>';
+    }
+  }
+
+  function renderTiptapNode(node) {
+    var children = (node.content || []).map(renderTiptapNode).join('');
+    var text = lcEscape(node.text || '');
+    var attrs = node.attrs || {};
+    switch (node.type) {
+      case 'doc': return children;
+      case 'paragraph': return '<p>' + children + '</p>';
+      case 'heading':
+        var level = Math.min(3, Math.max(1, Number(attrs.level) || 1));
+        return '<h' + level + '>' + children + '</h' + level + '>';
+      case 'bulletList': return '<ul>' + children + '</ul>';
+      case 'orderedList': return '<ol>' + children + '</ol>';
+      case 'listItem': return '<li>' + children + '</li>';
+      case 'blockquote': return '<blockquote>' + children + '</blockquote>';
+      case 'codeBlock': return '<pre><code>' + children + '</code></pre>';
+      case 'hardBreak': return '<br>';
+      case 'image':
+        var imageSrc = String(attrs.src || '');
+        if (!/^(https?:\/\/|data:image\/)/i.test(imageSrc)) return '';
+        return '<img src="' + lcEscape(imageSrc) + '" alt="' + lcEscape(attrs.alt || '') + '"' + (attrs.width ? ' style="width:' + lcEscape(attrs.width) + '"' : '') + '>';
+      case 'text':
+        return (node.marks || []).reduce(function (value, mark) {
+          if (mark.type === 'bold') return '<strong>' + value + '</strong>';
+          if (mark.type === 'italic') return '<em>' + value + '</em>';
+          if (mark.type === 'strike') return '<s>' + value + '</s>';
+          if (mark.type === 'code') return '<code>' + value + '</code>';
+          return value;
+        }, text);
+      default: return children || text;
+    }
   }
 
   function openGoalModalForEdit(goalId) {
