@@ -70,25 +70,58 @@ class IntakeFormRequest extends FormRequest
 
         $normalized = [];
 
-        foreach ($booleanFields as $field) {
+        $normalizeBoolean = function (string $field) use (&$normalized): void {
             if (! $this->has($field)) {
-                continue;
+                return;
             }
 
             $value = $this->input($field);
 
             if (is_bool($value)) {
                 $normalized[$field] = $value;
-                continue;
+                return;
             }
 
             if (is_string($value)) {
                 $normalized[$field] = in_array(strtolower($value), ['on', 'true', '1', 'yes'], true);
-                continue;
+                return;
             }
 
             if (is_numeric($value)) {
                 $normalized[$field] = (int) $value === 1;
+            }
+        };
+
+        foreach ($booleanFields as $field) {
+            $normalizeBoolean($field);
+        }
+
+        $spiritualTextFields = [
+            'religiousBackgroundChildhoodOtherText',
+            'religiousBackgroundAdolescentOtherText',
+            'religiousBackgroundCurrentOtherText',
+            'newAgeOtherText',
+            'additionalSpiritualIssuesOtherText',
+            'spiritualExplainHypnosis',
+            'spiritualGuidanceQuestion',
+            'spiritualVoicesQuestion',
+            'spiritualUnusualExperiencesQuestion',
+            'spiritualPrayerQuestion',
+            'spiritualRitualWorshipQuestion',
+        ];
+
+        foreach (array_keys($this->all()) as $field) {
+            if (! is_string($field) || in_array($field, $spiritualTextFields, true)) {
+                continue;
+            }
+
+            if (
+                str_starts_with($field, 'religiousBackground')
+                || str_starts_with($field, 'churchInvolvement')
+                || str_starts_with($field, 'newAge')
+                || str_starts_with($field, 'additionalSpiritualIssues')
+            ) {
+                $normalizeBoolean($field);
             }
         }
 

@@ -8,6 +8,7 @@ use App\Models\PsychiatricHistory;
 use App\Models\LifestyleAssessment;
 use App\Models\SpiritualIntake;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class IntakeFormService
 {
@@ -345,7 +346,17 @@ class IntakeFormService
 
         SpiritualIntake::create([
             'patient_record_id' => $patientRecord->id,
-            'data' => $spiritualData,
+            ...collect($spiritualData)
+                ->mapWithKeys(function ($value, $key) {
+                    $column = match ($key) {
+                        'additionalSpiritualIssuesRitualisticFamilyPatternsOfOppression' => 'additional_spiritual_issues_ritual_family_oppression',
+                        'additionalSpiritualIssuesRecurrentFamilyPatternsOfDepressionSadness' => 'additional_spiritual_issues_recurrent_family_depression',
+                        default => Str::snake($key),
+                    };
+
+                    return [$column => $value];
+                })
+                ->all(),
         ]);
     }
 }

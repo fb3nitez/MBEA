@@ -2,6 +2,7 @@
 
 use App\Models\PatientRecord;
 use App\Models\PsychiatricHistory;
+use App\Models\SpiritualIntake;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 
 it('accepts trauma checkbox values submitted as on from the browser', function () {
@@ -24,6 +25,9 @@ it('accepts trauma checkbox values submitted as on from the browser', function (
         'tsOngoing' => 'on',
         'traumaNeglect' => 'on',
         'tnPast' => 'on',
+        'religiousBackgroundChildhoodChristian' => 'on',
+        'religiousBackgroundAdolescentChristian' => 'on',
+        'churchInvolvementAttendsWeekly' => 'on',
     ];
 
     $response = $this->postJson('/submit-intake', $payload);
@@ -48,4 +52,10 @@ it('accepts trauma checkbox values submitted as on from the browser', function (
         ->and($history->sexual_ongoing)->toBeTrue()
         ->and($history->neglect)->toBeTrue()
         ->and($history->neglect_past)->toBeTrue();
+
+    $spiritualIntake = SpiritualIntake::where('patient_record_id', $patient->id)->first();
+    expect($spiritualIntake)->not->toBeNull()
+        ->and($spiritualIntake->religious_background_childhood_christian)->toBeTrue()
+        ->and($spiritualIntake->religious_background_adolescent_christian)->toBeTrue()
+        ->and($spiritualIntake->church_involvement_attends_weekly)->toBeTrue();
 });

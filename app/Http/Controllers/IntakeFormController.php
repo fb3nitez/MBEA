@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\IntakeFormRequest;
 use App\Services\IntakeFormService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class IntakeFormController extends Controller
 {
@@ -34,13 +33,7 @@ class IntakeFormController extends Controller
                     'name' => $patient->fullname,
                 ],
             ], 201);
-
         } catch (\Exception $e) {
-            Log::error('Patient intake submission failed: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'request_data' => $request->except(['_token']),
-            ]);
-
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while submitting your information. Please try again.',
