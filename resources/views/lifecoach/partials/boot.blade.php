@@ -5,6 +5,15 @@ $lcRoutes = [
 'notes' => route('lifecoach.notes'),
 'tasks' => route('lifecoach.tasks'),
 'profile' => route('lifecoach.profile'),
+'profileAccount' => route('lifecoach.profile.account'),
+'profileSecurity' => route('lifecoach.profile.security'),
+'profileNotifications' => route('lifecoach.profile.notifications'),
+'profileAvatar' => route('lifecoach.profile.avatar'),
+'profileActivity' => route('lifecoach.profile.activity'),
+'updates' => route('lifecoach.updates'),
+'updatesReadAll' => route('lifecoach.updates.read-all'),
+'updatesRead' => url('/lifecoach/updates/__ID__/read'),
+'updatesDismiss' => url('/lifecoach/updates/__ID__'),
 'logout' => route('auth.logout'),
 'patientsShow' => url('/lifecoach/patients/__ID__'),
 'notesStore' => route('lifecoach.notes.store'),
@@ -29,5 +38,7 @@ $lcRoutes = [
     STATS: @json($stats ?? (object) []),
     PATIENT_OPTIONS: @json($patientOptions ?? []),
     COACH: @json($coach ?? (object) []),
+    ACTIVITY: @json($activity ?? []),
+    UPDATES: @json($updates ?? (object) []),
   });
 </script>

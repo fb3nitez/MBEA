@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClinicalTemplate extends Model
 {
@@ -11,7 +12,14 @@ class ClinicalTemplate extends Model
     protected $casts = [
         'payload' => 'array',
         'sort_order' => 'integer',
+        'last_used_at' => 'datetime',
+        'usage_count' => 'integer',
     ];
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     public function toArray(): array
     {
@@ -28,6 +36,10 @@ class ClinicalTemplate extends Model
             'diag' => $this->payload['diag'] ?? null,
             'tests' => $this->payload['tests'] ?? [],
             'lifestyle' => $this->payload['lifestyle'] ?? [],
+            'created_by' => $this->created_by,
+            'last_used_at' => $this->last_used_at?->toIso8601String(),
+            'usage_count' => $this->usage_count ?? 0,
+            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

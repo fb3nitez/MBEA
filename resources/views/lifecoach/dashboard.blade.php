@@ -40,8 +40,8 @@
           </div>
           <div class="stat-card">
             <div class="stat-text">
-              <div class="stat-label">Pending Tasks</div>
-              <div class="stat-value" id="stat-tasks">{{ $stats['pending_tasks'] ?? 0 }}</div>
+              <div class="stat-label">Updates and pending</div>
+              <div class="stat-value" id="stat-tasks">{{ ($updates['unread_count'] ?? 0) + ($updates['pending_tasks'] ?? 0) }}</div>
             </div>
             <div class="stat-icon si-orange"><i data-feather="list"></i></div>
           </div>
@@ -78,8 +78,8 @@
 
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Pending Tasks</span>
-              <a href="{{ route('lifecoach.tasks') }}" class="btn-ghost">View All</a>
+              <span class="card-title">Updates and pending <span class="lc-update-count" id="update-count" aria-live="polite">{{ ($updates['unread_count'] ?? 0) + ($updates['pending_tasks'] ?? 0) }}</span></span>
+              <button type="button" class="btn-ghost" id="open-updates-btn">View All</button>
             </div>
             <div class="dash-task-list" id="dash-task-list"></div>
           </div>
@@ -98,6 +98,15 @@
       </div>
     </div>
   </div>
+
+  <aside class="lc-updates-panel" id="updates-panel" aria-hidden="true" aria-labelledby="updates-title">
+    <div class="lc-updates-panel-head"><h2 id="updates-title">Updates and pending</h2><button type="button" class="modal-close" id="close-updates-btn" aria-label="Close updates"><i data-feather="x"></i></button></div>
+    <div class="lc-updates-tabs" role="tablist"><button class="active" data-update-filter="all" role="tab">All</button><button data-update-filter="tasks" role="tab">Tasks</button><button data-update-filter="updates" role="tab">Updates</button></div>
+    <div class="lc-updates-actions"><button type="button" class="btn-ghost" id="mark-all-updates-btn">Mark all as read</button></div>
+    <div class="lc-updates-list" id="updates-list" aria-live="polite"></div>
+    <button type="button" class="btn-outline-sm lc-load-more" id="load-more-updates">Load more</button>
+  </aside>
+  <div class="lc-updates-backdrop" id="updates-backdrop"></div>
 
   <div class="modal-overlay hidden" id="schedule-modal">
     <div class="modal-box">

@@ -9,15 +9,19 @@ use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
 use App\Models\PatientRecord;
+use App\Models\Prescription;
+use App\Models\User;
+use App\Services\CoachUpdateService;
 use App\Services\PatientService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class PsychiatristController extends Controller
 {
-    public function __construct(private PatientService $patientService) {}
+    public function __construct(private PatientService $patientService, private CoachUpdateService $coachUpdateService) {}
 
     public function dashboard(): View
     {
@@ -114,6 +118,73 @@ class PsychiatristController extends Controller
         ]);
     }
 
+    public function toggleClinicalTemplateFavorite(int $id): JsonResponse
+    {
+        $template = ClinicalTemplate::findOrFail($id);
+        $favorite = (bool) request()->boolean('favorite');
+        $this->patientService->setClinicalTemplateFavorite($template, $favorite);
+
+        return response()->json(['message' => 'Favorite updated.', 'favorite' => $favorite]);
+    }
+
+    public function markClinicalTemplateUsed(int $id): JsonResponse
+    {
+        $template = ClinicalTemplate::findOrFail($id);
+        $this->patientService->recordClinicalTemplateUse($template);
+
+        return response()->json(['message' => 'Template usage recorded.']);
+    }
+
+    public function duplicateClinicalTemplate(int $id): JsonResponse
+    {
+        $template = ClinicalTemplate::findOrFail($id);
+        $copy = $this->patientService->createClinicalTemplate([
+            'type' => $template->type,
+            'name' => $template->name.' Copy',
+            'tag' => $template->tag,
+            'description' => $template->description,
+            'payload' => $template->payload,
+            'sort_order' => $template->sort_order,
+        ]);
+
+        return response()->json(['message' => 'Template duplicated.', 'template' => $copy->toArray()], 201);
+    }
+
+    public function renameClinicalTemplateTag(Request $request): JsonResponse
+    {
+        $data = $request->validate(['from' => ['required', 'string', 'max:100'], 'to' => ['required', 'string', 'max:100']]);
+        $from = trim($data['from']);
+        $to = trim(ucwords(strtolower($data['to'])));
+        DB::table('clinical_templates')->where('tag', $from)->update(['tag' => $to, 'updated_at' => now()]);
+
+        return response()->json(['message' => 'Tag updated.']);
+    }
+
+    public function deleteClinicalTemplateTag(Request $request): JsonResponse
+    {
+        $tag = trim($request->validate(['tag' => ['required', 'string', 'max:100']])['tag']);
+        DB::table('clinical_templates')->where('tag', $tag)->update(['tag' => null, 'updated_at' => now()]);
+
+        return response()->json(['message' => 'Tag removed from templates.']);
+    }
+
+    public function bulkDeleteClinicalTemplates(Request $request): JsonResponse
+    {
+        $ids = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['integer', 'exists:clinical_templates,id']])['ids'];
+        ClinicalTemplate::whereIn('id', $ids)->delete();
+
+        return response()->json(['message' => 'Selected templates deleted.']);
+    }
+
+    public function bulkTagClinicalTemplates(Request $request): JsonResponse
+    {
+        $data = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['integer', 'exists:clinical_templates,id'], 'tag' => ['nullable', 'string', 'max:100']]);
+        $tag = trim((string) $data['tag']);
+        ClinicalTemplate::whereIn('id', $data['ids'])->update(['tag' => $tag === '' ? null : ucwords(strtolower($tag)), 'updated_at' => now()]);
+
+        return response()->json(['message' => 'Selected template tags updated.']);
+    }
+
     public function profile()
     {
         $user = auth()->user();
@@ -134,6 +205,104 @@ class PsychiatristController extends Controller
             'totalAssessments',
             'recentConsultations'
         ));
+    }
+
+    public function updateProfileAccount(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.auth()->id()],
+            'phone' => ['nullable', 'regex:/^09\d{2} \d{3} \d{4}$/'],
+            'bio' => ['nullable', 'string', 'max:250'],
+            'license_no' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $user = auth()->user();
+        $user->update($data);
+
+        return response()->json(['message' => 'Account details saved.', 'user' => $this->profileUserData($user)]);
+    }
+
+    public function updateProfileSecurity(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        auth()->user()->update(['password' => $data['password']]);
+
+        return response()->json(['message' => 'Password updated successfully.']);
+    }
+
+    public function updateProfileNotifications(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'task_reminders' => ['required', 'boolean'],
+            'consultation_reminders' => ['required', 'boolean'],
+            'note_followups' => ['required', 'boolean'],
+        ]);
+
+        auth()->user()->update(['notification_preferences' => $data]);
+
+        return response()->json(['message' => 'Notification preferences saved.', 'preferences' => $data]);
+    }
+
+    public function uploadProfileAvatar(Request $request): JsonResponse
+    {
+        $image = $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ])['avatar'];
+        $user = auth()->user();
+        if ($user->avatar_path) {
+            Storage::disk('public')->delete($user->avatar_path);
+        }
+        $path = $image->store('profile-avatars', 'public');
+        $user->update(['avatar_path' => $path]);
+
+        return response()->json(['message' => 'Profile photo updated.', 'avatar_url' => asset('storage/'.$path)]);
+    }
+
+    public function profileActivity(Request $request): JsonResponse
+    {
+        $offset = max(0, $request->integer('offset', 0));
+        $activity = collect()
+            ->merge(ConsultationSchedule::with('patientRecord')
+                ->latest('date')
+                ->latest('time')
+                ->get()
+                ->map(fn (ConsultationSchedule $consultation) => [
+                    'icon' => 'calendar',
+                    'label' => 'Consultation scheduled',
+                    'detail' => $consultation->patientRecord?->fullname ?? 'Patient',
+                    'date' => optional($consultation->date)->toIso8601String(),
+                ]))
+            ->merge(Prescription::with('patientRecord')
+                ->latest('created_at')
+                ->get()
+                ->map(fn (Prescription $prescription) => [
+                    'icon' => 'file-text',
+                    'label' => 'Prescription saved',
+                    'detail' => $prescription->patientRecord?->fullname ?? 'Patient',
+                    'date' => optional($prescription->created_at)->toIso8601String(),
+                ]))
+            ->sortByDesc('date')
+            ->slice($offset, 10)
+            ->values();
+
+        return response()->json(['items' => $activity, 'has_more' => $activity->count() === 10]);
+    }
+
+    private function profileUserData($user): array
+    {
+        return [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'bio' => $user->bio,
+            'license_no' => $user->license_no,
+            'avatar_url' => $user->avatar_path ? asset('storage/'.$user->avatar_path) : null,
+        ];
     }
 
     public function searchPatients(Request $request): JsonResponse
@@ -172,6 +341,9 @@ class PsychiatristController extends Controller
         ]);
 
         $patient = $this->patientService->createPatient($data);
+        if (! empty($data['life_coach_id'])) {
+            $this->coachUpdateService->sync(User::findOrFail($data['life_coach_id']));
+        }
 
         return response()->json([
             'message' => 'Patient added successfully.',
@@ -199,6 +371,9 @@ class PsychiatristController extends Controller
         ]);
 
         $patient = $this->patientService->updatePatientRecord($patient, $data);
+        if (! empty($data['life_coach_id'])) {
+            $this->coachUpdateService->sync(User::findOrFail($data['life_coach_id']));
+        }
 
         return response()->json([
             'message' => 'Patient record updated.',
@@ -420,7 +595,7 @@ class PsychiatristController extends Controller
         ]);
 
         return response()->json([
-            'url' => Storage::disk('public')->url($upload->path),
+            'url' => asset('storage/'.$upload->path),
             'original_name' => $upload->original_name,
         ], 201);
     }

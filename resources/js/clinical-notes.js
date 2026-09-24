@@ -186,10 +186,20 @@ async function saveNotes() {
 }
 
 async function uploadClinicalImage(file) {
+    const patientId = currentPatientId();
+    if (!patientId) {
+        throw new Error("Please open a patient before uploading an image.");
+    }
+
+    if (!file || !file.type.startsWith("image/")) {
+        throw new Error("Please choose an image file.");
+    }
+
     const formData = new FormData();
     formData.append("image", file);
 
-    const response = await fetch(`/psychiatrist/patients/${currentPatientId()}/clinical-images`, {
+    const routeTemplate = window.PSYCH_ROUTES?.clinicalImages || "/psychiatrist/patients/__ID__/clinical-images";
+    const response = await fetch(routeTemplate.replace("__ID__", encodeURIComponent(patientId)), {
         method: "POST",
         credentials: "same-origin",
         headers: {
@@ -200,12 +210,20 @@ async function uploadClinicalImage(file) {
         body: formData,
     });
 
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to upload image");
+    const responseText = await response.text();
+    let result;
+    try {
+        result = JSON.parse(responseText);
+    } catch (error) {
+        throw new Error(response.status === 419
+            ? "Your session expired. Refresh the page and try again."
+            : "The server returned an unexpected response while uploading the image.");
     }
 
-    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.message || "Failed to upload image");
+    }
+
     editor.chain().focus().setImage({ src: result.url, alt: result.original_name }).run();
 }
 

@@ -15,9 +15,15 @@ qsa(".subtab-btn").forEach(function (btn) {
         this.classList.add("active");
         var panel = document.getElementById("subtab-" + key);
         if (panel) panel.classList.add("active");
+        if (window.history && window.history.replaceState) window.history.replaceState(null, "", "#" + (key === "diagnostic" ? "dx" : "rx"));
         ri();
     });
 });
+
+/* Restore the selected prescription tab after a refresh. */
+var initialTab = window.location.hash.toLowerCase() === '#dx' ? 'diagnostic' : 'rx';
+var initialTabButton = qs('.subtab-btn[data-subtab="' + initialTab + '"]');
+if (initialTabButton) initialTabButton.click();
 
 /* ============================================================
      RX: DATE
@@ -78,10 +84,11 @@ if (rxDiagInput && rxDiagDropdown) {
 var rxMedsList = document.getElementById("rx-meds-list");
 var addMedBtn = document.getElementById("add-med-btn");
 
-function createMedRow(prefill) {
+function createMedRow(prefill, templateId) {
     prefill = prefill || {};
     var row = document.createElement("div");
     row.className = "rx-med-row";
+    if (templateId) row.setAttribute("data-template-id", templateId);
 
     // Med name
     var nameWrap = document.createElement("div");
@@ -365,6 +372,9 @@ function normalizeTemplate(t) {
         meds: t.meds || payload.meds || [],
         tests: t.tests || payload.tests || [],
         lifestyle: t.lifestyle || payload.lifestyle || [],
+        favorite: !!t.favorite,
+        lastUsedAt: t.last_used_at || t.lastUsedAt || null,
+        usageCount: Number(t.usage_count || t.usageCount || 0),
         payload: payload,
     };
 }
@@ -418,6 +428,8 @@ function setTemplateFavorite(type, id, favorite) {
     } catch (e) {
         // Favorites remain optional when local storage is unavailable.
     }
+    var route = (window.PSYCH_ROUTES || {}).templatesFavorite;
+    if (route) apiFetch(route.replace('__ID__', id), { method: 'PUT', body: JSON.stringify({ favorite: favorite }) }).catch(function () {});
 }
 
 function templateSearchText(t) {
@@ -499,8 +511,11 @@ function applyTemplateWithChoice(t, onApply) {
     var choice = hasData ? showTemplateChoiceModal(t.name) : Promise.resolve("replace");
     choice.then(function (mode) {
         if (mode === "cancel") return;
+        if (mode === "replace") APPLIED_TEMPLATE_IDS[t.type] = {};
         onApply(t, mode);
         APPLIED_TEMPLATE_IDS[t.type][String(t.id)] = true;
+        var usedRoute = (window.PSYCH_ROUTES || {}).templatesUsed;
+        if (usedRoute) apiFetch(usedRoute.replace('__ID__', t.id), { method: 'POST' }).catch(function () {});
         buildTemplateLibraries();
     });
 }
@@ -508,7 +523,8 @@ function applyTemplateWithChoice(t, onApply) {
 function buildTemplateItem(t, onApply) {
     var div = document.createElement("div");
     div.className = "template-item";
-    var favorite = isTemplateFavorite(t.type, t.id);
+    div.setAttribute("role", "listitem");
+    var favorite = t.favorite || isTemplateFavorite(t.type, t.id);
     var applied = !!APPLIED_TEMPLATE_IDS[t.type][String(t.id)];
     var entries = t.type === "dx"
         ? (t.tests || []).map(function (test) { return "<li>" + escHtml(test) + "</li>"; }).join("")
@@ -519,74 +535,92 @@ function buildTemplateItem(t, onApply) {
             return "<li><strong>" + escHtml(item.title || "Intervention") + "</strong> <span class=\"template-detail-muted\">" + escHtml(item.category || "") + "</span></li>";
         })).join("");
     var summary = t.desc || (t.type === "dx" ? (t.tests || []).slice(0, 3).join(", ") : (t.meds || []).map(function (m) { return m.name || ""; }).concat((t.lifestyle || []).map(function (item) { return item.title || ""; })).filter(Boolean).slice(0, 3).join(", "));
+    var meta = t.type === "dx" ? (t.tests || []).length + " tests" : (t.meds || []).length + " medications · " + (t.lifestyle || []).length + " lifestyle items";
+    var templateName = String(t.name || "Template");
+    var displayName = escHtml(templateName).replace(/\s+—\s+/g, "&nbsp;— ");
     var applyButton = applied
-        ? '<button type="button" class="template-apply-target template-applied-button" disabled aria-disabled="true" title="Applied"><i data-feather="check"></i><span class="sr-only">Applied</span></button>'
+        ? '<button type="button" class="template-apply-target template-applied-button" aria-pressed="true" aria-label="Active in the form. Click to remove" title="Active in the form. Click to remove"><i data-feather="check"></i><span class="sr-only">Active in the form</span></button>'
         : '<button type="button" class="template-apply-target" aria-label="Apply ' + escHtml(t.name || "Template") + '" title="Apply template"><i data-feather="play"></i><span class="sr-only">Apply</span></button>';
     div.innerHTML =
-        '<div class="template-item-top">' +
-        applyButton +
-        '<span class="template-heading"><span class="template-name">' + escHtml(t.name || "Template") + '</span>' +
-        (t.tag
-            ? '<span class="template-tag ' +
-              (t.tagClass || "") +
-              '">' +
-              escHtml(t.tag) +
-              "</span>"
-            : "") +
-          '</span>' +
-        '<button type="button" class="template-favorite" aria-label="' + (favorite ? "Remove from favorites" : "Add to favorites") + '" aria-pressed="' + (favorite ? "true" : "false") + '"><i data-feather="star"></i></button>' +
-        '<div class="template-overflow-wrap"><button type="button" class="template-overflow" aria-label="More actions" aria-expanded="false"><i data-feather="more-horizontal"></i></button>' +
-        '<div class="template-menu"><button type="button" class="tpl-edit">Edit</button><button type="button" class="tpl-delete">Delete</button></div></div>' +
-        "</div>" +
-        '<div class="template-desc">' +
-        escHtml(summary || "No details provided") +
-        "</div>" +
-        '<details class="template-preview"><summary>Preview details</summary><ul>' + (entries || "<li>No details provided</li>") + "</ul></details>" +
+                '<div class="template-item-top">' + applyButton +
+                '<div class="template-item-content"><strong class="template-name" title="' + escHtml(templateName) + '">' + displayName + '</strong>' +
+                '<div class="template-item-meta">' + (t.tag ? '<span class="template-tag ' + (t.tagClass || "") + '">' + escHtml(t.tag) + '</span>' : '') + '<span class="template-meta">' + escHtml(meta) + '</span></div>' +
+                '<div class="template-desc">' + escHtml(summary || "No details provided") + '</div></div>' +
+                '<div class="template-item-actions"><button type="button" class="template-favorite" aria-label="' + (favorite ? "Remove from favorites" : "Add to favorites") + ' ' + escHtml(templateName) + '" title="Favorites" aria-pressed="' + (favorite ? "true" : "false") + '"><i data-feather="star"></i></button>' +
+                '<button type="button" class="template-preview-toggle" aria-expanded="false" aria-label="Preview ' + escHtml(templateName) + '" title="Preview"><i data-feather="chevron-down"></i></button></div>' +
+                '</div><details class="template-preview"><summary class="sr-only">Preview details</summary><ul>' + (entries || "<li>No details provided</li>") + "</ul></details>" +
         "";
     if (!applied) {
         div.querySelector(".template-apply-target").addEventListener("click", function () {
             applyTemplateWithChoice(t, onApply);
         });
+    } else {
+        div.querySelector(".template-apply-target").addEventListener("click", function () {
+            removeTemplateContribution(t);
+        });
     }
-    div.addEventListener("click", function (event) {
-        if (applied) return;
-        if (event.target.closest("button, details, summary, .template-menu")) return;
-        applyTemplateWithChoice(t, onApply);
-    });
-    div.addEventListener("keydown", function (event) {
-        if (applied) return;
-        if ((event.key === "Enter" || event.key === " ") && event.target === div) {
-            event.preventDefault();
-            applyTemplateWithChoice(t, onApply);
-        }
-    });
-    div.tabIndex = 0;
-    div.setAttribute("role", "button");
     div.querySelector(".template-favorite").addEventListener("click", function () {
         var next = !isTemplateFavorite(t.type, t.id);
         setTemplateFavorite(t.type, t.id, next);
         buildTemplateLibraries();
     });
-    div.querySelector(".template-overflow").addEventListener("click", function (event) {
+    div.querySelector(".template-preview-toggle").addEventListener("click", function (event) {
         event.stopPropagation();
-        var menu = div.querySelector(".template-menu");
-        var open = menu.classList.toggle("open");
-        this.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    div.querySelector(".tpl-edit").addEventListener("click", function () {
-        openTemplateModal(t.type, t);
-    });
-    div.querySelector(".tpl-delete").addEventListener("click", function () {
-        deleteTemplate(t);
+        var toggle = this;
+        var current = document.querySelector('.template-detail-popover');
+        document.querySelectorAll('.template-preview-toggle[aria-expanded="true"]').forEach(function (button) { button.setAttribute('aria-expanded', 'false'); });
+        if (current) current.remove();
+        var open = toggle.getAttribute('aria-expanded') !== 'true';
+        if (!open) { toggle.setAttribute('aria-expanded', 'false'); return; }
+        var popover = document.createElement('div');
+        popover.className = 'template-detail-popover';
+        popover.setAttribute('role', 'dialog');
+        popover.innerHTML = '<strong>Details</strong><ul>' + (entries || '<li>No details provided</li>') + '</ul>';
+        document.body.appendChild(popover);
+        var rect = this.getBoundingClientRect();
+        var left = Math.min(rect.left, window.innerWidth - popover.offsetWidth - 12);
+        var top = rect.bottom + 8;
+        if (top + popover.offsetHeight > window.innerHeight - 12) top = Math.max(12, rect.top - popover.offsetHeight - 8);
+        popover.style.left = Math.max(12, left) + 'px';
+        popover.style.top = top + 'px';
+        toggle.setAttribute('aria-expanded', 'true');
+        function closePopover() { popover.remove(); toggle.setAttribute('aria-expanded', 'false'); document.removeEventListener('click', outside); document.removeEventListener('keydown', escape); }
+        function outside(click) { if (!popover.contains(click.target) && click.target !== toggle) closePopover(); }
+        function escape(keyEvent) { if (keyEvent.key === 'Escape') closePopover(); }
+        document.addEventListener('click', outside);
+        document.addEventListener('keydown', escape);
     });
     return div;
+}
+
+function removeTemplateContribution(t) {
+    var id = String(t.id);
+    if (t.type === 'rx') {
+        qsa('.rx-med-row[data-template-id="' + id + '"]:not([data-template-edited="true"])').forEach(function (row) { row.remove(); });
+        qsa('.lx-item-row[data-template-id="' + id + '"]:not([data-template-edited="true"])').forEach(function (row) { row.remove(); });
+        APPLIED_TEMPLATE_IDS.rx[id] = false;
+        updateRxPreview();
+    } else {
+        qsa('.dx-cb[data-template-id="' + id + '"]:not([data-template-edited="true"])').forEach(function (cb) { cb.checked = false; cb.removeAttribute('data-template-id'); });
+        APPLIED_TEMPLATE_IDS.dx[id] = false;
+        updateDxSelectedCount();
+        updateDxPreview();
+    }
+    buildTemplateLibraries();
+    showToast('Template removed; manually edited items were kept.');
 }
 
 function buildTemplateLibrary(type) {
     var list = document.getElementById(type + "-template-list");
     var filters = document.getElementById(type + "-template-filters");
     if (!list) return;
-    var templates = (type === "dx" ? DX_TEMPLATES : RX_TEMPLATES).map(normalizeTemplate).filter(templateMatches);
+    var allTemplates = (type === "dx" ? DX_TEMPLATES : RX_TEMPLATES).map(normalizeTemplate);
+    var templates = allTemplates.filter(templateMatches);
+    var library = list.closest('.template-library');
+    var status = document.getElementById(type + '-template-status');
+    var activeCount = Object.keys(APPLIED_TEMPLATE_IDS[type]).filter(function (id) { return APPLIED_TEMPLATE_IDS[type][id]; }).length;
+    if (status) status.innerHTML = activeCount ? '<span class="template-active-chip">' + activeCount + ' active</span><button type="button" class="template-clear-active">Clear all</button>' : '';
+    if (status) { var clear = status.querySelector('.template-clear-active'); if (clear) clear.addEventListener('click', function () { APPLIED_TEMPLATE_IDS[type] = {}; if (type === 'rx') { qsa('.rx-med-row[data-template-id], .lx-item-row[data-template-id]').forEach(function (row) { row.remove(); }); updateRxPreview(); } else { qsa('.dx-cb[data-template-id]').forEach(function (cb) { cb.checked = false; cb.removeAttribute('data-template-id'); }); updateDxSelectedCount(); updateDxPreview(); } buildTemplateLibraries(); }); }
     if (filters) {
         filters.innerHTML = ["All"].concat(templateCategories(type)).map(function (category) {
             var active = TEMPLATE_LIBRARY_STATE[type].category === category;
@@ -601,12 +635,24 @@ function buildTemplateLibrary(type) {
     }
     list.innerHTML = "";
     if (!templates.length) {
-        list.innerHTML = '<div class="template-empty"><i data-feather="search"></i><strong>No templates match</strong><span>Try another search or category.</span></div>';
+        list.innerHTML = '<div class="template-empty"><i data-feather="search"></i><strong>' + (allTemplates.length ? 'No templates match' : 'No templates yet') + '</strong><span>' + (allTemplates.length ? 'Clear filters or try another search.' : 'Save one from the form.') + '</span></div>';
+        ri();
         return;
     }
-    templates.forEach(function (t) {
-        list.appendChild(buildTemplateItem(t, type === "dx" ? applyDxTemplate : applyRxTemplate));
-    });
+    function section(title, items) {
+        if (!items.length) return;
+        var group = document.createElement('div'); group.className = 'template-library-section';
+        group.innerHTML = '<span class="template-library-group-label" aria-hidden="true">' + escHtml(title) + ' <span>' + items.length + '</span></span><div class="template-library-section-list"></div>';
+        var sectionList = group.querySelector('.template-library-section-list');
+        items.forEach(function (t) { sectionList.appendChild(buildTemplateItem(t, type === "dx" ? applyDxTemplate : applyRxTemplate)); });
+        list.appendChild(group);
+    }
+    var favorites = templates.filter(function (t) { return t.favorite || isTemplateFavorite(t.type, t.id); });
+    var recent = templates.filter(function (t) { return t.lastUsedAt; }).sort(function (a,b) { return String(b.lastUsedAt).localeCompare(String(a.lastUsedAt)); }).slice(0, 5);
+    var seen = {};
+    section('Favorites', favorites); favorites.forEach(function (t) { seen[t.id] = true; });
+    section('Recently used', recent.filter(function (t) { return !seen[t.id]; })); recent.forEach(function (t) { seen[t.id] = true; });
+    section('All templates', templates);
     ri();
 }
 
@@ -631,14 +677,14 @@ function applyRxTemplate(t) {
     if (replace) rxMedsList.innerHTML = "";
     (t.meds || []).forEach(function (m) {
         if (!replace && meds.some(function (existing) { return existing.name === m.name && existing.dose === m.dose; })) return;
-        rxMedsList.appendChild(createMedRow(m));
+        rxMedsList.appendChild(createMedRow(m, t.id));
     });
     if (rxDiagInput && (replace || !rxDiagInput.value.trim())) rxDiagInput.value = t.diag || "";
     if (lxItemsList) {
         if (replace) lxItemsList.innerHTML = "";
         (t.lifestyle || []).forEach(function (item) {
             if (!replace && collectLxItems().some(function (existing) { return existing.title === item.title; })) return;
-            lxItemsList.appendChild(createLxItemRow(item));
+            lxItemsList.appendChild(createLxItemRow(item, t.id));
         });
     }
     updateRxPreview();
@@ -652,7 +698,7 @@ function applyDxTemplate(t) {
     if (replace) qsa(".dx-cb").forEach(function (cb) { cb.checked = false; });
     (t.tests || []).forEach(function (test) {
         var cb = qs('.dx-cb[data-test="' + test + '"]');
-        if (cb) cb.checked = true;
+        if (cb) { cb.checked = true; cb.setAttribute('data-template-id', t.id); }
     });
     updateDxSelectedCount();
     updateDxPreview();
@@ -961,6 +1007,7 @@ if (tplSaveBtn) {
                 buildDxTemplates();
                 closeModal("template-modal");
                 showToast(data.message || "Template saved.");
+                if (window.refreshTemplateManage) window.refreshTemplateManage();
             })
             .catch(function (err) {
                 showToast(err.message);
@@ -1080,7 +1127,6 @@ function rxPadStyles() {
         ".vtext-sub{font-weight:400;font-style:italic;font-size:10.5px;}" +
         ".vtext-main{font-weight:700;font-size:11px;}" +
         ".sig-block{margin-top:36px;page-break-inside:avoid;}" +
-        ".sig-bar{width:200px;border-top:1.5px solid #000;margin-bottom:4px;}" +
         ".sig-name{font-weight:700;font-size:13px;}.sig-lic{font-size:12px;}" +
         ".lx-block{margin-top:14px;page-break-inside:avoid;}" +
         ".lx-block-title{font-size:12px;font-weight:900;letter-spacing:1px;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:4px;}" +
@@ -1089,6 +1135,8 @@ function rxPadStyles() {
         ".lx-row-title{font-weight:700;font-size:12px;}" +
         ".lx-row-meta{font-weight:400;font-size:11px;}" +
         ".lx-row-instr{font-size:11px;font-style:italic;}" +
+        ".rx-print-notes{margin-top:14px;padding-top:8px;border-top:1px solid #000;font-size:12px;line-height:1.4;}" +
+        ".rx-print-notes-title{font-size:12px;font-weight:900;letter-spacing:1px;margin-bottom:4px;}" +
         ".foot{margin-top:14px;font-size:10px;color:#333;display:flex;justify-content:space-between;}" +
         "</style>"
     );
@@ -1165,9 +1213,11 @@ function buildRxPadDocument(
     patientSex,
     medList,
     lifestyleList,
+    notes,
 ) {
     medList = medList || [];
     lifestyleList = lifestyleList || [];
+    notes = notes || "";
     var logoTag = P.clinicLogo
         ? '<img src="' +
           P.clinicLogo +
@@ -1180,6 +1230,7 @@ function buildRxPadDocument(
           buildLxPadHtml(lifestyleList) +
           "</div>"
         : "";
+    var notesBlockHtml = '<div class="rx-print-notes"><div class="rx-print-notes-title">INSTRUCTIONS</div><div>' + escHtml(notes.trim() || "\u2014") + '</div></div>';
     return (
         "<html><head><title>MB.EA Wellness Center Prescription</title>" +
         rxPadStyles() +
@@ -1240,7 +1291,8 @@ function buildRxPadDocument(
               "</tbody></table>"
             : "") +
         lifestyleBlockHtml +
-        '<div class="sig-block"><div class="sig-bar"></div>' +
+        notesBlockHtml +
+        '<div class="sig-block">' +
         '<div class="sig-name">' +
         escHtml(doc.name || "\u2014") +
         "</div></div>" +
@@ -1292,6 +1344,7 @@ window.printRx = function () {
             patientSex,
             medList,
             lifestyleList,
+            document.getElementById("rx-notes").value || "",
         ),
     );
 };
@@ -1446,10 +1499,11 @@ window.printDx = function () {
 var lxItemsList = document.getElementById("rx-lifestyle-list");
 var addLxItemBtn = document.getElementById("add-lifestyle-btn");
 
-function createLxItemRow(prefill) {
+function createLxItemRow(prefill, templateId) {
     prefill = prefill || {};
     var row = document.createElement("div");
     row.className = "lx-item-row";
+    if (templateId) row.setAttribute("data-template-id", templateId);
 
     // Category
     var cat = document.createElement("select");
@@ -1695,10 +1749,15 @@ document.addEventListener("click", function (event) {
     }
 });
 document.addEventListener("input", function (event) {
-    if (event.target.closest(".rx-med-row, .lx-item-row")) updateRxPreview();
+    var row = event.target.closest(".rx-med-row, .lx-item-row");
+    if (row && row.dataset.templateId) row.dataset.templateEdited = "true";
+    if (row) updateRxPreview();
 });
 document.addEventListener("change", function (event) {
-    if (event.target.closest(".rx-med-row, .lx-item-row")) updateRxPreview();
+    var row = event.target.closest(".rx-med-row, .lx-item-row");
+    if (row && row.dataset.templateId) row.dataset.templateEdited = "true";
+    if (event.target.classList.contains("dx-cb") && event.target.dataset.templateId) event.target.dataset.templateEdited = "true";
+    if (row) updateRxPreview();
 });
 updateRxPreview();
 updateDxPreview();
