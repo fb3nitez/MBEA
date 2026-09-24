@@ -508,6 +508,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var modal = document.getElementById('patient-detail-modal');
     if (modal) modal.setAttribute('data-current-patient', p.id);
 
+    if (window.displayAsHTML) window.displayAsHTML(p.clinical_notes);
+
     switchPmTab('overview');
     openModal('patient-detail-modal');
     ri();
