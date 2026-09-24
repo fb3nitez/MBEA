@@ -27,6 +27,7 @@ class ClinicalTemplate extends Model
             'meds' => $this->payload['meds'] ?? [],
             'diag' => $this->payload['diag'] ?? null,
             'tests' => $this->payload['tests'] ?? [],
+            'lifestyle' => $this->payload['lifestyle'] ?? [],
         ];
     }
 }

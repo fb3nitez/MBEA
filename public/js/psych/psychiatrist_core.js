@@ -4,8 +4,6 @@
    MEDCARE PSYCHIATRIST DASHBOARD — psychiatrist_dashboard.js
    ============================================================ */
 
-document.addEventListener('DOMContentLoaded', function () {
-
   /* ============================================================
      DATA (from server via window.PSYCH_DATA)
   ============================================================ */
@@ -195,22 +193,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var timer = null;
     var requestSeq = 0;
+    var currentMatches = [];
+    var activeMatchIndex = -1;
 
     function setSelected(patient) {
       if (!patient) {
         searchEl.value = '';
         hiddenEl.value = '';
+        hiddenEl.dispatchEvent(new Event('change', { bubbles: true }));
         if (opts.ageId) setVal(opts.ageId, '');
         return;
       }
       upsertPatientLocal(patient);
       searchEl.value = patientLabel(patient);
       hiddenEl.value = patient.id;
+      hiddenEl.dispatchEvent(new Event('change', { bubbles: true }));
       if (opts.ageId && patient.age != null) setVal(opts.ageId, patient.age);
       if (typeof opts.onSelect === 'function') opts.onSelect(patient);
     }
 
     function renderMatches(matches, query) {
+      currentMatches = matches;
+      activeMatchIndex = -1;
       dropdownEl.innerHTML = '';
       if (!matches.length) {
         if (query) {
@@ -239,6 +243,8 @@ document.addEventListener('DOMContentLoaded', function () {
       matches.forEach(function (p) {
         var item = document.createElement('div');
         item.className = 'typeahead-item';
+        item.setAttribute('role', 'option');
+        item.setAttribute('data-match-index', matches.indexOf(p));
         item.textContent = patientLabel(p);
         item.addEventListener('click', function () {
           setSelected(p);
@@ -247,6 +253,14 @@ document.addEventListener('DOMContentLoaded', function () {
         dropdownEl.appendChild(item);
       });
       show(dropdownEl);
+    }
+
+    function setActiveMatch(index) {
+      if (!currentMatches.length) return;
+      activeMatchIndex = (index + currentMatches.length) % currentMatches.length;
+      dropdownEl.querySelectorAll('[data-match-index]').forEach(function (item) {
+        item.classList.toggle('active', Number(item.getAttribute('data-match-index')) === activeMatchIndex);
+      });
     }
 
     function runSearch(query) {
@@ -282,6 +296,21 @@ document.addEventListener('DOMContentLoaded', function () {
       hiddenEl.value = '';
       clearTimeout(timer);
       timer = setTimeout(function () { runSearch(searchEl.value); }, 220);
+    });
+    searchEl.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setActiveMatch(activeMatchIndex + 1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setActiveMatch(activeMatchIndex - 1);
+      } else if (event.key === 'Enter' && activeMatchIndex >= 0 && currentMatches[activeMatchIndex]) {
+        event.preventDefault();
+        setSelected(currentMatches[activeMatchIndex]);
+        hide(dropdownEl);
+      } else if (event.key === 'Escape') {
+        hide(dropdownEl);
+      }
     });
     searchEl.addEventListener('focus', function () {
       runSearch(searchEl.value);
@@ -334,7 +363,6 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = url;
   }
 
-  // Legacy data-goto attributes → real page navigation
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-goto]');
     if (!el) return;

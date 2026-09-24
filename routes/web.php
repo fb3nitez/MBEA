@@ -54,7 +54,6 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::post('/patients/{id}/assessment', 'storeAssessment')->name('assessments.store');
         Route::get('/patients/{id}/assessment', 'showAssessment')->name('assessments.show');
         Route::post('/patients/{id}/prescription', 'storePrescription')->name('prescriptions.store');
-        Route::post('/patients/{id}/lifestyle-prescription', 'storeLifestylePrescription')->name('lifestyle-prescriptions.store');
 
         Route::post('/clinical-templates', 'storeClinicalTemplate')->name('templates.store');
         Route::put('/clinical-templates/{id}', 'updateClinicalTemplate')->name('templates.update');

@@ -1,4 +1,4 @@
-@extends('layouts.psychiatrist')
+﻿@extends('layouts.psychiatrist')
 
 @section('title', 'Prescriptions')
 @section('page', 'prescriptions')
@@ -14,9 +14,6 @@
     <button class="subtab-btn" data-subtab="diagnostic">
       <i data-feather="activity"></i> Diagnostic Request
     </button>
-    <button class="subtab-btn" data-subtab="lifestyle">
-      <i data-feather="heart"></i> Lifestyle Prescription
-    </button>
   </div>
 
   <!-- SUB-TAB: MEDICATION RX -->
@@ -31,8 +28,8 @@
             <div class="rx-stamp">Rx</div>
             <div class="rx-doctor-info">
               <div class="rx-doctor-name">{{ $prescriber->name }}</div>
-              <div class="rx-doctor-role">Psychiatrist · MB.EA Wellness Center</div>
-              <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no ?? '—' }}</div>
+              <div class="rx-doctor-role">Psychiatrist &middot; MB.EA Wellness Center</div>
+              @if($prescriber->license_no)<div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
             </div>
           </div>
 
@@ -52,7 +49,7 @@
             </div>
             <div class="field-group">
               <label class="field-label">Date</label>
-              <input type="text" class="field-input" id="rx-date" readonly />
+              <input type="date" class="field-input" id="rx-date" />
             </div>
           </div>
 
@@ -77,9 +74,26 @@
           <div id="rx-meds-list">
             <!-- Med rows injected by JS -->
           </div>
-          <button class="btn-outline-add" id="add-med-btn">
-            <i data-feather="plus"></i> Add Medication
-          </button>
+          <div style="display:flex;gap:12px;margin:10px 16px;">
+            <button class="btn-outline-add" id="add-med-btn" style="margin:0;">
+              <i data-feather="plus"></i> Add Medication
+            </button>
+            <button class="btn-outline-add" id="add-lifestyle-btn" style="margin:0;">
+              <i data-feather="heart"></i> Add Lifestyle Intervention
+            </button>
+          </div>
+
+          <!-- Lifestyle Interventions -->
+          <div class="rx-meds-header" style="padding-top:6px;">
+            <span class="field-label">Lifestyle Interventions <span
+                style="font-weight:400;color:var(--text-500);">(optional)</span></span>
+          </div>
+          <div class="lx-items-table-header">
+            <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
+          </div>
+          <div id="rx-lifestyle-list">
+            <div class="lx-empty-state">No lifestyle interventions added yet.</div>
+          </div>
 
           <!-- Special Instructions -->
           <div class="field-group" style="margin-top:12px;">
@@ -91,6 +105,9 @@
           <button class="btn-generate" id="generate-rx-btn">
             <i data-feather="file-text"></i> Generate Prescription
           </button>
+          <button class="btn-outline-add rx-save-current-btn" id="save-rx-template-btn" type="button">
+            <i data-feather="bookmark"></i> Save current form as template
+          </button>
         </div>
       </div>
 
@@ -100,22 +117,24 @@
         <div class="card rx-preview-card" id="rx-preview-card">
           <div id="print-area-rx">
             <div class="rx-preview-clinic">MB.EA Wellness Center</div>
-            <div class="rx-preview-addr">123 Wellness Ave, Quezon City · +63-2-8888-9999</div>
+            <div class="rx-preview-addr">123 Wellness Ave, Quezon City &middot; +63-2-8888-9999</div>
             <div class="rx-preview-stamp">Rx</div>
             <div class="rx-preview-patient-row">
-              <span>Patient: <strong id="preview-patient">—</strong></span>
-              <span>Age: <strong id="preview-age">—</strong></span>
-              <span>Date: <strong id="preview-date">—</strong></span>
+              <span>Patient: <strong id="preview-patient">&mdash;</strong></span>
+              <span>Age: <strong id="preview-age">&mdash;</strong></span>
+              <span>Date: <strong id="preview-date">&mdash;</strong></span>
             </div>
-            <div class="rx-preview-diag">Diagnosis: <strong id="preview-diag">—</strong></div>
+            <div class="rx-preview-diag">Diagnosis: <strong id="preview-diag">&mdash;</strong></div>
             <div class="rx-preview-meds-label">Medications:</div>
             <ol id="preview-meds-list" class="rx-preview-meds-list"></ol>
+            <div class="rx-preview-meds-label hidden" id="preview-lifestyle-label">Lifestyle Interventions:</div>
+            <div id="preview-lifestyle-list" class="lx-prev-items"></div>
             <div class="rx-preview-notes-label">Instructions:</div>
-            <div id="preview-notes" class="rx-preview-notes-text">—</div>
+            <div id="preview-notes" class="rx-preview-notes-text">&mdash;</div>
             <div class="rx-preview-sig-line">
               <div class="rx-sig-line-bar"></div>
               <div class="rx-sig-name">{{ $prescriber->name }}</div>
-              <div class="rx-sig-lic">License No. {{ $prescriber->license_no ?? '—' }}</div>
+              @if($prescriber->license_no)<div class="rx-sig-lic">License No. {{ $prescriber->license_no }}</div>@endif
             </div>
           </div>
           <button class="btn-print" onclick="printRx()">
@@ -131,8 +150,16 @@
               Library</span>
             <button type="button" class="btn-outline-sm" id="rx-template-add-btn">+ Manage / Add</button>
           </div>
-          <div class="template-list" id="rx-template-list">
-            <!-- Filled by JS -->
+          <div class="template-library" data-template-type="rx">
+            <div class="template-library-toolbar">
+              <label class="sr-only" for="rx-template-search">Search Rx templates</label>
+              <input class="field-input template-search" id="rx-template-search" type="search" placeholder="Search medications or templates..." />
+              <button class="template-favorite-toggle" type="button" aria-pressed="false" title="Show favorite templates"><i data-feather="star"></i><span>Favorites</span></button>
+            </div>
+            <div class="template-filter-chips" id="rx-template-filters" role="group" aria-label="Rx template categories"></div>
+          <div class="template-list" id="rx-template-list" aria-live="polite">
+            <div class="template-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+          </div>
           </div>
         </div>
       </div>
@@ -148,8 +175,8 @@
             <div class="rx-stamp">Dx</div>
             <div class="rx-doctor-info">
               <div class="rx-doctor-name">{{ $prescriber->name }}</div>
-              <div class="rx-doctor-role">Psychiatrist · MB.EA Wellness Center</div>
-              <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no ?? '—' }}</div>
+              <div class="rx-doctor-role">Psychiatrist &middot; MB.EA Wellness Center</div>
+              @if($prescriber->license_no)<div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
             </div>
           </div>
 
@@ -168,7 +195,7 @@
             </div>
             <div class="field-group">
               <label class="field-label">Date</label>
-              <input type="text" class="field-input" id="dx-date" readonly />
+              <input type="date" class="field-input" id="dx-date" />
             </div>
           </div>
 
@@ -180,6 +207,11 @@
 
           <!-- Lab Tests -->
           <div class="dx-section-label">Laboratory Tests</div>
+          <div class="dx-tools">
+            <label class="sr-only" for="dx-test-search">Search laboratory tests</label>
+            <input class="field-input" id="dx-test-search" type="search" placeholder="Search tests..." />
+            <span class="dx-selected-count" id="dx-selected-count">0 tests selected</span>
+          </div>
           <div class="dx-checklist" id="dx-checklist">
             <!-- Filled by JS -->
           </div>
@@ -201,6 +233,9 @@
           <button class="btn-generate" id="generate-dx-btn">
             <i data-feather="file-text"></i> Generate Request
           </button>
+          <button class="btn-outline-add rx-save-current-btn" id="save-dx-template-btn" type="button">
+            <i data-feather="bookmark"></i> Save current form as template
+          </button>
         </div>
       </div>
 
@@ -209,22 +244,22 @@
         <div class="card rx-preview-card" id="dx-preview-card">
           <div id="print-area-dx">
             <div class="rx-preview-clinic">MB.EA Wellness Center</div>
-            <div class="rx-preview-addr">123 Wellness Ave, Quezon City · +63-2-8888-9999</div>
+            <div class="rx-preview-addr">123 Wellness Ave, Quezon City &middot; +63-2-8888-9999</div>
             <div class="rx-preview-stamp" style="font-size:20px;letter-spacing:1px;">DIAGNOSTIC REQUEST FORM
             </div>
             <div class="rx-preview-patient-row">
-              <span>Patient: <strong id="dx-prev-patient">—</strong></span>
-              <span>Date: <strong id="dx-prev-date">—</strong></span>
+              <span>Patient: <strong id="dx-prev-patient">&mdash;</strong></span>
+              <span>Date: <strong id="dx-prev-date">&mdash;</strong></span>
             </div>
             <div class="rx-preview-diag">Requesting Physician: <strong>{{ $prescriber->name }}</strong></div>
             <div class="rx-preview-notes-label">Clinical Notes:</div>
-            <div id="dx-prev-notes" class="rx-preview-notes-text">—</div>
+            <div id="dx-prev-notes" class="rx-preview-notes-text">&mdash;</div>
             <div class="rx-preview-meds-label">Tests Ordered:</div>
             <ul id="dx-prev-tests" class="rx-preview-meds-list"></ul>
             <div class="rx-preview-sig-line">
               <div class="rx-sig-line-bar"></div>
               <div class="rx-sig-name">{{ $prescriber->name }}</div>
-              <div class="rx-sig-lic">License No. {{ $prescriber->license_no ?? '—' }}</div>
+              @if($prescriber->license_no)<div class="rx-sig-lic">License No. {{ $prescriber->license_no }}</div>@endif
             </div>
           </div>
           <button class="btn-print" onclick="printDx()">
@@ -240,141 +275,16 @@
               Templates</span>
             <button type="button" class="btn-outline-sm" id="dx-template-add-btn">+ Manage / Add</button>
           </div>
-          <div class="template-list" id="dx-template-list">
-            <!-- Filled by JS -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- SUB-TAB: LIFESTYLE PRESCRIPTION -->
-  <div class="subtab-panel" id="subtab-lifestyle">
-    <div class="rx-layout">
-
-      <!-- Left: Form -->
-      <div class="rx-form-col">
-        <div class="card">
-          <!-- Doctor Info (logged-in psychiatrist) -->
-          <div class="rx-doctor-block">
-            <div class="rx-stamp">Lx</div>
-            <div class="rx-doctor-info">
-              <div class="rx-doctor-name">{{ $prescriber->name }}</div>
-              <div class="rx-doctor-role">Psychiatrist · MB.EA Wellness Center</div>
-              <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no ?? '—' }}</div>
+          <div class="template-library" data-template-type="dx">
+            <div class="template-library-toolbar">
+              <label class="sr-only" for="dx-template-search">Search diagnostic templates</label>
+              <input class="field-input template-search" id="dx-template-search" type="search" placeholder="Search tests or templates..." />
+              <button class="template-favorite-toggle" type="button" aria-pressed="false" title="Show favorite templates"><i data-feather="star"></i><span>Favorites</span></button>
             </div>
+            <div class="template-filter-chips" id="dx-template-filters" role="group" aria-label="Diagnostic template categories"></div>
+          <div class="template-list" id="dx-template-list" aria-live="polite">
+            <div class="template-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
           </div>
-
-          <!-- Patient & Date -->
-          <div class="rx-patient-row">
-            <div class="field-group">
-              <label class="field-label">Patient Name</label>
-              <div class="typeahead-wrap">
-                <input type="text" class="field-input" id="lx-patient-search" placeholder="Search patient by name or ID..." autocomplete="off" />
-                <div class="typeahead-dropdown hidden" id="lx-patient-dropdown" style="max-height:220px;overflow:auto;"></div>
-              </div>
-              <input type="hidden" id="lx-patient" />
-            </div>
-            <div class="field-group">
-              <label class="field-label">Age</label>
-              <input type="number" class="field-input" id="lx-age" placeholder="Age" />
-            </div>
-            <div class="field-group">
-              <label class="field-label">Date</label>
-              <input type="text" class="field-input" id="lx-date" readonly />
-            </div>
-          </div>
-
-          <!-- Current baseline from the patient's lifestyle assessment -->
-          <div class="lx-baseline hidden" id="lx-baseline">
-            <div class="lx-baseline-title"><i data-feather="activity" style="width:12px;height:12px;vertical-align:middle;"></i>
-              Current baseline</div>
-            <div class="lx-baseline-grid">
-              <span class="lx-baseline-item"><span class="lx-baseline-key">Sleep</span> <strong id="lx-base-sleep">—</strong></span>
-              <span class="lx-baseline-item"><span class="lx-baseline-key">Exercise</span> <strong id="lx-base-exercise">—</strong></span>
-              <span class="lx-baseline-item"><span class="lx-baseline-key">Fruits/Veg</span> <strong id="lx-base-nutrition">—</strong></span>
-              <span class="lx-baseline-item"><span class="lx-baseline-key">Motivation</span> <strong id="lx-base-motivation">—</strong></span>
-            </div>
-          </div>
-
-          <!-- Focus / Diagnosis -->
-          <div class="field-group" style="margin:12px 16px;">
-            <label class="field-label">Focus / Diagnosis</label>
-            <input type="text" class="field-input" id="lx-focus" placeholder="e.g. Insomnia, MDD — behavioural activation..." />
-          </div>
-
-          <!-- Lifestyle Items -->
-          <div class="rx-meds-header">
-            <span class="field-label">Lifestyle Interventions</span>
-          </div>
-          <div class="lx-items-table-header">
-            <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
-          </div>
-          <div id="lx-items-list">
-            <!-- Lifestyle item rows injected by JS -->
-          </div>
-          <button class="btn-outline-add" id="add-lx-item-btn">
-            <i data-feather="plus"></i> Add Item
-          </button>
-
-          <!-- Special Instructions -->
-          <div class="field-group" style="margin-top:12px;padding:0 16px;">
-            <label class="field-label">Notes / Instructions</label>
-            <textarea class="field-textarea" id="lx-notes" rows="3"
-              placeholder="General guidance, follow-up plan, monitoring notes..."></textarea>
-          </div>
-
-          <!-- Follow-up -->
-          <div class="field-group" style="margin:12px 16px;">
-            <label class="field-label">Follow-up Date</label>
-            <input type="date" class="field-input" id="lx-follow-up" />
-          </div>
-
-          <button class="btn-generate" id="generate-lx-btn">
-            <i data-feather="file-text"></i> Generate Lifestyle Plan
-          </button>
-        </div>
-      </div>
-
-      <!-- Right: Preview + Templates -->
-      <div class="rx-right-col">
-        <!-- Lifestyle Preview -->
-        <div class="card rx-preview-card" id="lx-preview-card">
-          <div id="print-area-lx">
-            <div class="rx-preview-clinic">MB.EA Wellness Center</div>
-            <div class="rx-preview-addr">123 Wellness Ave, Quezon City · +63-2-8888-9999</div>
-            <div class="rx-preview-stamp" style="font-size:20px;letter-spacing:1px;">LIFESTYLE PRESCRIPTION</div>
-            <div class="rx-preview-patient-row">
-              <span>Patient: <strong id="lx-prev-patient">—</strong></span>
-              <span>Age: <strong id="lx-prev-age">—</strong></span>
-              <span>Date: <strong id="lx-prev-date">—</strong></span>
-            </div>
-            <div class="rx-preview-diag">Focus: <strong id="lx-prev-focus">—</strong></div>
-            <div class="rx-preview-meds-label">Prescribed Interventions:</div>
-            <div id="lx-prev-items" class="lx-prev-items"></div>
-            <div class="rx-preview-notes-label">Instructions:</div>
-            <div id="lx-prev-notes" class="rx-preview-notes-text">—</div>
-            <div id="lx-prev-followup" class="lx-prev-followup"></div>
-            <div class="rx-preview-sig-line">
-              <div class="rx-sig-line-bar"></div>
-              <div class="rx-sig-name">{{ $prescriber->name }}</div>
-              <div class="rx-sig-lic">License No. {{ $prescriber->license_no ?? '—' }}</div>
-            </div>
-          </div>
-          <button class="btn-print" onclick="printLx()">
-            <i data-feather="printer"></i> Print Plan
-          </button>
-        </div>
-
-        <!-- Lifestyle Template Library -->
-        <div class="card rx-templates-card">
-          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-            <span class="card-title"><i data-feather="star"
-                style="width:14px;height:14px;vertical-align:middle;color:#f59e0b;"></i> Lifestyle
-              Templates</span>
-            <button type="button" class="btn-outline-sm" id="lx-template-add-btn">+ Manage / Add</button>
-          </div>
-          <div class="template-list" id="lx-template-list">
-            <!-- Filled by JS -->
           </div>
         </div>
       </div>
@@ -409,7 +319,6 @@
   window.PSYCH_DATA.patientSuggestions = @json($patientSuggestions);
   window.PSYCH_DATA.rxTemplates = @json($rxTemplates);
   window.PSYCH_DATA.dxTemplates = @json($dxTemplates);
-  window.PSYCH_DATA.lxTemplates = @json($lxTemplates);
   window.PSYCH_DATA.prescriber = @json($prescriberData);
   window.PSYCH_DATA.clinicLogo = '{{ asset("assets/mbea_logo.png") }}';
 </script>

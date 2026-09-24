@@ -11,12 +11,14 @@ it('paginates patients in oldest-first order for management views', function () 
         'fullname' => 'Older Patient',
         'birthday' => now()->subYears(30)->toDateString(),
         'sex' => 'female',
+        'marital_status' => 'single',
     ]);
 
     PatientRecord::create([
         'fullname' => 'Newer Patient',
         'birthday' => now()->subYears(20)->toDateString(),
         'sex' => 'male',
+        'marital_status' => 'single',
     ]);
 
     $page = app(PatientService::class)->getPaginatedPatients(1000);
@@ -36,6 +38,7 @@ it('paginates todays patient intakes newest-first', function () {
         'fullname' => 'Today Intake Older',
         'birthday' => now()->subYears(30)->toDateString(),
         'sex' => 'female',
+        'marital_status' => 'single',
     ]);
     $older->forceFill([
         'created_at' => now()->subHours(2),
@@ -46,6 +49,7 @@ it('paginates todays patient intakes newest-first', function () {
         'fullname' => 'Today Intake Newer',
         'birthday' => now()->subYears(25)->toDateString(),
         'sex' => 'male',
+        'marital_status' => 'single',
     ]);
     $newer->forceFill([
         'created_at' => now()->subMinutes(10),
@@ -74,6 +78,7 @@ it('paginates consultations in oldest-first order', function () {
         'fullname' => 'Consultation Patient',
         'birthday' => now()->subYears(25)->toDateString(),
         'sex' => 'female',
+        'marital_status' => 'single',
     ]);
 
     ConsultationSchedule::create([
@@ -95,7 +100,7 @@ it('paginates consultations in oldest-first order', function () {
     $page = app(PatientService::class)->getPaginatedConsultations(10);
     $dates = collect($page->items())
         ->pluck('date')
-        ->map(fn($value) => $value?->toDateString())
+        ->map(fn ($value) => $value?->toDateString())
         ->all();
 
     expect($dates)->toBe([now()->subDay()->toDateString(), now()->toDateString()]);

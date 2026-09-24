@@ -4,6 +4,9 @@ use App\Models\ClinicalTemplate;
 use App\Models\LifestyleAssessment;
 use App\Models\PatientRecord;
 use App\Services\PatientService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 it('searches patients by name and returns suggestions when query is empty', function () {
     PatientRecord::whereIn('fullname', ['Alpha Search Patient', 'Beta Search Patient'])->delete();
@@ -12,12 +15,14 @@ it('searches patients by name and returns suggestions when query is empty', func
         'fullname' => 'Alpha Search Patient',
         'birthday' => now()->subYears(30)->toDateString(),
         'sex' => 'female',
+        'marital_status' => 'single',
     ]);
 
     PatientRecord::create([
         'fullname' => 'Beta Search Patient',
         'birthday' => now()->subYears(28)->toDateString(),
         'sex' => 'male',
+        'marital_status' => 'single',
     ]);
 
     $service = app(PatientService::class);
@@ -68,6 +73,7 @@ it('returns lifestyle patients with assessment payloads for monitoring', functio
         'fullname' => 'Lifestyle Monitor Patient',
         'birthday' => now()->subYears(32)->toDateString(),
         'sex' => 'female',
+        'marital_status' => 'single',
     ]);
 
     LifestyleAssessment::create([
