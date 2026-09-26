@@ -55,6 +55,7 @@ function populatePatientModal(p) {
   // Patient record form
   setVal('pr-fullname', p.name);
   setVal('pr-birthday', p.birthday);
+  updatePatientAgeDisplay();
   setVal('pr-sex', (p.sex || 'female').toLowerCase());
   setVal('pr-gender', p.gender);
   setVal('pr-marital', p.marital_status || 'single');
@@ -63,6 +64,7 @@ function populatePatientModal(p) {
   setVal('pr-year', p.student_year_level);
   setVal('pr-course', p.course);
   setVal('pr-occupation', p.occupation);
+  updatePatientEmploymentFields(false);
   setVal('pr-complaint', p.chief_complaint || p.complaint);
   setVal('pr-diagnosis', p.primary_diagnosis);
   setVal('pm-coach-select', p.life_coach_id || '');
@@ -104,7 +106,6 @@ function populatePatientModal(p) {
 
   // Lifestyle
   var ls = p.lifestyle_assessment || {};
-  toggleExpandableInputs();
   ['health_score', 'sleep_hours', 'tired_frequency', 'weight_perception', 'fast_food_frequency',
     'fruits_veg_servings', 'exercise_frequency', 'motivation_level', 'lifestyle_motivation'].forEach(function (f) {
       setVal('ls-' + f, ls[f]);
@@ -140,6 +141,17 @@ function populatePatientModal(p) {
   ].forEach(function (field) {
     setVal('si-' + field, si[field]);
   });
+  [
+    'religious_background_childhood_other_text',
+    'religious_background_adolescent_other_text',
+    'religious_background_current_other_text',
+    'new_age_other_text',
+    'additional_spiritual_issues_other_text',
+  ].forEach(function (field) {
+    setVal('si-' + field, si[field]);
+  });
+
+  toggleExpandableInputs();
 
   var modal = document.getElementById('patient-detail-modal');
   if (modal) modal.setAttribute('data-current-patient', p.id);
@@ -179,9 +191,21 @@ document.addEventListener('change', function (e) {
   if (e.target && e.target.hasAttribute('data-expands')) {
     toggleExpandableInputs();
   }
+  if (e.target && e.target.id === 'pr-employment-status') {
+    updatePatientEmploymentFields(true);
+  }
+  if (e.target && e.target.id === 'pr-birthday') {
+    updatePatientAgeDisplay();
+  }
   if (e.target && e.target.classList.contains('ls-sub-check')) {
     var block = document.querySelector('.pm-substance-block[data-substance="' + e.target.getAttribute('data-field') + '"]');
     if (block) block.style.display = e.target.checked ? 'block' : 'none';
+  }
+});
+
+document.addEventListener('input', function (e) {
+  if (e.target && e.target.id === 'pr-birthday') {
+    updatePatientAgeDisplay();
   }
 });
 
@@ -230,6 +254,49 @@ function toggleExpandableInputs() {
     var isChecked = input.type === 'checkbox' ? input.checked : (input.value === 'yes');
     target.classList.toggle('hidden', !isChecked);
   });
+}
+
+function updatePatientEmploymentFields(clearHiddenFields) {
+  var status = getVal('pr-employment-status');
+  var dependentFields = [
+    { id: 'pr-occupation-group', visible: status === 'employed' },
+    { id: 'pr-year-group', visible: status === 'student' },
+    { id: 'pr-course-group', visible: status === 'student' },
+  ];
+
+  dependentFields.forEach(function (field) {
+    var group = document.getElementById(field.id);
+    if (!group) return;
+    group.classList.toggle('hidden', !field.visible);
+    if (clearHiddenFields && !field.visible) {
+      var input = group.querySelector('input');
+      if (input) input.value = '';
+    }
+  });
+}
+
+function updatePatientAgeDisplay() {
+  var birthday = getVal('pr-birthday');
+  var ageDisplay = document.getElementById('pr-age');
+  if (!ageDisplay) return;
+  if (!birthday) {
+    ageDisplay.textContent = '';
+    return;
+  }
+
+  var birthDate = new Date(birthday + 'T00:00:00');
+  if (Number.isNaN(birthDate.getTime())) {
+    ageDisplay.textContent = '';
+    return;
+  }
+
+  var today = new Date();
+  var age = today.getFullYear() - birthDate.getFullYear();
+  if (today.getMonth() < birthDate.getMonth() ||
+    (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  ageDisplay.textContent = age >= 0 ? age + ' years old' : '';
 }
 
 function collectMedicalHistory() {
@@ -302,6 +369,15 @@ function collectSpiritualIntake() {
     'spiritual_unusual_experiences_question',
     'spiritual_prayer_question',
     'spiritual_ritual_worship_question'
+  ].forEach(function (field) {
+    data[field] = getVal('si-' + field);
+  });
+  [
+    'religious_background_childhood_other_text',
+    'religious_background_adolescent_other_text',
+    'religious_background_current_other_text',
+    'new_age_other_text',
+    'additional_spiritual_issues_other_text',
   ].forEach(function (field) {
     data[field] = getVal('si-' + field);
   });

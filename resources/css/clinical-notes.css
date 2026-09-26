@@ -6,7 +6,6 @@
 /* Shell wraps toolbar + content in a single card, like the Tiptap simple editor */
 .editor-shell {
   background: var(--surface);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   overflow: hidden;
 }
 

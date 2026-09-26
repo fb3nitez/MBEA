@@ -120,7 +120,6 @@ $lifeCoaches = collect();
       <button type="button" class="tab-btn" data-pm-tab="psychiatric">Personal History</button>
       <button type="button" class="tab-btn" data-pm-tab="lifestyle">Lifestyle</button>
       <button type="button" class="tab-btn" data-pm-tab="spiritual">Spiritual</button>
-      <button type="button" class="tab-btn" data-pm-tab="coach">Life Coach</button>
     </div>
 
     <div class="modal-body" style="max-height:65vh;overflow-y:auto;">
@@ -144,16 +143,33 @@ $lifeCoaches = collect();
             <div class="pm-info-label">Employment Status</div>
             <div class="pm-info-value" id="pm-employment-status">—</div>
           </div>
-          <div class="pm-info-block" style="grid-column:1/-1;">
-            <div class="pm-info-label">Assigned Life Coach</div>
-            <div class="pm-info-value" id="pm-coach">Unassigned</div>
-          </div>
         </div>
-        <div class="pm-section">
+        <div class="pm-section pm-overview-complaint">
           <div class="pm-section-label">Chief Complaint</div>
           <div class="pm-section-text" id="pm-complaint">—</div>
         </div>
-        <div class="pm-section">
+        <div class="pm-section pm-coach-assignment">
+          <div class="pm-coach-heading">
+            <div>
+              <div class="pm-section-label">Care Team</div>
+              <p>Coordinate follow-up with the patient's assigned life coach.</p>
+            </div>
+            <div class="pm-current-coach"><span>Currently assigned</span><strong id="pm-coach">Unassigned</strong></div>
+          </div>
+          <div class="pm-coach-controls">
+            <div class="field-group">
+              <label class="field-label" for="pm-coach-select">Assigned Life Coach</label>
+              <select class="field-input" id="pm-coach-select">
+                <option value="">Unassigned</option>
+                @foreach ($lifeCoaches as $coach)
+                <option value="{{ $coach->id }}">{{ $coach->name }}</option>
+                @endforeach
+              </select>
+            </div>
+            <button class="btn-blue" id="pm-save-coach">Save Assignment</button>
+          </div>
+        </div>
+        <div class="pm-section pm-overview-actions">
           <div class="pm-section-label">Quick Actions</div>
           <div class="pm-actions-row">
             <button class="btn-blue" id="pm-btn-consult">
@@ -171,13 +187,17 @@ $lifeCoaches = collect();
 
       <!-- Patient Record -->
       <div class="pm-tab-panel" data-pm-panel="record">
+        <div class="pm-form-intro">
+          <h4>Patient Record</h4>
+          <p>Demographic details and primary consultation information.</p>
+        </div>
         <div class="modal-grid-2">
           <div class="field-group">
             <label class="field-label">Full Name</label>
             <input type="text" class="field-input" id="pr-fullname" />
           </div>
           <div class="field-group">
-            <label class="field-label">Birthday</label>
+            <label class="field-label" for="pr-birthday">Birthday <span class="pr-age-display" id="pr-age"></span></label>
             <input type="date" class="field-input" id="pr-birthday" />
           </div>
           <div class="field-group">
@@ -202,7 +222,11 @@ $lifeCoaches = collect();
             </select>
           </div>
           <div class="field-group">
-            <label class="field-label">Employment Status</label>
+            <label class="field-label">Religion</label>
+            <input type="text" class="field-input" id="pr-religion" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="pr-employment-status">Employment Status</label>
             <select class="field-input" id="pr-employment-status">
               <option value="">Not provided</option>
               <option value="employed">Employed</option>
@@ -212,24 +236,20 @@ $lifeCoaches = collect();
               <option value="NA">Not Applicable</option>
             </select>
           </div>
-          <div class="field-group">
-            <label class="field-label">Religion</label>
-            <input type="text" class="field-input" id="pr-religion" />
-          </div>
-          <div class="field-group">
+          <div class="field-group hidden" id="pr-year-group">
             <label class="field-label">Year Level</label>
             <input type="text" class="field-input" id="pr-year" />
           </div>
-          <div class="field-group">
+          <div class="field-group hidden" id="pr-course-group">
             <label class="field-label">Course</label>
             <input type="text" class="field-input" id="pr-course" />
           </div>
-          <div class="field-group">
+          <div class="field-group hidden" id="pr-occupation-group">
             <label class="field-label">Occupation</label>
             <input type="text" class="field-input" id="pr-occupation" />
           </div>
         </div>
-        <div class="field-group">
+        <div class="field-group" style="margin-top:15px;">
           <label class="field-label">Chief Complaint</label>
           <textarea class="field-textarea" id="pr-complaint" rows="2"></textarea>
         </div>
@@ -249,7 +269,11 @@ $lifeCoaches = collect();
 
       <!-- Medical History -->
       <div class="pm-tab-panel" data-pm-panel="medical">
-        <div class="pm-section-label" style="margin-bottom:8px;">Personal Medical History</div>
+        <div class="pm-form-intro">
+          <h4>Medical History</h4>
+          <p>Review relevant personal and family medical conditions.</p>
+        </div>
+        <div class="pm-section-label pm-form-section-title">Personal Medical History</div>
         <div class="check-grid" id="mh-personal-checks">
           @foreach ([
           'hypertension' => 'Hypertension',
@@ -265,30 +289,39 @@ $lifeCoaches = collect();
           'other_medical' => 'Other',
           ] as $key => $label)
           <label class="check-item">
-            <input type="checkbox" class="mh-check" data-field="{{ $key }}" /> {{ $label }}
+            <input type="checkbox" class="mh-check" data-field="{{ $key }}"
+              @if ($key==='autoimmune_disease' ) data-expands="mh-autoimmune-expand"
+              @elseif ($key==='cancer' ) data-expands="mh-cancer-expand"
+              @elseif ($key==='other_medical' ) data-expands="mh-other-medical-expand" @endif /> {{ $label }}
           </label>
           @endforeach
         </div>
-        <div class="modal-grid-2" style="margin-top:10px;">
-          <div class="field-group">
-            <label class="field-label">Autoimmune Specify</label>
-            <input type="text" class="field-input" id="mh-autoimmune_specify" />
+        <div class="pm-medical-details">
+          <div class="expand-target hidden pm-followup-block" id="mh-autoimmune-expand">
+            <div class="field-group">
+              <label class="field-label" for="mh-autoimmune_specify">Please specify autoimmune disease</label>
+              <input type="text" class="field-input" id="mh-autoimmune_specify" />
+            </div>
           </div>
-          <div class="field-group">
-            <label class="field-label">Cancer Specify</label>
-            <input type="text" class="field-input" id="mh-cancer_specify" />
+          <div class="expand-target hidden pm-followup-block" id="mh-cancer-expand">
+            <div class="field-group">
+              <label class="field-label" for="mh-cancer_specify">Please specify cancer type</label>
+              <input type="text" class="field-input" id="mh-cancer_specify" />
+            </div>
           </div>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Other Specify</label>
-          <input type="text" class="field-input" id="mh-other_medical_specify" />
+          <div class="expand-target hidden pm-followup-block" id="mh-other-medical-expand">
+            <div class="field-group">
+              <label class="field-label" for="mh-other_medical_specify">Please specify other condition</label>
+              <input type="text" class="field-input" id="mh-other_medical_specify" />
+            </div>
+          </div>
         </div>
         <div class="field-group">
           <label class="field-label">Current Medications</label>
           <textarea class="field-textarea" id="mh-current_medications" rows="2"></textarea>
         </div>
 
-        <div class="pm-section-label" style="margin:16px 0 8px;">Family History</div>
+        <div class="pm-section-label pm-form-section-title">Family History</div>
         <div class="check-grid">
           @foreach ([
           'family_hypertension' => 'Hypertension',
@@ -300,26 +333,37 @@ $lifeCoaches = collect();
           'family_other' => 'Other',
           ] as $key => $label)
           <label class="check-item">
-            <input type="checkbox" class="mh-check" data-field="{{ $key }}" /> {{ $label }}
+            <input type="checkbox" class="mh-check" data-field="{{ $key }}"
+              @if ($key==='family_cancer' ) data-expands="mh-family-cancer-expand"
+              @elseif ($key==='family_psychiatric_disorder' ) data-expands="mh-family-psychiatric-expand"
+              @elseif ($key==='family_other' ) data-expands="mh-family-other-expand" @endif /> {{ $label }}
           </label>
           @endforeach
         </div>
-        <div class="modal-grid-2" style="margin-top:10px;">
-          <div class="field-group">
-            <label class="field-label">Cancer Type</label>
-            <input type="text" class="field-input" id="mh-family_cancer_type" />
+        <div class="pm-medical-details">
+          <div class="expand-target hidden pm-followup-block" id="mh-family-cancer-expand">
+            <div class="modal-grid-2">
+              <div class="field-group">
+                <label class="field-label" for="mh-family_cancer_type">Cancer type</label>
+                <input type="text" class="field-input" id="mh-family_cancer_type" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="mh-family_cancer_relation">Relation</label>
+                <input type="text" class="field-input" id="mh-family_cancer_relation" />
+              </div>
+            </div>
           </div>
-          <div class="field-group">
-            <label class="field-label">Cancer Relation</label>
-            <input type="text" class="field-input" id="mh-family_cancer_relation" />
+          <div class="expand-target hidden pm-followup-block" id="mh-family-psychiatric-expand">
+            <div class="field-group">
+              <label class="field-label" for="mh-family_psychiatric_relation">Psychiatric condition and relation</label>
+              <input type="text" class="field-input" id="mh-family_psychiatric_relation" />
+            </div>
           </div>
-          <div class="field-group">
-            <label class="field-label">Psychiatric Relation</label>
-            <input type="text" class="field-input" id="mh-family_psychiatric_relation" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">Other Specify</label>
-            <input type="text" class="field-input" id="mh-family_other_specify" />
+          <div class="expand-target hidden pm-followup-block" id="mh-family-other-expand">
+            <div class="field-group">
+              <label class="field-label" for="mh-family_other_specify">Please specify other family history</label>
+              <input type="text" class="field-input" id="mh-family_other_specify" />
+            </div>
           </div>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
@@ -329,6 +373,10 @@ $lifeCoaches = collect();
 
       <!-- Psychiatric History -->
       <div class="pm-tab-panel" data-pm-panel="psychiatric">
+        <div class="pm-form-intro">
+          <h4>Personal History</h4>
+          <p>Document mental health history and relevant life experiences.</p>
+        </div>
         <div class="modal-grid-2">
           <div class="field-group">
             <label class="check-item">
@@ -354,7 +402,7 @@ $lifeCoaches = collect();
           </div>
         </div>
 
-        <div class="pm-section-label" style="margin:16px 0 8px;">Trauma / Abuse History</div>
+        <div class="pm-section-label pm-form-section-title">Trauma / Abuse History</div>
         <div class="space-y-3">
           @foreach ([
           'physical' => 'Physical Abuse',
@@ -388,6 +436,10 @@ $lifeCoaches = collect();
 
       <!-- Lifestyle Assessment -->
       <div class="pm-tab-panel" data-pm-panel="lifestyle">
+        <div class="pm-form-intro">
+          <h4>Lifestyle Related Behaviors</h4>
+          <p>Review wellness habits, mental health screening, and motivation for change.</p>
+        </div>
         <div class="modal-grid-2">
           <div class="field-group">
             <label class="field-label">Health Score (1–10)</label>
@@ -419,7 +471,7 @@ $lifeCoaches = collect();
           </div>
         </div>
 
-        <div class="pm-section-label" style="margin:16px 0 8px;">Mental Health &amp; Well-being</div>
+        <div class="pm-section-label pm-form-section-title">Mental Health &amp; Well-being</div>
         <p style="font-size:13px;color:#64748b;margin:0 0 10px;">Over the past 2 weeks, how often have you experienced the following?</p>
         <div class="pm-phq-table-wrap">
           <table class="pm-phq-table">
@@ -456,23 +508,8 @@ $lifeCoaches = collect();
           </table>
         </div>
 
-        <div class="pm-section-label" style="margin:16px 0 8px;">Substance / Habit Use</div>
-        <div class="check-grid">
-          @foreach ([
-          'sub_nicotine' => 'Nicotine',
-          'sub_alcohol' => 'Alcohol',
-          'sub_recreational' => 'Recreational drugs',
-          'sub_marijuana' => 'Marijuana',
-          'sub_screentime' => 'Screen time',
-          'sub_gambling' => 'Gambling',
-          'sub_others' => 'Others',
-          ] as $key => $label)
-          <label class="check-item check-card ls-sub-item">
-            <input type="checkbox" class="ls-sub-check" data-field="{{ $key }}" /> {{ $label }}
-          </label>
-          @endforeach
-        </div>
-        <div class="pm-substance-details" style="margin-top:10px;">
+        <div class="pm-section-label pm-form-section-title">Substance / Habit Use</div>
+        <div class="pm-substance-list">
           @foreach ([
           'sub_nicotine' => ['amount' => 'ls-sub_nicotine_amount', 'concern' => 'ls-sub_nicotine_concern', 'label' => 'Nicotine'],
           'sub_alcohol' => ['amount' => 'ls-sub_alcohol_amount', 'concern' => 'ls-sub_alcohol_concern', 'label' => 'Alcohol'],
@@ -482,16 +519,21 @@ $lifeCoaches = collect();
           'sub_gambling' => ['amount' => 'ls-sub_gambling_amount', 'concern' => 'ls-sub_gambling_concern', 'label' => 'Gambling'],
           'sub_others' => ['amount' => 'ls-sub_others_specify', 'concern' => 'ls-sub_others_concern', 'label' => 'Others'],
           ] as $key => $meta)
-          <div class="pm-substance-block" data-substance="{{ $key }}" style="display:none;margin-top:10px;border:1px solid #e2e8f0;border-radius:10px;padding:10px;background:#f8fafc;">
-            <div class="field-group">
-              <label class="field-label">{{ $meta['label'] }} amount / details</label>
-              <input type="text" class="field-input" id="{{ $meta['amount'] }}" placeholder="Enter string" />
-            </div>
-            <div class="field-group" style="margin-top:8px;">
-              <label class="field-label">Level of concern (0 = No concern, 5 = Very concerned)</label>
-              <input type="range" class="field-input" id="{{ $meta['concern'] }}" min="0" max="5" step="1" value="0" />
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-top:4px;">
-                <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+          <div class="pm-substance-item">
+            <label class="check-item check-card ls-sub-item">
+              <input type="checkbox" class="ls-sub-check" data-field="{{ $key }}" data-expands="{{ $key }}-expand" /> {{ $meta['label'] }}
+            </label>
+            <div class="pm-substance-block expand-target hidden" id="{{ $key }}-expand" data-substance="{{ $key }}">
+              <div class="field-group">
+                <label class="field-label" for="{{ $meta['amount'] }}">{{ $meta['label'] }} amount / details</label>
+                <input type="text" class="field-input" id="{{ $meta['amount'] }}" placeholder="Enter details" />
+              </div>
+              <div class="field-group" style="margin-top:8px;">
+                <label class="field-label" for="{{ $meta['concern'] }}">Level of concern (0 = No concern, 5 = Very concerned)</label>
+                <input type="range" class="field-input" id="{{ $meta['concern'] }}" min="0" max="5" step="1" value="0" />
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-top:4px;">
+                  <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                </div>
               </div>
             </div>
           </div>
@@ -621,8 +663,28 @@ $lifeCoaches = collect();
           <div class="check-grid spiritual-check-grid">
             @foreach ($fields as $key => $label)
             <label class="check-item spiritual-check-item">
-              <input type="checkbox" class="si-check" data-field="{{ $key }}" /> {{ $label }}
+              <input type="checkbox" class="si-check" data-field="{{ $key }}"
+                @if (in_array($key, [ 'religious_background_childhood_other' , 'religious_background_adolescent_other' , 'religious_background_current_other' , 'new_age_other' , 'additional_spiritual_issues_other' ,
+                ], true)) data-expands="si-{{ $key }}-expand" @endif /> {{ $label }}
             </label>
+            @endforeach
+          </div>
+          <div class="pm-medical-details">
+            @foreach ([
+            'religious_background_childhood_other' => 'Please specify childhood religious background',
+            'religious_background_adolescent_other' => 'Please specify adolescent religious background',
+            'religious_background_current_other' => 'Please specify current religious background',
+            'new_age_other' => 'Please specify other occult or New Age practice',
+            'additional_spiritual_issues_other' => 'Please specify other spiritual issue',
+            ] as $otherKey => $otherLabel)
+            @if (array_key_exists($otherKey, $fields))
+            <div class="expand-target hidden pm-followup-block" id="si-{{ $otherKey }}-expand">
+              <div class="field-group">
+                <label class="field-label" for="si-{{ $otherKey }}_text">{{ $otherLabel }}</label>
+                <input type="text" class="field-input" id="si-{{ $otherKey }}_text" />
+              </div>
+            </div>
+            @endif
             @endforeach
           </div>
         </div>
@@ -644,25 +706,6 @@ $lifeCoaches = collect();
         @endforeach
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
           <button class="btn-blue" id="pm-save-spiritual">Save Spiritual Intake</button>
-        </div>
-      </div>
-
-      <!-- Assign Life Coach -->
-      <div class="pm-tab-panel" data-pm-panel="coach">
-        <div class="field-group">
-          <label class="field-label">Assigned Life Coach</label>
-          <select class="field-input" id="pm-coach-select">
-            <option value="">Unassigned</option>
-            @foreach ($lifeCoaches as $coach)
-            <option value="{{ $coach->id }}">{{ $coach->name }}</option>
-            @endforeach
-          </select>
-        </div>
-        <p style="font-size:13px;color:#64748b;margin-top:8px;">
-          Assigning a life coach links this patient for lifestyle coaching follow-up.
-        </p>
-        <div style="display:flex;justify-content:flex-end;margin-top:12px;">
-          <button class="btn-blue" id="pm-save-coach">Save Assignment</button>
         </div>
       </div>
 
