@@ -600,6 +600,7 @@
         <button type="button" class="intake-tab" data-intake-tab="psychiatric">Personal History</button>
         <button type="button" class="intake-tab" data-intake-tab="lifestyle">Lifestyle</button>
         <button type="button" class="intake-tab" data-intake-tab="spiritual">Spiritual</button>
+        <button type="button" class="intake-tab" data-intake-tab="interventions">Interventions</button>
       </div>
       <div class="modal-body" id="intake-modal-body">
         {{-- filled by JS --}}

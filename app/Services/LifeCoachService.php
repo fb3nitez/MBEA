@@ -71,6 +71,7 @@ class LifeCoachService
             'medicalHistory',
             'psychiatricHistory',
             'spiritualIntake',
+            'interventions',
             'coachingNotes' => fn($query) => $query->where('life_coach_id', $coachId)->latest(),
             'coachingGoals' => fn($query) => $query->where('life_coach_id', $coachId)->latest(),
         ])
@@ -91,6 +92,7 @@ class LifeCoachService
             'medicalHistory',
             'psychiatricHistory',
             'spiritualIntake',
+            'interventions',
             'coachingNotes' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
             'coachingGoals' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
         ])
@@ -316,6 +318,7 @@ class LifeCoachService
             'medicalHistory',
             'psychiatricHistory',
             'spiritualIntake',
+            'interventions',
         ]);
 
         $coachId = $this->currentCoach()->id;
@@ -679,6 +682,20 @@ class LifeCoachService
             }
         }
 
+        $interventions = [];
+        if ($patient->interventions) {
+            foreach (
+                [
+                    'psychiatric_therapy_medication' => 'Psychiatric Therapy & Medication',
+                    'lifestyle_interventions' => 'Lifestyle Interventions (Exercise, Diet, Sleep, Stress Management)',
+                    'substance_use_rehabilitation' => 'Substance Use Rehabilitation',
+                    'spiritual_counseling' => 'Spiritual Counseling',
+                ] as $field => $label
+            ) {
+                $interventions[] = ['label' => $label, 'value' => $patient->interventions->{$field}];
+            }
+        }
+
         return [
             'personal' => $personal,
             'clinical_notes' => $clinicalNotes,
@@ -691,6 +708,7 @@ class LifeCoachService
             'substances' => $substancesUsed,
             'motivation' => $motivation,
             'spiritual' => $spiritual,
+            'interventions' => $interventions,
         ];
     }
     // </edit-marker>

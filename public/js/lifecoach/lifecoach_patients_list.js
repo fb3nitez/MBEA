@@ -297,13 +297,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var spiritualHtml = '';
     (intake.spiritual || []).forEach(function (f) { spiritualHtml += row(f.label, f.value); });
+    var interventionsHtml = '';
+    (intake.interventions || []).forEach(function (f) { interventionsHtml += row(f.label, f.value); });
     var panels = {
       record: recordHtml,
       clinical: '<div class="intake-section"><div class="intake-section-title">Clinical Notes</div><div class="intake-tiptap-viewer" id="intake-clinical-notes-viewer"></div></div>',
       medical: medicalHtml,
       psychiatric: psychiatricHtml,
       lifestyle: lifestyleHtml,
-      spiritual: section('Spiritual Intake', spiritualHtml || '<span class="intake-empty">No spiritual intake on file.</span>')
+      spiritual: section('Spiritual Intake', spiritualHtml || '<span class="intake-empty">No spiritual intake on file.</span>'),
+      interventions: section('Therapeutic Interventions', interventionsHtml || '<span class="intake-empty">No interventions on file.</span>')
     };
 
     var html = Object.keys(panels).map(function (key, index) {

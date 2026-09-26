@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\CoachingGoal;
+use App\Models\PatientIntervention;
 use App\Models\PatientRecord;
 use App\Models\User;
 use App\Services\LifeCoachService;
@@ -65,6 +66,29 @@ it('includes intake employment status in the assigned patient view data', functi
     expect($data['employment_status'])->toBe('student')
         ->and(collect($data['intake']['personal'])->firstWhere('label', 'Employment Status')['value'])
         ->toBe('Student');
+});
+
+it('includes patient interventions in the read-only intake data', function () {
+    $coach = makeLifeCoachUser('coach-interventions@medcare.ph');
+    $patient = makeAssignedPatient($coach, 'Interventions Intake Patient');
+    PatientIntervention::create([
+        'patient_record_id' => $patient->id,
+        'psychiatric_therapy_medication' => 'Therapy plan and medication review',
+        'lifestyle_interventions' => 'Exercise and sleep routine',
+        'substance_use_rehabilitation' => 'Outpatient rehabilitation referral',
+        'spiritual_counseling' => 'Counseling by request',
+    ]);
+
+    $this->actingAs($coach);
+
+    $intake = app(LifeCoachService::class)->patientToArray($patient)['intake'];
+    $rows = collect($intake['interventions']);
+
+    expect($rows)->toHaveCount(4)
+        ->and($rows->firstWhere('label', 'Psychiatric Therapy & Medication')['value'])
+        ->toBe('Therapy plan and medication review')
+        ->and($rows->firstWhere('label', 'Spiritual Counseling')['value'])
+        ->toBe('Counseling by request');
 });
 
 it('creates coaching notes for assigned patients only', function () {
