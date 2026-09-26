@@ -40,11 +40,15 @@ function populatePatientModal(p) {
   if (avatarEl) avatarEl.textContent = initials;
 
   var setText = function (id, val) { var el = document.getElementById(id); if (el) el.textContent = val == null || val === '' ? '—' : val; };
+  var employmentStatus = p.employment_status === 'NA'
+    ? 'Not Applicable'
+    : (p.employment_status ? p.employment_status.charAt(0).toUpperCase() + p.employment_status.slice(1) : '—');
   setText('pm-name', p.name);
   setText('pm-sub', p.patient_id || p.id);
   setText('pm-id', p.patient_id || p.id);
   setText('pm-age', p.age);
   setText('pm-sex', p.sex);
+  setText('pm-employment-status', employmentStatus);
   setText('pm-coach', p.coach || 'Unassigned');
   setText('pm-complaint', p.complaint || p.chief_complaint);
 
@@ -54,6 +58,7 @@ function populatePatientModal(p) {
   setVal('pr-sex', (p.sex || 'female').toLowerCase());
   setVal('pr-gender', p.gender);
   setVal('pr-marital', p.marital_status || 'single');
+  setVal('pr-employment-status', p.employment_status);
   setVal('pr-religion', p.religion);
   setVal('pr-year', p.student_year_level);
   setVal('pr-course', p.course);
@@ -323,6 +328,7 @@ function bindPatientSaves() {
         sex: getVal('pr-sex'),
         gender: getVal('pr-gender') || null,
         marital_status: getVal('pr-marital'),
+        employment_status: getVal('pr-employment-status') || null,
         religion: getVal('pr-religion') || null,
         student_year_level: getVal('pr-year') || null,
         course: getVal('pr-course') || null,

@@ -141,7 +141,7 @@ class PsychiatristController extends Controller
         $template = ClinicalTemplate::findOrFail($id);
         $copy = $this->patientService->createClinicalTemplate([
             'type' => $template->type,
-            'name' => $template->name.' Copy',
+            'name' => $template->name . ' Copy',
             'tag' => $template->tag,
             'description' => $template->description,
             'payload' => $template->payload,
@@ -212,7 +212,7 @@ class PsychiatristController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.auth()->id()],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . auth()->id()],
             'phone' => ['nullable', 'regex:/^09\d{2} \d{3} \d{4}$/'],
             'bio' => ['nullable', 'string', 'max:250'],
             'license_no' => ['nullable', 'string', 'max:100'],
@@ -261,7 +261,7 @@ class PsychiatristController extends Controller
         $path = $image->store('profile-avatars', 'public');
         $user->update(['avatar_path' => $path]);
 
-        return response()->json(['message' => 'Profile photo updated.', 'avatar_url' => asset('storage/'.$path)]);
+        return response()->json(['message' => 'Profile photo updated.', 'avatar_url' => asset('storage/' . $path)]);
     }
 
     public function profileActivity(Request $request): JsonResponse
@@ -272,7 +272,7 @@ class PsychiatristController extends Controller
                 ->latest('date')
                 ->latest('time')
                 ->get()
-                ->map(fn (ConsultationSchedule $consultation) => [
+                ->map(fn(ConsultationSchedule $consultation) => [
                     'icon' => 'calendar',
                     'label' => 'Consultation scheduled',
                     'detail' => $consultation->patientRecord?->fullname ?? 'Patient',
@@ -281,7 +281,7 @@ class PsychiatristController extends Controller
             ->merge(Prescription::with('patientRecord')
                 ->latest('created_at')
                 ->get()
-                ->map(fn (Prescription $prescription) => [
+                ->map(fn(Prescription $prescription) => [
                     'icon' => 'file-text',
                     'label' => 'Prescription saved',
                     'detail' => $prescription->patientRecord?->fullname ?? 'Patient',
@@ -302,7 +302,7 @@ class PsychiatristController extends Controller
             'phone' => $user->phone,
             'bio' => $user->bio,
             'license_no' => $user->license_no,
-            'avatar_url' => $user->avatar_path ? asset('storage/'.$user->avatar_path) : null,
+            'avatar_url' => $user->avatar_path ? asset('storage/' . $user->avatar_path) : null,
         ];
     }
 
@@ -363,6 +363,7 @@ class PsychiatristController extends Controller
             'sex' => ['nullable', 'in:male,female,Male,Female'],
             'gender' => ['nullable', 'string', 'max:255'],
             'marital_status' => ['in:single,married,annulled,widowed,separated'],
+            'employment_status' => ['nullable', 'in:employed,student,unemployed,retired,NA'],
             'student_year_level' => ['nullable', 'string', 'max:255'],
             'course' => ['nullable', 'string', 'max:255'],
             'occupation' => ['nullable', 'string', 'max:255'],
@@ -607,7 +608,7 @@ class PsychiatristController extends Controller
         ]);
 
         return response()->json([
-            'url' => asset('storage/'.$upload->path),
+            'url' => asset('storage/' . $upload->path),
             'original_name' => $upload->original_name,
         ], 201);
     }

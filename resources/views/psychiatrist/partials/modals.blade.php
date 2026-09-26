@@ -140,6 +140,10 @@ $lifeCoaches = collect();
             <div class="pm-info-label">Sex</div>
             <div class="pm-info-value" id="pm-sex">—</div>
           </div>
+          <div class="pm-info-block">
+            <div class="pm-info-label">Employment Status</div>
+            <div class="pm-info-value" id="pm-employment-status">—</div>
+          </div>
           <div class="pm-info-block" style="grid-column:1/-1;">
             <div class="pm-info-label">Assigned Life Coach</div>
             <div class="pm-info-value" id="pm-coach">Unassigned</div>
@@ -195,6 +199,17 @@ $lifeCoaches = collect();
               <option value="annulled">Annulled</option>
               <option value="widowed">Widowed</option>
               <option value="separated">Separated</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Employment Status</label>
+            <select class="field-input" id="pr-employment-status">
+              <option value="">Not provided</option>
+              <option value="employed">Employed</option>
+              <option value="student">Student</option>
+              <option value="unemployed">Unemployed</option>
+              <option value="retired">Retired</option>
+              <option value="NA">Not Applicable</option>
             </select>
           </div>
           <div class="field-group">

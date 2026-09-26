@@ -67,23 +67,37 @@
 
     <div class="form-control">
         <label class="label">
+            <span class="label-text">Employment Status <span class="text-error">*</span></span>
+        </label>
+        <select name="employmentStatus" class="select select-bordered w-full" required>
+            <option value="">Select employment status</option>
+            <option value="employed">Employed</option>
+            <option value="student">Student</option>
+            <option value="unemployed">Unemployed</option>
+            <option value="retired">Retired</option>
+            <option value="NA">Not Applicable</option>
+        </select>
+    </div>
+
+    <div class="form-control hidden" id="occupationInput">
+        <label class="label">
+            <span class="label-text">Occupation</span>
+        </label>
+        <input type="text" name="occupation" placeholder="Your occupation" class="input input-bordered w-full" />
+    </div>
+
+    <div class="form-control hidden" id="studentYearLevelInput">
+        <label class="label">
             <span class="label-text">Student Year Level</span>
         </label>
         <input type="text" name="yearLevel" placeholder="e.g., 3rd Year" class="input input-bordered w-full" />
     </div>
 
-    <div class="form-control">
+    <div class="form-control md:col-span-2 hidden" id="courseInput">
         <label class="label">
             <span class="label-text">Course</span>
         </label>
         <input type="text" name="course" placeholder="Your course or program" class="input input-bordered w-full" />
-    </div>
-
-    <div class="form-control md:col-span-2">
-        <label class="label">
-            <span class="label-text">Occupation</span>
-        </label>
-        <input type="text" name="occupation" placeholder="Your occupation" class="input input-bordered w-full" />
     </div>
 
     <div class="form-control md:col-span-2">

@@ -148,6 +148,7 @@ class IntakeFormRequest extends FormRequest
             'gender' => 'nullable|string|max:255',
             'gender_other' => 'nullable|string|max:255',
             'maritalStatus' => 'required|string|in:single,married,annulled,widowed,separated',
+            'employmentStatus' => 'required|string|in:employed,student,unemployed,retired,NA',
             'yearLevel' => 'nullable|string|max:255',
             'course' => 'nullable|string|max:255',
             'occupation' => 'nullable|string|max:255',

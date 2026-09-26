@@ -3,6 +3,7 @@
 use App\Models\PatientRecord;
 use App\Models\PsychiatricHistory;
 use App\Models\SpiritualIntake;
+use App\Services\PatientService;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 
 it('accepts trauma checkbox values submitted as on from the browser', function () {
@@ -13,6 +14,9 @@ it('accepts trauma checkbox values submitted as on from the browser', function (
         'birthday' => '1995-05-15',
         'sex' => 'female',
         'maritalStatus' => 'single',
+        'employmentStatus' => 'student',
+        'yearLevel' => '3rd Year',
+        'course' => 'Psychology',
         'chiefComplaint' => 'Feeling anxious and overwhelmed',
         'healthScore' => 7,
         'traumaPhysical' => 'on',
@@ -39,6 +43,10 @@ it('accepts trauma checkbox values submitted as on from the browser', function (
 
     $patient = PatientRecord::where('fullname', 'Trauma Test Patient')->first();
     expect($patient)->not->toBeNull();
+    expect($patient->employment_status)->toBe('student')
+        ->and($patient->student_year_level)->toBe('3rd Year')
+        ->and($patient->course)->toBe('Psychology')
+        ->and(app(PatientService::class)->patientToArray($patient)['employment_status'])->toBe('student');
 
     $history = PsychiatricHistory::where('patient_record_id', $patient->id)->first();
     expect($history)->not->toBeNull()

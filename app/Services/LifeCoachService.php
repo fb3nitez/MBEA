@@ -29,21 +29,21 @@ class LifeCoachService
         $limit = max(1, min($limit, 25));
 
         $items = collect()
-            ->merge(CoachingNote::where('life_coach_id', $coachId)->latest()->get()->map(fn (CoachingNote $note) => [
+            ->merge(CoachingNote::where('life_coach_id', $coachId)->latest()->get()->map(fn(CoachingNote $note) => [
                 'type' => 'note',
                 'icon' => 'edit-3',
                 'label' => 'Coaching note written',
                 'detail' => $note->session_type,
                 'date' => optional($note->created_at)->toIso8601String(),
             ]))
-            ->merge(CoachingTask::where('life_coach_id', $coachId)->where('is_done', true)->latest('completed_at')->get()->map(fn (CoachingTask $task) => [
+            ->merge(CoachingTask::where('life_coach_id', $coachId)->where('is_done', true)->latest('completed_at')->get()->map(fn(CoachingTask $task) => [
                 'type' => 'task',
                 'icon' => 'check-circle',
                 'label' => 'Task completed',
                 'detail' => $task->description,
                 'date' => optional($task->completed_at ?: $task->updated_at)->toIso8601String(),
             ]))
-            ->merge(PatientRecord::where('life_coach_id', $coachId)->latest()->get()->map(fn (PatientRecord $patient) => [
+            ->merge(PatientRecord::where('life_coach_id', $coachId)->latest()->get()->map(fn(PatientRecord $patient) => [
                 'type' => 'patient',
                 'icon' => 'user-plus',
                 'label' => 'Patient assigned',
@@ -353,6 +353,7 @@ class LifeCoachService
             'name' => $patient->fullname,
             'age' => $patient->age,
             'sex' => $patient->sex ? ucfirst($patient->sex) : '—',
+            'employment_status' => $patient->employment_status,
             'status' => 'Active',
             'complaint' => $patient->chief_complaint ?? '—',
             'email' => '—',
@@ -501,6 +502,7 @@ class LifeCoachService
             ['label' => 'Sex', 'value' => $patient->sex ? ucfirst($patient->sex) : '—'],
             ['label' => 'Gender', 'value' => $patient->gender ?? '—'],
             ['label' => 'Marital Status', 'value' => $patient->marital_status ? ucfirst($patient->marital_status) : '—'],
+            ['label' => 'Employment Status', 'value' => $patient->employment_status === 'NA' ? 'Not Applicable' : ($patient->employment_status ? ucfirst($patient->employment_status) : '—')],
             ['label' => 'Religion', 'value' => $patient->religion ?? '—'],
             ['label' => 'Occupation', 'value' => $patient->occupation ?? '—'],
             ['label' => 'Course', 'value' => $patient->course ?? '—'],

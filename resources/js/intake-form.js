@@ -144,6 +144,12 @@ class PatientIntakeForm {
             this.updateAge(data.birthday);
         }
 
+        // Update employment status dependent fields
+        const employmentStatusSelect = document.querySelector('select[name="employmentStatus"]');
+        if (employmentStatusSelect) {
+            this.handleEmploymentStatusToggle(employmentStatusSelect);
+        }
+
         // Update gender display
         if (data.gender.toLowerCase() === 'other') {
             const genderInput = document.getElementById('genderInput');
@@ -186,6 +192,10 @@ class PatientIntakeForm {
                 // Handle gender toggle
                 if (e.target.id === 'genderSelector') {
                     this.handleGenderToggle(e.target);
+                }
+                // Handle employment status toggle
+                if (e.target.name === 'employmentStatus') {
+                    this.handleEmploymentStatusToggle(e.target);
                 }
                 // Handle expandable sections
                 if (e.target.hasAttribute('data-expands') || e.target.name === 'diagnosedMH' || e.target.name === 'hospitalized') {
@@ -525,6 +535,40 @@ class PatientIntakeForm {
             input.focus();
         } else {
             input.value = select.value;
+        }
+    }
+
+    handleEmploymentStatusToggle(select) {
+        const occupationInput = document.getElementById('occupationInput');
+        const studentYearLevelInput = document.getElementById('studentYearLevelInput');
+        const courseInput = document.getElementById('courseInput');
+
+        const value = select.value;
+        const isEmployed = value === 'employed';
+        const isStudent = value === 'student';
+
+        if (occupationInput) {
+            occupationInput.classList.toggle('hidden', !isEmployed);
+            if (!isEmployed) {
+                const input = occupationInput.querySelector('input');
+                if (input) input.value = '';
+            }
+        }
+
+        if (studentYearLevelInput) {
+            studentYearLevelInput.classList.toggle('hidden', !isStudent);
+            if (!isStudent) {
+                const input = studentYearLevelInput.querySelector('input');
+                if (input) input.value = '';
+            }
+        }
+
+        if (courseInput) {
+            courseInput.classList.toggle('hidden', !isStudent);
+            if (!isStudent) {
+                const input = courseInput.querySelector('input');
+                if (input) input.value = '';
+            }
         }
     }
 

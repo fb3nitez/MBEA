@@ -167,10 +167,14 @@ document.addEventListener('DOMContentLoaded', function () {
   function populateDetail(p) {
     var infoList = document.getElementById('pd-info-list');
     if (infoList) {
+      var employmentStatus = p.employment_status === 'NA'
+        ? 'Not Applicable'
+        : (p.employment_status ? p.employment_status.charAt(0).toUpperCase() + p.employment_status.slice(1) : '—');
       var fields = [
         ['Patient ID', p.patient_id || p.id],
         ['Status', lcStatusBadge(p.status || 'Active')],
         ['Age / Sex', (p.age || '—') + ' · ' + (p.sex || '—')],
+        ['Employment Status', employmentStatus],
         ['Chief Complaint', p.complaint || '—'],
         ['Program', p.program || '—'],
         ['Coach', p.coach || '—'],

@@ -53,6 +53,20 @@ it('lists only patients assigned to the current life coach', function () {
         ->and($patients->pluck('fullname')->all())->not->toContain('Other Coach Patient');
 });
 
+it('includes intake employment status in the assigned patient view data', function () {
+    $coach = makeLifeCoachUser('coach-employment@medcare.ph');
+    $patient = makeAssignedPatient($coach, 'Employment Status Patient');
+    $patient->update(['employment_status' => 'student']);
+
+    $this->actingAs($coach);
+
+    $data = app(LifeCoachService::class)->patientToArray($patient);
+
+    expect($data['employment_status'])->toBe('student')
+        ->and(collect($data['intake']['personal'])->firstWhere('label', 'Employment Status')['value'])
+        ->toBe('Student');
+});
+
 it('creates coaching notes for assigned patients only', function () {
     $coach = makeLifeCoachUser('coach-notes@medcare.ph');
     $patient = makeAssignedPatient($coach, 'Note Patient');
