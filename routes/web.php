@@ -59,6 +59,7 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::put('/patients/{id}/psychiatric-history', 'updatePsychiatricHistory')->name('patients.psychiatric-history');
         Route::put('/patients/{id}/lifestyle', 'updateLifestyle')->name('patients.lifestyle');
         Route::put('/patients/{id}/spiritual-intake', 'updateSpiritualIntake')->name('patients.spiritual-intake');
+        Route::put('/patients/{id}/interventions', 'updateInterventions')->name('patients.interventions');
 
         Route::post('/consultations', 'storeConsultation')->name('consultations.store');
         Route::put('/consultations/{id}', 'updateConsultation')->name('consultations.update');

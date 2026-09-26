@@ -151,6 +151,17 @@ function populatePatientModal(p) {
     setVal('si-' + field, si[field]);
   });
 
+  // Therapeutic interventions
+  var interventions = p.interventions || {};
+  [
+    'psychiatric_therapy_medication',
+    'lifestyle_interventions',
+    'substance_use_rehabilitation',
+    'spiritual_counseling'
+  ].forEach(function (field) {
+    setVal('pi-' + field, interventions[field]);
+  });
+
   toggleExpandableInputs();
 
   var modal = document.getElementById('patient-detail-modal');
@@ -384,6 +395,19 @@ function collectSpiritualIntake() {
   return data;
 }
 
+function collectInterventions() {
+  var data = {};
+  [
+    'psychiatric_therapy_medication',
+    'lifestyle_interventions',
+    'substance_use_rehabilitation',
+    'spiritual_counseling'
+  ].forEach(function (field) {
+    data[field] = getVal('pi-' + field);
+  });
+  return data;
+}
+
 function currentPatientId() {
   var modal = document.getElementById('patient-detail-modal');
   return modal ? modal.getAttribute('data-current-patient') : null;
@@ -481,6 +505,19 @@ function bindPatientSaves() {
     }).then(function (data) {
       if (CURRENT_PATIENT) CURRENT_PATIENT.spiritual_intake = data.spiritual_intake;
       showToast(data.message || 'Spiritual intake updated.');
+    }).catch(function (err) { showToast(err.message); });
+  });
+
+  var saveInterventions = document.getElementById('pm-save-interventions');
+  if (saveInterventions) saveInterventions.addEventListener('click', function () {
+    var id = currentPatientId();
+    if (!id) return;
+    apiFetch(base + '/' + id + '/interventions', {
+      method: 'PUT',
+      body: JSON.stringify(collectInterventions()),
+    }).then(function (data) {
+      if (CURRENT_PATIENT) CURRENT_PATIENT.interventions = data.interventions;
+      showToast(data.message || 'Interventions updated.');
     }).catch(function (err) { showToast(err.message); });
   });
 

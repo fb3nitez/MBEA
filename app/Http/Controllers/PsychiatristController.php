@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateLifestyleAssessmentRequest;
 use App\Http\Requests\UpdateMedicalHistoryRequest;
 use App\Http\Requests\UpdatePsychiatricHistoryRequest;
+use App\Http\Requests\UpdatePatientInterventionsRequest;
 use App\Http\Requests\UpdateSpiritualIntakeRequest;
 use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
@@ -424,6 +425,17 @@ class PsychiatristController extends Controller
         return response()->json([
             'message' => 'Spiritual intake updated.',
             'spiritual_intake' => $intake,
+        ]);
+    }
+
+    public function updateInterventions(UpdatePatientInterventionsRequest $request, int $id): JsonResponse
+    {
+        $patient = $this->patientService->findPatient($id);
+        $interventions = $this->patientService->updateInterventions($patient, $request->validated());
+
+        return response()->json([
+            'message' => 'Interventions updated.',
+            'interventions' => $interventions,
         ]);
     }
 

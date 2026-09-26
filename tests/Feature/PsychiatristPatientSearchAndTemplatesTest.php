@@ -93,3 +93,25 @@ it('returns lifestyle patients with assessment payloads for monitoring', functio
         ->and($match['name'])->toBe('Lifestyle Monitor Patient')
         ->and($match['lifestyle_assessment']->sleep_hours)->toBe(7);
 });
+
+it('saves patient interventions and includes them in the patient payload', function () {
+    $patient = PatientRecord::create([
+        'fullname' => 'Interventions Patient',
+        'birthday' => now()->subYears(32)->toDateString(),
+        'sex' => 'female',
+        'marital_status' => 'single',
+    ]);
+
+    $interventions = app(PatientService::class)->updateInterventions($patient, [
+        'psychiatric_therapy_medication' => 'Weekly therapy and medication review',
+        'lifestyle_interventions' => 'Daily walks and consistent sleep schedule',
+        'substance_use_rehabilitation' => 'Referral to outpatient program',
+        'spiritual_counseling' => 'Patient-requested counseling',
+    ]);
+    $patientPayload = app(PatientService::class)->patientToArray($patient->fresh());
+
+    expect($interventions->exists)->toBeTrue()
+        ->and($interventions->patient_record_id)->toBe($patient->id)
+        ->and($patientPayload['interventions']->psychiatric_therapy_medication)->toBe('Weekly therapy and medication review')
+        ->and($patientPayload['interventions']->spiritual_counseling)->toBe('Patient-requested counseling');
+});

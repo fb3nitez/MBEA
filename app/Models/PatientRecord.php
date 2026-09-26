@@ -34,7 +34,7 @@ class PatientRecord extends Model
     protected function age(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->birthday ? Carbon::parse($this->birthday)->age : null
+            get: fn() => $this->birthday ? Carbon::parse($this->birthday)->age : null
         );
     }
 
@@ -56,6 +56,11 @@ class PatientRecord extends Model
     public function spiritualIntake(): HasOne
     {
         return $this->hasOne(SpiritualIntake::class);
+    }
+
+    public function interventions(): HasOne
+    {
+        return $this->hasOne(PatientIntervention::class);
     }
 
     public function lifeCoach(): BelongsTo

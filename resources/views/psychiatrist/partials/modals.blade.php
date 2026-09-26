@@ -120,6 +120,7 @@ $lifeCoaches = collect();
       <button type="button" class="tab-btn" data-pm-tab="psychiatric">Personal History</button>
       <button type="button" class="tab-btn" data-pm-tab="lifestyle">Lifestyle</button>
       <button type="button" class="tab-btn" data-pm-tab="spiritual">Spiritual</button>
+      <button type="button" class="tab-btn" data-pm-tab="interventions">Interventions</button>
     </div>
 
     <div class="modal-body" style="max-height:65vh;overflow-y:auto;">
@@ -706,6 +707,33 @@ $lifeCoaches = collect();
         @endforeach
         <div style="display:flex;justify-content:flex-end;margin-top:12px;">
           <button class="btn-blue" id="pm-save-spiritual">Save Spiritual Intake</button>
+        </div>
+      </div>
+
+      <!-- Therapeutic Interventions -->
+      <div class="pm-tab-panel" data-pm-panel="interventions">
+        <div class="pm-form-intro">
+          <h4>Therapeutic Interventions</h4>
+          <p>Document planned and ongoing care approaches.</p>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pi-psychiatric_therapy_medication">Psychiatric Therapy &amp; Medication</label>
+          <textarea class="field-textarea" id="pi-psychiatric_therapy_medication" rows="4"></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pi-lifestyle_interventions">Lifestyle Interventions (Exercise, Diet, Sleep, Stress Management)</label>
+          <textarea class="field-textarea" id="pi-lifestyle_interventions" rows="4"></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pi-substance_use_rehabilitation">Substance Use Rehabilitation</label>
+          <textarea class="field-textarea" id="pi-substance_use_rehabilitation" rows="4"></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pi-spiritual_counseling">Spiritual Counseling</label>
+          <textarea class="field-textarea" id="pi-spiritual_counseling" rows="4"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+          <button class="btn-blue" id="pm-save-interventions">Save Interventions</button>
         </div>
       </div>
 

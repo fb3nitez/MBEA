@@ -9,6 +9,7 @@ use App\Models\ConsultationSchedule;
 use App\Models\LifestyleAssessment;
 use App\Models\MedicalHistory;
 use App\Models\PatientRecord;
+use App\Models\PatientIntervention;
 use App\Models\Prescription;
 use App\Models\PsychiatricHistory;
 use App\Models\SpiritualIntake;
@@ -655,6 +656,11 @@ class PatientService
         );
     }
 
+    public function updateInterventions(PatientRecord $patient, array $data): PatientIntervention
+    {
+        return $patient->interventions()->updateOrCreate([], $data);
+    }
+
     /**
      * Return dashboard consultation counts without loading every consultation row.
      *
@@ -834,7 +840,7 @@ class PatientService
 
     public function patientToArray(PatientRecord $patient): array
     {
-        $patient->loadMissing(['lifeCoach', 'medicalHistory', 'psychiatricHistory', 'lifestyleAssessment', 'spiritualIntake']);
+        $patient->loadMissing(['lifeCoach', 'medicalHistory', 'psychiatricHistory', 'lifestyleAssessment', 'spiritualIntake', 'interventions']);
 
         return [
             'id' => $patient->id,
@@ -860,6 +866,7 @@ class PatientService
             'psychiatric_history' => $patient->psychiatricHistory,
             'lifestyle_assessment' => $patient->lifestyleAssessment,
             'spiritual_intake' => $patient->spiritualIntake,
+            'interventions' => $patient->interventions,
         ];
     }
 
