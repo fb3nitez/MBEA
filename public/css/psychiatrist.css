@@ -4492,19 +4492,50 @@ a.nav-item {
 
 /* ---- MSE GRID (Psychological) ---- */
 .mse-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
     padding: 0;
 }
 
+.mse-category {
+    min-width: 0;
+}
+
+.mse-category-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 10px;
+    padding: 8px 0 8px 4px;
+    border-bottom: 2px solid #78ad25;
+    color: var(--text-900);
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.mse-category-description {
+    margin: 0 0 10px 12px;
+    color: var(--text-600);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.mse-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    border: 1px solid var(--border);
+    background: var(--border);
+}
+
 .mse-field-card {
+    min-width: 0;
     background: var(--white);
-    padding: 14px 16px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     transition: background 0.15s;
 }
 
@@ -4517,15 +4548,40 @@ a.nav-item {
     font-size: 12.5px;
 }
 
+.mse-field-card-wide {
+    grid-column: 1 / -1;
+}
+
 .mse-field-label {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 11px;
-    font-weight: 800;
+    font-size: 12px;
+    font-weight: 750;
     color: var(--text-600);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+}
+
+.mse-option-prompt {
+    margin: 0;
+    color: var(--text-500);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.mse-autocomplete {
+    position: relative;
+    min-width: 0;
+}
+
+.mse-autocomplete .autocomplete-input {
+    border-color: var(--border);
+    background: #fff;
+    font-size: 12.5px;
+}
+
+.mse-autocomplete .autocomplete-list {
+    max-height: 220px;
+    overflow-y: auto;
 }
 
 .mse-number {

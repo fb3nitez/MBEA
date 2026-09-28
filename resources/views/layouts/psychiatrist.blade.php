@@ -9,12 +9,12 @@
   <link rel="stylesheet" href="{{ asset('css/psychiatrist.css') }}?v={{ filemtime(public_path('css/psychiatrist.css')) }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  @vite(['resources/js/clinical-notes.js', 'resources/css/clinical-notes.css'])
+  @vite(['resources/js/app.js', 'resources/js/clinical-notes.js', 'resources/css/clinical-notes.css'])
   <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
 </head>
 
 @php
-  $page = trim($__env->yieldContent('page'));
+$page = trim($__env->yieldContent('page'));
 @endphp
 
 <body data-page="{{ $page }}">
@@ -123,15 +123,15 @@
   </script>
   @stack('scripts')
   @foreach([
-    'psychiatrist_core.js',
-    'psychiatrist_patients.js',
-    'psychiatrist_consultations.js',
-    'psychiatrist_assessments.js',
-    'psychiatrist_lifestyle.js',
-    'psychiatrist_prescriptions.js',
-    'psychiatrist_init.js',
+  'psychiatrist_core.js',
+  'psychiatrist_patients.js',
+  'psychiatrist_consultations.js',
+  'psychiatrist_assessments.js',
+  'psychiatrist_lifestyle.js',
+  'psychiatrist_prescriptions.js',
+  'psychiatrist_init.js',
   ] as $psychScript)
-    <script src="{{ asset('js/psych/' . $psychScript) }}"></script>
+  <script src="{{ asset('js/psych/' . $psychScript) }}"></script>
   @endforeach
   <script>
     feather.replace();

@@ -1,13 +1,27 @@
 export function autocomplete(element, items) {
+    if (!element || element.dataset.autocompleteInitialized === 'true') return;
+
     const input = element.querySelector('[data-autocomplete-input]');
     const list = element.querySelector('[data-autocomplete-list]');
+    const multiple = element.dataset.autocompleteMultiple === 'true';
+
+    element.dataset.autocompleteInitialized = 'true';
 
     let matches = [];
     let activeIndex = -1;
 
     function search(value = '') {
+        const segments = multiple ? value.split(';') : [value];
+        const lastSegment = segments.pop().trim();
+        const lastSegmentIsSelected = multiple && items.some(item =>
+            item.toLowerCase() === lastSegment.toLowerCase()
+        );
+        const query = lastSegmentIsSelected ? '' : lastSegment.toLowerCase();
+        const selected = segments.map(item => item.trim()).filter(Boolean);
+        if (lastSegmentIsSelected) selected.push(lastSegment);
         matches = items.filter(item =>
-            item.toLowerCase().includes(value.toLowerCase())
+            !selected.some(selectedItem => selectedItem.toLowerCase() === item.toLowerCase()) &&
+            item.toLowerCase().includes(query)
         );
 
         activeIndex = -1;
@@ -43,7 +57,18 @@ export function autocomplete(element, items) {
     }
 
     function select(index) {
-        input.value = matches[index];
+        if (multiple) {
+            const selected = input.value.split(';').map(item => item.trim()).filter(Boolean);
+            if (selected.length && !items.some(item =>
+                item.toLowerCase() === selected[selected.length - 1].toLowerCase()
+            )) selected.pop();
+            if (!selected.some(item => item.toLowerCase() === matches[index].toLowerCase())) {
+                selected.push(matches[index]);
+            }
+            input.value = selected.join('; ');
+        } else {
+            input.value = matches[index];
+        }
         close();
     }
 

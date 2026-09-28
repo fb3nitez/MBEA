@@ -20,9 +20,9 @@
       <!-- Filled by JS -->
     </div>
     @if ($assessmentsPaginator->hasPages())
-      <div class="pagination-wrap">
-        {{ $assessmentsPaginator->links() }}
-      </div>
+    <div class="pagination-wrap">
+      {{ $assessmentsPaginator->links() }}
+    </div>
     @endif
   </div>
 
@@ -257,7 +257,11 @@
         <div class="assess-section-header purple-header">
           <div class="assess-section-header-left">
             <div class="assess-section-icon purple-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /><circle cx="12" cy="12" r="10" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+                <circle cx="12" cy="12" r="10" />
+              </svg>
             </div>
             <div>
               <div class="assess-section-title">Mental Status Examination</div>
@@ -267,24 +271,109 @@
           <span class="assess-section-badge purple-badge">MSE</span>
         </div>
 
+        @php
+        $mseSections = [
+        [
+        'key' => 'appearance', 'label' => 'Appearance', 'legacy' => 'appearance',
+        'groups' => [
+        ['key' => 'hygiene', 'label' => 'Hygiene and Grooming', 'prompt' => "Would you describe your client's hygiene and grooming as:", 'options' => ['Clean', 'Neat', 'Disheveled', 'Shaven', 'Unshaven', 'Hair Brushed', 'Hair Unbrushed']],
+        ['key' => 'dress', 'label' => 'Dress', 'prompt' => "Is your client's clothing:", 'options' => ['Casual', 'Business', 'Ragged', 'Immaculate', 'Fashionable', 'Inappropriate', 'Dirty', 'Neat', 'Bizarre', 'Stained']],
+        ['key' => 'distinguishing_features', 'label' => 'Distinguishing Features', 'prompt' => 'Does your client have any distinguishing features, such as:', 'options' => ['Tattoos', 'Piercings', 'Scars']],
+        ['key' => 'apparent_age', 'label' => 'Apparent Age', 'prompt' => 'Does your client appear:', 'options' => ['Older than their stated age', 'Younger than their stated age']],
+        ['key' => 'body_mass_index', 'label' => 'Body Mass Index', 'prompt' => "Is your client's habitus:", 'options' => ['Normal', 'Obese', 'Underweight', 'Overweight']],
+        ['key' => 'facial_expressions', 'label' => 'Facial Expressions', 'prompt' => 'Does your client appear:', 'options' => ['Calm', 'Sad', 'Angry', 'Anxious', 'Perplexed']],
+        ],
+        ],
+        [
+        'key' => 'general_behavior', 'label' => 'General Behavior', 'legacy' => 'behavior',
+        'groups' => [
+        ['key' => 'eye_contact', 'label' => 'Eye Contact', 'prompt' => "Is your client's eye contact:", 'options' => ['Appropriate', 'Avoidant', 'Decreased', 'Heightened']],
+        ['key' => 'tardive_dyskinesia', 'label' => 'Tardive Dyskinesia', 'prompt' => 'Does your client display unusual movements in the jaw, face or tongue, such as:', 'options' => ['Grimacing', 'Lip Pursing', 'Lip Smacking', 'Chewing', 'Tongue Writhing']],
+        ['key' => 'cooperativeness', 'label' => 'Cooperativeness and Attitude', 'prompt' => 'Does your client exhibit an appropriate level of cooperation, or are they:', 'options' => ['Evasive', 'Withdrawn', 'Hostile', 'Open', 'Suspicious', 'Guarded', 'Passive', 'Demanding', 'Playful', 'Relaxed', 'Sullen', 'Shy', 'Candid', 'Over Friendly'], 'wide' => true],
+        ['key' => 'movements', 'label' => 'Movements', 'prompt' => 'Does your client display any unusual or repetitive movements, such as:', 'options' => ['Pacing', 'Mannerisms', 'Waving', 'Head-nodding', 'Body-rocking', 'Finger-tapping', 'Tics', 'Posturing', 'Arm-flapping', 'Twitches', 'Tremor'], 'wide' => true],
+        ],
+        ],
+        [
+        'key' => 'speech_language', 'label' => 'Speech and Language', 'legacy' => 'speech',
+        'groups' => [
+        ['key' => 'general', 'label' => 'General', 'prompt' => 'Does your client speak clearly or have an:', 'options' => ['Accent', 'Stutter', 'Lisp']],
+        ['key' => 'rate', 'label' => 'Rate', 'prompt' => 'Does your client speak at a:', 'options' => ['Normal', 'Slow', 'Fast', 'Delayed Onset']],
+        ['key' => 'rhythm', 'label' => 'Rhythm', 'prompt' => "Is your client's speech:", 'options' => ['Articulate', 'Dysarthric', 'Slurred', 'Monotone']],
+        ['key' => 'volume', 'label' => 'Volume', 'prompt' => "Is your client's speech:", 'options' => ['Soft', 'Loud', 'Mute']],
+        ['key' => 'content', 'label' => 'Content', 'prompt' => 'Is your client:', 'options' => ['Loquacious', 'Fluent', 'Impoverished']],
+        ],
+        ],
+        [
+        'key' => 'emotions', 'label' => 'Emotions',
+        'groups' => [
+        ['key' => 'mood', 'label' => 'Mood', 'legacy' => 'mood', 'prompt' => 'Does your client say they feel:', 'options' => ['Depressed', 'Irritable', 'Sad', 'Good', 'Angry', 'Fantastic']],
+        ['key' => 'affect', 'label' => 'Affect', 'legacy' => 'affect', 'prompt' => 'Does your client seem to be:', 'options' => ['Euthymic', 'Angry', 'Anxious', 'Depressed', 'Elated', 'Irritable', 'Euphoric']],
+        ['key' => 'range', 'label' => 'Range', 'prompt' => "Is your client's affect range:", 'options' => ['Broad', 'Labile', 'Restricted', 'Anhedonic', 'Flat']],
+        ['key' => 'congruency', 'label' => 'Congruency', 'prompt' => "Is your client's affect:", 'options' => ['Congruent to their mood', 'Incongruent to their mood']],
+        ],
+        ],
+        [
+        'key' => 'thought_perception', 'label' => 'Thought and Perception',
+        'groups' => [
+        ['key' => 'thought_process', 'label' => 'Thought Process', 'legacy' => 'thought_process', 'prompt' => "Would you describe your client's thought process as:", 'options' => ['Goal-directed', 'Illogical', 'Tangential', 'Word Salad', 'Incoherent', 'Circumstantial', 'Impoverished', 'Loose', 'Rapid', 'Distractible', 'Perseverative', 'Flight of Ideas', 'Blocking'], 'wide' => true],
+        ['key' => 'thought_content', 'label' => 'Thought Content', 'legacy' => 'thought_content', 'prompt' => "Do your client's thoughts consist of:", 'options' => ['Goal-directed', 'Illogical', 'Tangential', 'Word Salad', 'Incoherent', 'Circumstantial', 'Impoverished', 'Loose', 'Rapid', 'Distractible', 'Perseverative', 'Flight of Ideas', 'Blocking'], 'wide' => true],
+        ['key' => 'perception', 'label' => 'Perception', 'legacy' => 'perception', 'prompt' => 'Is your client experiencing:', 'options' => ['Goal-directed', 'Illogical', 'Tangential', 'Word Salad', 'Incoherent', 'Circumstantial', 'Impoverished', 'Loose', 'Rapid', 'Distractible', 'Perseverative', 'Flight of Ideas', 'Blocking'], 'wide' => true],
+        ],
+        ],
+        [
+        'key' => 'cognition', 'label' => 'Cognition', 'legacy' => 'cognition',
+        'groups' => [
+        ['key' => 'alertness', 'label' => 'Alertness', 'prompt' => 'Is your client:', 'options' => ['Alert', 'In a stupor', 'Lethargic', 'Comatose', 'Obtunded']],
+        ['key' => 'orientation', 'label' => 'Orientation', 'prompt' => 'Does your client know:', 'options' => ['Their Name', 'The Time', 'The Date', 'Their Current Location']],
+        ['key' => 'memory_tasks', 'label' => 'Memory', 'prompt' => "To test your client's memory, you might ask them to do the following:", 'options' => ['Repeat three words immediately and again in five minutes', 'Sign their name while answering unrelated questions', "Tell you their birthday, where they were born and their parents' names"], 'wide' => true],
+        ['key' => 'memory_impairment', 'label' => 'Memory Impairment', 'prompt' => 'Does your client display:', 'options' => ['No Impairment', 'Short-term Impairment', 'Long-term Impairment']],
+        ['key' => 'attention', 'label' => 'Attention', 'prompt' => "Does your client's attention seem:", 'options' => ['Normal', 'Distracted']],
+        ['key' => 'insight_questions', 'label' => 'Insight', 'prompt' => "Describe your client's insight or their awareness of their situation or condition:", 'options' => ['How well does your client understand the reasons for their behavior?', 'How well does your client appreciate how they contribute to a problem?', 'Does your client recognize or acknowledge the severity of an issue?', 'What do they perceive is the best way to address a problem?'], 'wide' => true],
+        ['key' => 'insight_impairment', 'label' => 'Insight Assessment', 'legacy' => 'insight', 'prompt' => "Is your client's insight:", 'options' => ['No Impairment', 'Short-term Impairment', 'Long-term Impairment']],
+        ],
+        ],
+        [
+        'key' => 'environment', 'label' => 'Environment',
+        'description' => "If part of your mental status exam includes assessing the client's living environment, you may want to describe their surroundings. Ask yourself the following:",
+        'groups' => [
+        ['key' => 'observations', 'label' => 'Environment Observations', 'options' => ['Have they made odd decisions, such as blocking doors or windows with furniture?', 'Are there unusual decorations or wires that lead nowhere?', 'Are they using any household objects inappropriately?', 'Is their home extremely cluttered or dirty?', 'Do they collect junk or garbage?'], 'wide' => true],
+        ],
+        ],
+        ];
+        @endphp
+
         <div class="mse-grid">
-          @foreach ([
-            'appearance' => 'Appearance',
-            'behavior' => 'Behavior',
-            'speech' => 'Speech',
-            'mood' => 'Mood',
-            'affect' => 'Affect',
-            'thought_process' => 'Thought Process',
-            'thought_content' => 'Thought Content',
-            'perception' => 'Perceptual Disturbances',
-            'cognition' => 'Cognition',
-            'insight' => 'Insight',
-            'judgment' => 'Judgment',
-          ] as $key => $label)
-          <div class="mse-field-card {{ $key === 'mood' ? 'mood-card' : '' }}">
-            <div class="mse-field-label"><span class="mse-number">{{ $loop->iteration }}</span>{{ $label }}</div>
-            <textarea class="assess-rich-textarea" id="psy-{{ $key }}" placeholder="Enter notes..."></textarea>
-          </div>
+          @foreach ($mseSections as $mseSection)
+          <section class="mse-category" aria-labelledby="mse-heading-{{ $mseSection['key'] }}">
+            <h3 class="mse-category-heading" id="mse-heading-{{ $mseSection['key'] }}">
+              <span class="mse-number">{{ $loop->iteration }}</span>{{ $mseSection['label'] }}
+            </h3>
+            @if (!empty($mseSection['description']))
+            <p class="mse-category-description">{{ $mseSection['description'] }}</p>
+            @endif
+            <div class="mse-groups-grid">
+              @foreach ($mseSection['groups'] as $group)
+              @php
+              $fieldId = 'psy-mse-' . $mseSection['key'] . '-' . $group['key'];
+              $legacyKey = $group['legacy'] ?? ($loop->first ? ($mseSection['legacy'] ?? null) : null);
+              @endphp
+              <div class="mse-field-card {{ !empty($group['wide']) ? 'mse-field-card-wide' : '' }}">
+                <div class="mse-field-label">{{ $group['label'] }}</div>
+                @if (!empty($group['prompt']))
+                <p class="mse-option-prompt">{{ $group['prompt'] }}</p>
+                @endif
+                <div class="mse-autocomplete" data-mse-section="{{ $mseSection['key'] }}" data-mse-group="{{ $group['key'] }}" @if ($legacyKey) data-mse-legacy-key="{{ $legacyKey }}" @endif>
+                  <x-autocomplete
+                    :id="$fieldId"
+                    :name="$fieldId"
+                    :options="$group['options']"
+                    :multiple="true"
+                    placeholder="Choose or type observations..." />
+                </div>
+              </div>
+              @endforeach
+            </div>
+          </section>
           @endforeach
         </div>
 
@@ -298,7 +387,11 @@
         <div class="assess-section-header red-header">
           <div class="assess-section-header-left">
             <div class="assess-section-icon red-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
             </div>
             <div>
               <div class="assess-section-title">Risk Assessment</div>
@@ -340,7 +433,12 @@
         <div class="assess-section-header green-header">
           <div class="assess-section-header-left">
             <div class="assess-section-icon green-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
             </div>
             <div>
               <div class="assess-section-title">Social Assessment</div>
@@ -351,18 +449,20 @@
 
         <div class="social-fields-grid">
           @foreach ([
-            'living' => ['Living Situation', '#eff6ff', '#2563eb'],
-            'occupation' => ['Occupation / Employment', '#f0fdf4', '#16a34a'],
-            'financial' => ['Financial Status', '#fffbeb', '#d97706'],
-            'relationships' => ['Relationships / Support System', '#faf5ff', '#9333ea'],
-            'cultural' => ['Cultural Background', '#fff1f2', '#e11d48'],
-            'legal' => ['Legal Issues', '#f8fafc', '#475569'],
-            'substance' => ['Substance Use', '#fef2f2', '#dc2626'],
-            'stressors' => ['Psychosocial Stressors', '#fffbeb', '#d97706'],
+          'living' => ['Living Situation', '#eff6ff', '#2563eb'],
+          'occupation' => ['Occupation / Employment', '#f0fdf4', '#16a34a'],
+          'financial' => ['Financial Status', '#fffbeb', '#d97706'],
+          'relationships' => ['Relationships / Support System', '#faf5ff', '#9333ea'],
+          'cultural' => ['Cultural Background', '#fff1f2', '#e11d48'],
+          'legal' => ['Legal Issues', '#f8fafc', '#475569'],
+          'substance' => ['Substance Use', '#fef2f2', '#dc2626'],
+          'stressors' => ['Psychosocial Stressors', '#fffbeb', '#d97706'],
           ] as $key => $meta)
           <div class="social-field-card">
             <div class="social-field-icon" style="background:{{ $meta[1] }};color:{{ $meta[2] }};">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+              </svg>
             </div>
             <div class="social-field-content">
               <div class="social-field-label">{{ $meta[0] }}</div>
@@ -385,7 +485,9 @@
         <div class="assess-section-header gold-header">
           <div class="assess-section-header-left">
             <div class="assess-section-icon gold-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
             </div>
             <div>
               <div class="assess-section-title">Spiritual Assessment</div>
@@ -396,12 +498,12 @@
 
         <div class="spiritual-fields-grid">
           @foreach ([
-            'beliefs' => 'Religious / Spiritual Beliefs',
-            'practices' => 'Practices & Rituals',
-            'coping' => 'Spiritual Coping',
-            'needs' => 'Spiritual Needs',
-            'strengths' => 'Spiritual Strengths',
-            'meaning' => 'Meaning & Purpose',
+          'beliefs' => 'Religious / Spiritual Beliefs',
+          'practices' => 'Practices & Rituals',
+          'coping' => 'Spiritual Coping',
+          'needs' => 'Spiritual Needs',
+          'strengths' => 'Spiritual Strengths',
+          'meaning' => 'Meaning & Purpose',
           ] as $i => $label)
           <div class="spiritual-field-card">
             <div class="spiritual-field-header">
@@ -466,12 +568,12 @@
         </div>
         <div class="accordion-list" id="medhist-accordion">
           @foreach ([
-            'allergies' => 'Allergies',
-            'medications' => 'Current Medications',
-            'surgical' => 'Surgical History',
-            'hospitalizations' => 'Hospitalizations',
-            'immunizations' => 'Immunizations',
-            'family' => 'Family Medical History',
+          'allergies' => 'Allergies',
+          'medications' => 'Current Medications',
+          'surgical' => 'Surgical History',
+          'hospitalizations' => 'Hospitalizations',
+          'immunizations' => 'Immunizations',
+          'family' => 'Family Medical History',
           ] as $key => $label)
           <div class="accordion-item">
             <button type="button" class="accordion-trigger">{{ $label }} <i data-feather="chevron-down"></i></button>
