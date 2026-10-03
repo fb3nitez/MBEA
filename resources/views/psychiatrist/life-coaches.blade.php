@@ -6,15 +6,14 @@
 
 @section('content')
     <section class="psych-section active" id="section-life-coaches">
-        <div class="lc-management-header">
-            <button class="btn-blue" type="button" id="open-coach-modal"><i data-feather="plus"></i> Add Life Coach</button>
-        </div>
-
         <section class="card lc-coach-list" aria-labelledby="coach-list-title">
             <div class="card-header">
                 <span class="card-title" id="coach-list-title">Current Life Coaches</span>
-                <span class="lc-management-count">{{ $coaches->count() }}
-                    {{ Str::plural('coach', $coaches->count()) }}</span>
+                <div class="lc-management-actions">
+                    <span class="lc-management-count">{{ $coaches->count() }}
+                        {{ Str::plural('coach', $coaches->count()) }}</span>
+                    <button class="btn-blue" type="button" id="open-coach-modal"><i data-feather="plus"></i> Add Life Coach</button>
+                </div>
             </div>
             <div class="lc-coach-table-wrap">
                 <table class="lc-coach-table">
