@@ -116,11 +116,21 @@
   window.showToast = function (msg, duration) {
     var t = document.getElementById('toast');
     if (!t) return;
-    t.textContent = msg;
+    t.classList.add('app-toast');
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
+    t.innerHTML = '<span class="toast-content"></span>';
+    t.querySelector('.toast-content').textContent = msg;
     show(t);
     clearTimeout(t._timer);
     t._timer = setTimeout(function () { hide(t); }, duration || 2800);
   };
+
+  var sessionToast = document.getElementById('toast');
+  if (sessionToast && sessionToast.dataset.toastMessage) {
+    showToast(sessionToast.dataset.toastMessage, 3600);
+    sessionToast.removeAttribute('data-toast-message');
+  }
 
   function statusBadge(s) {
     var map = { Active: 'badge-active', Critical: 'badge-critical', Inactive: 'badge-inactive', Pending: 'badge-pending', Submitted: 'badge-pending', Completed: 'badge-completed', Scheduled: 'badge-scheduled', Emergency: 'badge-emergency', Stable: 'badge-stable', Monitoring: 'badge-monitoring', Maintenance: 'badge-maintenance', Cancelled: 'badge-inactive' };

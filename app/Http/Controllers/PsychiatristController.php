@@ -18,6 +18,7 @@ use App\Services\PatientService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -118,6 +119,56 @@ class PsychiatristController extends Controller
                 'contact_note' => 'for appointments and inquiries',
             ],
         ]);
+    }
+
+    public function lifeCoachManagement(Request $request): View
+    {
+        $coaches = User::role('lifecoach')->orderBy('name')->get();
+        $editingCoach = $request->filled('edit')
+            ? $coaches->firstWhere('id', (int) $request->integer('edit'))
+            : null;
+
+        return view('psychiatrist.life-coaches', compact('coaches', 'editingCoach'));
+    }
+
+    public function storeLifeCoach(Request $request): mixed
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'bio' => ['nullable', 'string', 'max:250'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $password = $data['password'];
+        unset($data['password'], $data['password_confirmation']);
+        $coach = User::create(array_merge($data, ['password' => Hash::make($password)]));
+        $coach->assignRole('lifecoach');
+
+        return redirect()->route('psychiatrist.life-coaches')->with('status', 'Life Coach added successfully.');
+    }
+
+    public function updateLifeCoach(Request $request, int $id): mixed
+    {
+        $coach = User::role('lifecoach')->findOrFail($id);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $coach->id],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'bio' => ['nullable', 'string', 'max:250'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (! empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+        unset($data['password_confirmation']);
+        $coach->update($data);
+
+        return redirect()->route('psychiatrist.life-coaches')->with('status', 'Life Coach details updated successfully.');
     }
 
     public function toggleClinicalTemplateFavorite(int $id): JsonResponse

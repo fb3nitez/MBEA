@@ -21,7 +21,11 @@ function lcHide(el) {
 function lcToast(msg) {
     var t = document.getElementById("toast");
     if (!t) return;
-    t.textContent = msg;
+    t.classList.add("app-toast");
+    t.setAttribute("role", "status");
+    t.setAttribute("aria-live", "polite");
+    t.innerHTML = '<span class="toast-content"></span>';
+    t.querySelector(".toast-content").textContent = msg;
     lcShow(t);
     clearTimeout(t._t);
     t._t = setTimeout(function () {

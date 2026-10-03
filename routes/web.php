@@ -34,6 +34,9 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::get('/lifestyle', 'lifestyle')->name('lifestyle');
         Route::get('/assessments', 'assessments')->name('assessments');
         Route::get('/prescriptions', 'prescriptions')->name('prescriptions');
+        Route::get('/life-coach-management', 'lifeCoachManagement')->name('life-coaches');
+        Route::post('/life-coach-management', 'storeLifeCoach')->name('life-coaches.store');
+        Route::put('/life-coach-management/{id}', 'updateLifeCoach')->name('life-coaches.update');
         Route::put('/clinical-templates/{id}/favorite', 'toggleClinicalTemplateFavorite')->name('templates.favorite');
         Route::post('/clinical-templates/{id}/used', 'markClinicalTemplateUsed')->name('templates.used');
         Route::post('/clinical-templates/{id}/duplicate', 'duplicateClinicalTemplate')->name('templates.duplicate');

@@ -13,7 +13,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function showToast(message) {
     var toast = qs('#toast');
     if (!toast) return;
-    toast.textContent = message;
+    toast.classList.add('app-toast');
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.innerHTML = '<span class="toast-content"></span>';
+    toast.querySelector('.toast-content').textContent = message;
     toast.classList.remove('hidden');
     clearTimeout(toast._timer);
     toast._timer = setTimeout(function () { toast.classList.add('hidden'); }, 3000);

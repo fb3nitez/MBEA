@@ -15,7 +15,7 @@
             <img src="{{ asset('assets/mbea_logo.png') }}" alt="MB.EA" class="w-10 h-10 object-cover rounded-full" />
             <span class="font-bold text-base-content">MB.EA</span>
         </a>
-        <a href="/" class="btn btn-ghost btn-sm gap-2">
+        <a href="/" class="btn btn-ghost btn-sm gap-2" title="Return to the clinic home page" aria-label="Return to the clinic home page">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -71,7 +71,7 @@
                     class="relative card bg-base-100 border border-base-content/10 shadow-lg py-5 px-10 space-y-5">
                     @csrf
 
-                    <button type="button" class="btn btn-ghost absolute top-5 right-5"
+                    <button type="button" class="btn btn-ghost absolute top-5 right-5" title="Clear the form and start over" aria-label="Clear the form and start over"
                         onclick="start_over_dialog.showModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4"
                             viewBox="0 0 640 640">

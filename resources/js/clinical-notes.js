@@ -275,7 +275,11 @@ function displayAsHTML(data) {
 function showToast(msg) {
     var t = document.getElementById("toast");
     if (!t) return;
-    t.textContent = msg;
+    t.classList.add("app-toast");
+    t.setAttribute("role", "status");
+    t.setAttribute("aria-live", "polite");
+    t.innerHTML = '<span class="toast-content"></span>';
+    t.querySelector(".toast-content").textContent = msg;
     t.classList.remove("hidden");
     clearTimeout(t._timer);
     t._timer = setTimeout(function () {

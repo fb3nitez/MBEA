@@ -54,6 +54,10 @@ $page = trim($__env->yieldContent('page'));
           class="nav-item {{ $page === 'prescriptions' ? 'active' : '' }}">
           <i data-feather="tag"></i><span>Prescriptions</span>
         </a>
+        <a href="{{ route('psychiatrist.life-coaches') }}"
+          class="nav-item {{ $page === 'life-coaches' ? 'active' : '' }}">
+          <i data-feather="user-check"></i><span>Life Coach Management</span>
+        </a>
       </nav>
 
       <div class="sidebar-footer">

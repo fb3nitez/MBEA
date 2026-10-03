@@ -57,3 +57,24 @@
     display: flex;
     align-items: start;
 }
+
+.intake-tooltip-anchor {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    flex: 0 0 16px;
+    border-radius: 6px;
+    background: #2ea44f;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.intake-tooltip-anchor .tooltip {
+    top: -39px;
+}

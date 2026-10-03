@@ -1464,26 +1464,54 @@ if (generateDxBtn) {
 }
 
 function buildDxPrintDocument() {
-    var el = document.getElementById("print-area-dx");
-    var inner = el ? el.innerHTML : "<p>No diagnostic request on file.</p>";
+    var P = window.PSYCH_DATA || {};
+    var doc = P.prescriber || {};
+    var patientId = getVal("dx-patient");
+    var patient = findPatientLocal(patientId);
+    var patientName = patient ? patient.name || "—" : getVal("dx-patient-search") || "—";
+    var age = getVal("dx-age") || "—";
+    var date = getVal("dx-date") || todayStr;
+    var notes = getVal("dx-notes") || "—";
+    var grouped = {};
+    qsa(".dx-cb:checked").forEach(function (checkbox) {
+        var group = checkbox.closest(".dx-category-group");
+        var heading = group && group.querySelector(".dx-cat-label > span:first-child");
+        var category = heading ? heading.textContent.trim() : "Selected tests";
+        if (!grouped[category]) grouped[category] = [];
+        grouped[category].push(checkbox.getAttribute("data-test"));
+    });
+    var testsHtml = Object.keys(grouped).map(function (category) {
+        return '<div class="dx-print-group"><div class="dx-print-group-title">' + escHtml(category) + '</div><ul>' + grouped[category].map(function (test) { return '<li>' + escHtml(test) + '</li>'; }).join("") + '</ul></div>';
+    }).join("");
+    var other = getVal("dx-other-imaging").trim();
+    if (other) testsHtml += '<div class="dx-print-group"><div class="dx-print-group-title">Imaging</div><ul><li>' + escHtml(other) + '</li></ul></div>';
+    var logoTag = P.clinicLogo
+        ? '<img src="' + P.clinicLogo + '" style="width:64px;height:64px;object-fit:contain;border-radius:8px;" />'
+        : "";
     return (
         "<html><head><title>MB.EA Diagnostic Request</title>" +
-        "<style>@page{size:letter portrait;margin:14mm;}" +
-        "body{font-family:Arial,Helvetica,sans-serif;padding:24px;font-size:13px;color:#0f172a;}" +
-        ".rx-preview-clinic{font-size:18px;font-weight:800;text-align:center;}" +
-        ".rx-preview-addr{font-size:12px;color:#475569;text-align:center;margin-bottom:10px;}" +
-        ".rx-preview-stamp{font-size:20px;letter-spacing:1px;font-weight:900;margin:10px 0;}" +
-        ".rx-preview-patient-row{display:flex;gap:18px;font-size:13px;margin-bottom:6px;}" +
-        ".rx-preview-diag{font-size:13px;margin:8px 0;}" +
-        ".rx-preview-notes-label,.rx-preview-meds-label{font-weight:800;font-size:12.5px;margin:10px 0 4px;}" +
-        ".rx-preview-meds-list{margin:0;padding-left:20px;}" +
-        ".rx-preview-notes-text{font-size:13px;}" +
-        ".rx-preview-sig-line{margin-top:36px;}" +
-        ".rx-sig-line-bar{height:1px;background:#0f172a;width:200px;margin-bottom:4px;}" +
-        ".rx-sig-name{font-weight:700;}.rx-sig-lic{font-size:12px;}" +
-        "</style></head><body>" +
-        inner +
-        "</body></html>"
+        "<style>@page{size:A4 portrait;margin:0;}" +
+        "*{box-sizing:border-box;}html,body{width:210mm;min-height:297mm;margin:0;}body{font-family:Arial,Helvetica,sans-serif;color:#000;font-size:13px;padding:10mm;}" +
+        ".pad{border:2px solid #000;padding:16px 18px;min-height:277mm;}" +
+        ".head{display:flex;align-items:center;gap:12px;}.head-logo{flex-shrink:0;}.head-main{flex:1;text-align:center;}" +
+        ".doc-name{font-size:19px;font-weight:900;text-transform:uppercase;}.doc-role{font-size:13px;font-weight:700;margin-top:2px;}" +
+        ".doc-dip{font-size:11.5px;line-height:1.5;}.clinic-side{font-size:10px;font-weight:700;color:#16a34a;text-align:center;width:90px;flex-shrink:0;}" +
+        ".contact-line{font-size:12.5px;font-style:italic;margin:10px 0 8px;text-align:center;}.affil{font-size:12px;text-align:center;margin-bottom:10px;}" +
+        ".affil-title{font-size:12px;margin-bottom:2px;}.affil-cols{display:flex;flex-wrap:wrap;justify-content:center;gap:0 40px;}.affil-cols span{width:46%;}" +
+        ".dash{border-top:2px dashed #000;margin:8px 0;}.patient{display:flex;gap:24px;align-items:flex-end;margin:14px 0;font-size:13px;}" +
+        ".patient-main{display:flex;flex:1;gap:6px;align-items:flex-end;}.patient-age{width:90px;}.patient-date{width:120px;}.line{border-bottom:1px solid #000;min-height:16px;flex:1;text-align:center;font-weight:600;}" +
+        ".section-title{font-size:12px;font-weight:900;letter-spacing:1px;border-bottom:1px solid #000;padding-bottom:2px;margin:14px 0 5px;}" +
+        ".notes{white-space:pre-wrap;line-height:1.4;min-height:28px;}.dx-print-group{margin:8px 0;page-break-inside:avoid;}" +
+        ".dx-print-group-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:6px 0 2px;}" +
+        ".dx-print-group ul{margin:0;padding:2px 0 2px 22px;line-height:1.4;}.signature{margin-top:38px;border-top:1px solid #000;width:220px;padding-top:5px;font-weight:700;}" +
+        ".foot{margin-top:14px;font-size:10px;color:#333;display:flex;justify-content:space-between;}" +
+        '</style></head><body><div class="pad">' +
+        '<div class="head"><div class="head-logo">' + logoTag + '</div><div class="head-main"><div class="doc-name">' + escHtml(doc.name || "—") + '</div><div class="doc-role">Psychiatrist/Psychotherapist</div><div class="doc-dip">Diplomate of the Specialty Board of Philippine Psychiatry<br/>Diplomate, Philippine Psychiatric Association<br/>' + escHtml(doc.clinic_email || doc.email || "") + '</div></div><div class="clinic-side">' + escHtml(doc.clinic || "MB.EA Wellness Center") + '<br/><span style="font-weight:400;">Mental Health<br/>Mental Health &amp; Wellness Clinic</span></div></div>' +
+        '<div class="contact-line">0905-071-3671</div><div class="affil"><div class="affil-title">Hospital Affiliations:</div><div class="affil-cols"><span>Remedios Trinidad Romualdez Hospital</span><span>Divine Word Hospital</span><span>United Shalom Medical Center</span><span>Mother of Mercy Hospital</span><span style="width:100%;text-align:center;">ACE Medical Center (Room 433)</span></div></div><div class="dash"></div>' +
+        '<div class="patient"><div class="patient-main">Patient Name:<div class="line">' + escHtml(patientName) + '</div></div><div class="patient-date">Date:<div class="line">' + escHtml(date) + '</div></div></div>' +
+        '<div class="patient"><div class="patient-main">Requesting Physician:<div class="line">' + escHtml(doc.name || "—") + '</div></div><div class="patient-age">Age:<div class="line">' + escHtml(age) + '</div></div></div>' +
+        '<div class="section-title">DIAGNOSTIC REQUEST FORM</div><div class="section-title">CLINICAL NOTES</div><div class="notes">' + escHtml(notes) + '</div><div class="section-title">TESTS ORDERED</div>' + (testsHtml || '<div>No tests selected.</div>') +
+        '<div class="signature">' + escHtml(doc.name || "—") + '</div><div class="foot"><span>' + escHtml(doc.clinic || "MB.EA Wellness Center") + '</span><span>Printed ' + escHtml(todayStr) + '</span></div></div></body></html>'
     );
 }
 

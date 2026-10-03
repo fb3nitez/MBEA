@@ -166,6 +166,7 @@ class PatientIntakeForm {
     }
 
     bindEvents() {
+        this.addInteractionTooltips();
         // Navigation
         this.elements.btnNext.addEventListener('click', () => this.nextStep());
         this.elements.btnBack.addEventListener('click', () => this.prevStep());
@@ -219,6 +220,37 @@ class PatientIntakeForm {
                     this.nextStep();
                 }
             }
+        });
+    }
+
+    addInteractionTooltips() {
+        const addTooltip = (element, text) => {
+            if (!element || element.dataset.tooltipReady) return;
+            element.dataset.tooltipReady = 'true';
+            const anchor = document.createElement('span');
+            anchor.className = 'tooltip-container intake-tooltip-anchor';
+            anchor.tabIndex = 0;
+            anchor.setAttribute('aria-label', text);
+            anchor.innerHTML = '<span aria-hidden="true">?</span><span class="tooltip" role="tooltip"></span>';
+            anchor.querySelector('.tooltip').textContent = text;
+            element.parentElement?.appendChild(anchor);
+        };
+        document.querySelectorAll('#intake-form input[data-expands]').forEach((input) => {
+            input.setAttribute('title', 'Select to show additional details');
+            input.setAttribute('aria-label', `${input.parentElement?.textContent?.trim() || 'Option'}; select to show additional details`);
+            addTooltip(input, 'Select to show additional details');
+        });
+        document.querySelectorAll('#intake-form input[type="range"]').forEach((input) => {
+            input.setAttribute('title', 'Drag to choose a value');
+            addTooltip(input, 'Drag to choose a value');
+        });
+        document.querySelectorAll('#intake-form input[type="file"]').forEach((input) => {
+            input.setAttribute('title', 'Choose a file to upload');
+            addTooltip(input, 'Choose a file to upload');
+        });
+        ['btn-back', 'btn-next', 'btn-submit'].forEach((id) => {
+            const button = document.getElementById(id);
+            if (button) addTooltip(button, button.title || button.textContent.trim());
         });
     }
 

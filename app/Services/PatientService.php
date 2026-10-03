@@ -8,8 +8,8 @@ use App\Models\ClinicalTemplateUserState;
 use App\Models\ConsultationSchedule;
 use App\Models\LifestyleAssessment;
 use App\Models\MedicalHistory;
-use App\Models\PatientRecord;
 use App\Models\PatientIntervention;
+use App\Models\PatientRecord;
 use App\Models\Prescription;
 use App\Models\PsychiatricHistory;
 use App\Models\SpiritualIntake;
@@ -88,14 +88,14 @@ class PatientService
 
         if ($q !== '') {
             $builder->where(function ($queryBuilder) use ($q) {
-                $queryBuilder->where('fullname', 'like', '%' . $q . '%')
-                    ->orWhere('patient_id', 'like', '%' . $q . '%');
+                $queryBuilder->where('fullname', 'like', '%'.$q.'%')
+                    ->orWhere('patient_id', 'like', '%'.$q.'%');
             })->orderBy('fullname');
         } else {
             $builder->latest('created_at');
         }
 
-        return $builder->limit($limit)->get()->map(fn(PatientRecord $p) => [
+        return $builder->limit($limit)->get()->map(fn (PatientRecord $p) => [
             'id' => $p->id,
             'patient_id' => $p->patient_id,
             'name' => $p->fullname,
@@ -110,7 +110,7 @@ class PatientService
             ->whereHas('lifestyleAssessment')
             ->oldest('fullname')
             ->get()
-            ->map(fn(PatientRecord $p) => [
+            ->map(fn (PatientRecord $p) => [
                 'id' => $p->id,
                 'patient_id' => $p->patient_id,
                 'name' => $p->fullname,
@@ -163,7 +163,7 @@ class PatientService
         }
         if ($search) {
             $query->where(function ($builder) use ($search) {
-                $builder->where('name', 'like', '%' . $search . '%')->orWhere('tag', 'like', '%' . $search . '%')->orWhere('description', 'like', '%' . $search . '%');
+                $builder->where('name', 'like', '%'.$search.'%')->orWhere('tag', 'like', '%'.$search.'%')->orWhere('description', 'like', '%'.$search.'%');
             });
         }
         if ($sort === 'updated') {
@@ -317,6 +317,51 @@ class PatientService
                     'tests' => ['CBC with differential', 'TSH', 'Free T3', 'Free T4', 'AST', 'ALT', 'BUN', 'Creatinine', 'Fasting Blood Sugar', 'HbA1c', 'Lipid Profile', 'Chest X-ray'],
                 ],
                 'sort_order' => 4,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Pre-SSRI/SNRI Baseline Workup',
+                'tag' => 'Baseline',
+                'tag_class' => 'tag-psychiatric',
+                'description' => 'CBC, liver, thyroid, and metabolic baseline tests',
+                'payload' => ['tests' => ['CBC with differential', 'AST', 'ALT', 'Total Bilirubin', 'Alkaline Phosphatase', 'GGT', 'TSH', 'Free T3', 'Free T4', 'Fasting Blood Sugar', 'HbA1c', 'Lipid Profile']],
+                'sort_order' => 5,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Antipsychotic Metabolic Monitoring',
+                'tag' => 'Metabolic',
+                'tag_class' => 'tag-metabolic',
+                'description' => 'Glucose, HbA1c, lipids, and liver monitoring',
+                'payload' => ['tests' => ['Fasting Blood Sugar', 'HbA1c', 'Lipid Profile', 'AST', 'ALT', 'Total Bilirubin', 'Alkaline Phosphatase', 'GGT']],
+                'sort_order' => 6,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Lithium Monitoring Workup',
+                'tag' => 'Mood Stabilizer',
+                'tag_class' => 'tag-bipolar',
+                'description' => 'Renal function, electrolytes, and thyroid monitoring',
+                'payload' => ['tests' => ['BUN', 'Creatinine', 'eGFR', 'Sodium', 'Potassium', 'Chloride', 'Calcium', 'Magnesium', 'TSH', 'Free T4']],
+                'sort_order' => 7,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'General Annual Wellness Panel',
+                'tag' => 'Wellness',
+                'tag_class' => 'tag-lifestyle',
+                'description' => 'CBC, metabolic, liver, and urinalysis screening',
+                'payload' => ['tests' => ['CBC with differential', 'Fasting Blood Sugar', 'HbA1c', 'Lipid Profile', 'AST', 'ALT', 'Total Bilirubin', 'Alkaline Phosphatase', 'GGT', 'Complete urinalysis']],
+                'sort_order' => 8,
+            ],
+            [
+                'type' => 'dx',
+                'name' => 'Cardiac Risk Workup',
+                'tag' => 'Cardiac',
+                'tag_class' => 'tag-anxiety',
+                'description' => 'ECG, lipids, and electrolyte screening',
+                'payload' => ['tests' => ['ECG', 'Lipid Profile', 'Sodium', 'Potassium', 'Chloride', 'Calcium', 'Magnesium']],
+                'sort_order' => 9,
             ],
             [
                 'type' => 'rx',
@@ -762,8 +807,8 @@ class PatientService
 
         if ($search) {
             $builder->where(function ($query) use ($search) {
-                $query->where('fullname', 'like', '%' . $search . '%')
-                    ->orWhere('patient_id', 'like', '%' . $search . '%');
+                $query->where('fullname', 'like', '%'.$search.'%')
+                    ->orWhere('patient_id', 'like', '%'.$search.'%');
             });
         }
 
@@ -809,7 +854,7 @@ class PatientService
             if (is_array($data[$section])) {
                 $hasContent = collect($data[$section])->filter(function ($value) {
                     if (is_array($value)) {
-                        return collect($value)->filter(fn($item) => filled($item))->isNotEmpty();
+                        return collect($value)->filter(fn ($item) => filled($item))->isNotEmpty();
                     }
 
                     return filled($value);
@@ -874,7 +919,7 @@ class PatientService
     {
         $time = $c->time;
         if (is_string($time) && preg_match('/^\d{2}:\d{2}/', $time)) {
-            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time . ':00' : $time)->format('g:i A');
+            $displayTime = Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time.':00' : $time)->format('g:i A');
         } else {
             try {
                 $displayTime = Carbon::parse($time)->format('g:i A');

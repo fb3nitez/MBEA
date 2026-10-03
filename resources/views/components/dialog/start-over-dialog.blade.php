@@ -9,9 +9,9 @@
         </p>
         <div class="modal-action">
             <form method="dialog">
-                <button class="btn">Cancel</button>
+                <button class="btn" title="Keep the information you entered" aria-label="Keep the information you entered">Cancel</button>
             </form>
-            <button class="btn btn-error" onclick="window.intakeForm.startOver()">Sure</button>
+                <button class="btn btn-error" title="Clear all entered information" aria-label="Clear all entered information" onclick="window.intakeForm.startOver()">Sure</button>
         </div>
     </div>
     <form method="dialog" class="modal-backdrop">

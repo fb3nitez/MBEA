@@ -745,7 +745,7 @@ $lifeCoaches = collect();
 </div>
 
 <!-- Toast -->
-<div class="toast hidden" id="toast"></div>
+<div class="toast hidden" id="toast" data-toast-message="{{ session('status') }}"></div>
 
 <!-- Profile Modal -->
 <div class="modal-overlay hidden" id="profile-modal">
