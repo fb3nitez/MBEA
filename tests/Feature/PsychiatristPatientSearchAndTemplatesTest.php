@@ -68,6 +68,33 @@ it('seeds default clinical templates and supports create/update/delete', functio
     expect(ClinicalTemplate::find($created->id))->toBeNull();
 });
 
+it('normalizes legacy comma and pipe separated clinical template items', function () {
+    $rx = ClinicalTemplate::create([
+        'type' => 'rx',
+        'name' => 'Legacy medication template',
+        'payload' => [
+            'meds' => 'Sertraline | 50mg | Morning, Evening | 30, Hydroxyzine | 25mg | Bedtime | 14',
+        ],
+    ]);
+    $dx = ClinicalTemplate::create([
+        'type' => 'dx',
+        'name' => 'Legacy diagnostic template',
+        'payload' => ['tests' => 'CBC, TSH | CMP'],
+    ]);
+
+    $migration = require database_path('migrations/2026_11_16_000001_normalize_clinical_template_item_lists.php');
+    $migration->up();
+
+    expect($rx->fresh()->payload['meds'])->toHaveCount(2)
+        ->and($rx->fresh()->payload['meds'][0])->toMatchArray([
+            'name' => 'Sertraline',
+            'dose' => '50mg',
+            'freq' => ['Morning', 'Evening'],
+            'qty' => '30',
+        ])
+        ->and($dx->fresh()->payload['tests'])->toBe(['CBC', 'TSH', 'CMP']);
+});
+
 it('returns lifestyle patients with assessment payloads for monitoring', function () {
     $patient = PatientRecord::create([
         'fullname' => 'Lifestyle Monitor Patient',

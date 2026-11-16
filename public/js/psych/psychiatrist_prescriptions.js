@@ -706,8 +706,15 @@ function applyDxTemplate(t) {
 }
 
 function parseMedsText(text) {
+    try {
+        var parsed = JSON.parse(String(text || ""));
+        if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+        // Existing templates may still have the original line-based format.
+    }
+
     return String(text || "")
-        .split("\n")
+        .split(/(?:\r\n|\r|\n|,\s*(?=[^|,\n]+(?:\|[^|\n]*){3}))/)
         .map(function (line) {
             line = line.trim();
             if (!line) return null;
@@ -745,12 +752,136 @@ function medsToText(meds) {
 }
 
 function parseTestsText(text) {
+    try {
+        var parsed = JSON.parse(String(text || ""));
+        if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+        // Existing templates may still have the original text format.
+    }
+
     return String(text || "")
-        .split(/[\n,]+/)
+        .split(/[\n,|]+/)
         .map(function (t) {
             return t.trim();
         })
         .filter(Boolean);
+}
+
+function templateMedLabel(med) {
+    return [
+        med.name || "",
+        med.dose || "",
+        Array.isArray(med.freq) ? med.freq.join(", ") : med.freq || "",
+        med.qty || "",
+    ].filter(Boolean).join(" | ");
+}
+
+function renderTemplateChipEditor(kind, items) {
+    var list = document.getElementById("tpl-" + kind + "-chip-list");
+    var hidden = document.getElementById("tpl-" + kind);
+    if (!list || !hidden) return;
+
+    list.innerHTML = items.map(function (item, index) {
+        var label = kind === "meds" ? templateMedLabel(item) : item;
+        return '<span class="template-chip">' + escHtml(label) +
+            '<button type="button" class="template-chip-remove" data-index="' + index +
+            '" aria-label="Remove ' + escHtml(label) + '">&times;</button></span>';
+    }).join("");
+    hidden.value = JSON.stringify(items);
+    list.querySelectorAll(".template-chip-remove").forEach(function (button) {
+        button.addEventListener("click", function () {
+            var next = list._templateItems.slice();
+            next.splice(Number(button.dataset.index), 1);
+            list._templateItems = next;
+            renderTemplateChipEditor(kind, next);
+        });
+    });
+    list._templateItems = items;
+}
+
+function setTemplateChipEditor(kind, items) {
+    var input = document.getElementById("tpl-" + kind + "-entry");
+    var list = document.getElementById("tpl-" + kind + "-chip-list");
+    if (!input || !list) return;
+
+    if (kind === "meds") {
+        items = (items || []).map(function (med) {
+            if (typeof med === "string") {
+                var parts = med.split("|").map(function (part) { return part.trim(); });
+                med = {
+                    name: parts[0] || "",
+                    dose: parts[1] || "",
+                    freq: parts[2] || "",
+                    qty: parts[3] || "",
+                };
+            }
+            var frequency = med.freq || med.frequency || [];
+            return {
+                name: med.name || "",
+                dose: med.dose || "",
+                freq: Array.isArray(frequency)
+                    ? frequency
+                    : String(frequency).split(",").map(function (value) { return value.trim(); }).filter(Boolean),
+                qty: med.qty || "",
+            };
+        }).filter(function (med) { return med.name; });
+    }
+
+    renderTemplateChipEditor(kind, items || []);
+    if (input.dataset.chipEditorBound) return;
+    input.dataset.chipEditorBound = "true";
+
+    var addInputValue = function () {
+        var value = input.value.trim();
+        if (!value) return;
+        var current = list._templateItems.slice();
+        if (kind === "meds") {
+            var parts = value.split("|").map(function (part) { return part.trim(); });
+            var med = {
+                name: parts[0] || "",
+                dose: parts[1] || "",
+                freq: parts[2] ? parts[2].split(",").map(function (freq) { return freq.trim(); }).filter(Boolean) : [],
+                qty: parts[3] ? Number(parts[3]) || parts[3] : "",
+            };
+            if (!med || !med.name) return;
+            current.push(med);
+        } else {
+            parseTestsText(value).forEach(function (test) {
+                if (!current.some(function (item) { return item.toLowerCase() === test.toLowerCase(); })) {
+                    current.push(test);
+                }
+            });
+        }
+        list._templateItems = current;
+        input.value = "";
+        renderTemplateChipEditor(kind, current);
+    };
+
+    input.addEventListener("keydown", function (event) {
+        var completeMedication = kind === "meds" && event.key === "," &&
+            (input.value.match(/\|/g) || []).length >= 3;
+        if (event.key === "Enter" || completeMedication || (kind === "tests" && (event.key === "," || event.key === "|"))) {
+            event.preventDefault();
+            addInputValue();
+        }
+    });
+    input.addEventListener("paste", function (event) {
+        var clipboard = event.clipboardData || window.clipboardData;
+        if (!clipboard) return;
+        var pasted = clipboard.getData("text");
+        var delimiter = kind === "meds"
+            ? /(?:\r\n|\r|\n|,\s*(?=[^|,\n]+(?:\|[^|\n]*){3}))/
+            : /[\r\n,|]+/;
+        var values = pasted.split(delimiter).map(function (value) { return value.trim(); }).filter(Boolean);
+        if (values.length < 2) return;
+        event.preventDefault();
+        var remaining = input.value.trim();
+        values.forEach(function (value) {
+            input.value = value;
+            addInputValue();
+        });
+        input.value = remaining;
+    });
 }
 
 var LX_CATEGORIES = ["sleep", "exercise", "nutrition", "stress", "social", "other"];
@@ -811,8 +942,8 @@ function openTemplateModal(type, template) {
     setVal("tpl-tag", template ? template.tag : "");
     setVal("tpl-desc", template ? template.desc || "" : "");
     setVal("tpl-diag", template ? template.diag || "" : "");
-    setVal("tpl-meds", template ? medsToText(template.meds) : "");
-    setVal("tpl-tests", template ? (template.tests || []).join(", ") : "");
+    setTemplateChipEditor("meds", template ? template.meds || [] : []);
+    setTemplateChipEditor("tests", template ? template.tests || [] : []);
     setVal("tpl-lx-items", template ? lxItemsToText(template.lifestyle) : "");
 
     var title = document.getElementById("template-modal-title");

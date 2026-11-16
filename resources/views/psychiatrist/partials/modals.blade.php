@@ -897,12 +897,24 @@ $lifeCoaches = collect();
         <input type="text" class="field-input" id="tpl-diag" placeholder="ICD / diagnosis label" />
       </div>
       <div class="field-group" style="margin-top:10px;" id="tpl-meds-wrap">
-        <label class="field-label">Medications (one per line: Name | Dose | Freq | Qty)</label>
-        <textarea class="field-textarea" id="tpl-meds" rows="4" placeholder="Sertraline | 50mg | Morning | 30"></textarea>
+        <label class="field-label" for="tpl-meds-entry">Medications</label>
+        <div class="template-chip-editor" id="tpl-meds-editor">
+          <div class="template-chip-list" id="tpl-meds-chip-list" aria-live="polite"></div>
+          <textarea class="template-chip-entry" id="tpl-meds-entry" rows="1"
+            placeholder="Name | Dose | Frequency | Qty"></textarea>
+          <input type="hidden" id="tpl-meds" value="[]" />
+        </div>
+        <small class="template-chip-help">Add each complete medication with Enter or a comma. Use | between its fields.</small>
       </div>
       <div class="field-group hidden" style="margin-top:10px;" id="tpl-tests-wrap">
-        <label class="field-label">Tests (comma or newline separated)</label>
-        <textarea class="field-textarea" id="tpl-tests" rows="4" placeholder="CBC with differential, TSH, Fasting Blood Sugar"></textarea>
+        <label class="field-label" for="tpl-tests-entry">Tests</label>
+        <div class="template-chip-editor" id="tpl-tests-editor">
+          <div class="template-chip-list" id="tpl-tests-chip-list" aria-live="polite"></div>
+          <textarea class="template-chip-entry" id="tpl-tests-entry" rows="1"
+            placeholder="Type a test and press Enter, comma, or |"></textarea>
+          <input type="hidden" id="tpl-tests" value="[]" />
+        </div>
+        <small class="template-chip-help">Separate test names with a comma, |, or a new line.</small>
       </div>
       <div class="field-group hidden" style="margin-top:10px;" id="tpl-lifestyle-wrap">
         <label class="field-label">Lifestyle Interventions (one per line: Category | Title | Target | Frequency | Duration | Instructions)</label>

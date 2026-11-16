@@ -7644,3 +7644,352 @@ a.psych-page-btn:hover {
 
 /* Diagnostic checklist: Intake Form-style option cards. */
 .dx-checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;padding:4px 16px 12px}.dx-category-group{border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--white);overflow:hidden;min-width:0}.dx-cat-label{padding:9px 12px;background:#f8fafc;border-bottom:1px solid var(--border);color:var(--text-700);font-size:12px;letter-spacing:.04em}.dx-cat-actions{gap:8px}.dx-cat-actions button{padding:2px 0;font-size:11px}.dx-category-items{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px;padding:8px 10px}.dx-check-item{min-width:0;padding:7px 8px;border:1px solid rgba(148,163,184,.35);border-radius:var(--radius-sm);background:var(--white);font-size:12px;line-height:1.3}.dx-check-item:hover{background:var(--blue-50);border-color:var(--blue-300)}.dx-check-item input{width:16px;height:16px;flex:0 0 16px}.dx-category-group[hidden]{display:none!important}@media(max-width:768px){.dx-checklist{grid-template-columns:1fr;padding-left:12px;padding-right:12px}.dx-category-items{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.dx-category-items{grid-template-columns:1fr}.dx-cat-label{padding:8px 10px}.dx-check-item{padding:8px}}
+
+.prescription-form-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none
+}
+
+.prescription-form-section {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid #e9edf2;
+    border-radius: 16px;
+    background: var(--white);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .08)
+}
+
+.prescription-form-card .rx-doctor-block {
+    margin: 0;
+    padding: 0 0 14px;
+    border: 0;
+    border-bottom: 1px solid #edf1f5;
+    border-radius: 0;
+    background: transparent
+}
+
+.prescription-form-card .rx-stamp {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    place-items: center;
+    border-radius: 11px;
+    background: #eff5ff;
+    font-size: 22px
+}
+
+.prescription-form-card .rx-patient-row {
+    gap: 16px;
+    padding: 0;
+    border: 0
+}
+
+.prescription-form-card .rx-doctor-block + .rx-patient-row {
+    margin-top: 14px
+}
+
+.prescription-form-card .rx-patient-row .field-group {
+    min-width: 0
+}
+
+.prescription-form-card .field-label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase
+}
+
+.prescription-form-card .field-input,
+.prescription-form-card .field-textarea {
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: #f3f5f8;
+    color: var(--text-800)
+}
+
+.prescription-form-card .field-input {
+    min-height: 36px;
+    padding: 8px 12px
+}
+
+.prescription-form-card .field-textarea {
+    min-height: 64px;
+    padding: 12px;
+    line-height: 1.5
+}
+
+.prescription-form-card .rx-patient-section .rx-patient-row .field-group:first-child .field-input {
+    min-height: 42px;
+    border-color: #dce5ef;
+    background: var(--white)
+}
+
+.prescription-form-card .rx-instructions-section .field-textarea {
+    min-height: 64px
+}
+
+.prescription-form-card .field-input:focus,
+.prescription-form-card .field-textarea:focus {
+    border-color: var(--blue-500);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .12)
+}
+
+.prescription-form-card .rx-meds-header,
+.prescription-form-card .rx-meds-table-header,
+.prescription-form-card .rx-med-row,
+.prescription-form-card .lx-items-table-header,
+.prescription-form-card .lx-item-row,
+.prescription-form-card .dx-section-label,
+.prescription-form-card .dx-tools,
+.prescription-form-card .dx-checklist,
+.prescription-form-card .dx-imaging-grid {
+    padding-left: 0;
+    padding-right: 0
+}
+
+.prescription-form-card .rx-meds-header {
+    padding-top: 0;
+    padding-bottom: 0
+}
+
+.prescription-form-card .rx-meds-header .field-label {
+    color: var(--text-900);
+    font-size: 15px;
+    letter-spacing: 0;
+    text-transform: none
+}
+
+.prescription-form-card .rx-meds-table-header,
+.prescription-form-card .lx-items-table-header {
+    padding-top: 0;
+    padding-bottom: 8px;
+    border-top: 0;
+    border-bottom-color: #edf1f5;
+    background: transparent;
+    color: #8493a7
+}
+
+.prescription-form-card .rx-meds-header + .rx-meds-table-header {
+    margin-top: 40px
+}
+
+.prescription-form-card .rx-med-row,
+.prescription-form-card .lx-item-row {
+    padding-top: 18px;
+    padding-bottom: 10px;
+    border-bottom-color: #edf1f5
+}
+
+.prescription-form-card .rx-med-actions {
+    display: flex;
+    justify-content: end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 18px
+}
+
+.prescription-form-card .rx-med-actions .btn-outline-add {
+    margin: 0;
+    border-color: #d7e1ef;
+    border-radius: 8px;
+    background: var(--white);
+    color: #52657e
+}
+
+.prescription-form-card .rx-med-actions .btn-outline-add:hover,
+.prescription-form-card .rx-save-current-btn:hover {
+    border-color: #93b4e8;
+    background: #f5f8ff;
+    color: var(--blue-700)
+}
+
+.prescription-form-card .rx-med-actions + .rx-meds-header {
+    margin-top: 14px
+}
+
+.prescription-form-card .rx-diagnosis-field,
+.prescription-form-card .rx-instructions-section > .field-group,
+.prescription-form-card .rx-diagnostic-section > .field-group {
+    margin: 0 0 16px
+}
+
+.prescription-form-card .dx-section-label {
+    padding-top: 16px;
+    padding-bottom: 8px;
+    color: #64748b
+}
+
+.prescription-form-card .dx-tools {
+    padding-top: 0;
+    padding-bottom: 12px
+}
+
+.prescription-form-card .dx-checklist,
+.prescription-form-card .dx-imaging-grid {
+    gap: 10px 12px
+}
+
+.prescription-form-card .btn-generate {
+    width: 100%;
+    min-height: 44px;
+    margin: 8px 0 0;
+    padding: 12px;
+    border-radius: 9px;
+    background: #171d30;
+    transition: background .15s ease, box-shadow .15s ease
+}
+
+.prescription-form-card .btn-generate:hover {
+    background: #252e46;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, .12);
+    opacity: 1
+}
+
+.prescription-form-card .btn-generate,
+.prescription-form-card .rx-save-current-btn {
+    border-radius: 9px
+}
+
+.prescription-form-card .rx-save-current-btn {
+    width: 100%;
+    justify-content: center;
+    margin: 8px 0 0;
+    padding: 10px 12px;
+    border-color: #d7e1ef;
+    background: var(--white);
+    color: #52657e
+}
+
+.prescription-form-card .rx-form-footer-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 8px
+}
+
+.prescription-form-card .rx-form-footer-actions .btn-generate,
+.prescription-form-card .rx-form-footer-actions .rx-save-current-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    margin: 0;
+    padding: 10px 12px;
+    white-space: nowrap
+}
+
+.prescription-form-card button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, .35);
+    outline-offset: 2px
+}
+
+@media(max-width:600px) {
+    .prescription-form-section {
+        padding: 16px;
+        border-radius: 13px
+    }
+
+    .prescription-form-card .rx-patient-row {
+        grid-template-columns: minmax(0, 1fr)
+    }
+
+    .prescription-form-card .rx-med-actions .btn-outline-add {
+        flex: 1 1 160px;
+        justify-content: center
+    }
+}
+
+.template-chip-editor {
+    display: flex;
+    min-height: 42px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    transition: border-color .15s, box-shadow .15s
+}
+
+.template-chip-editor:focus-within {
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .12)
+}
+
+.template-chip-list {
+    display: contents
+}
+
+.template-chip {
+    display: inline-flex;
+    max-width: 100%;
+    min-height: 28px;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 10px;
+    border: 1px solid #dbe5f1;
+    border-radius: 999px;
+    background: #f3f6fb;
+    color: var(--text-700);
+    font-size: 12px;
+    line-height: 1.35;
+    overflow-wrap: anywhere
+}
+
+.template-chip-remove {
+    display: inline-grid;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-500);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer
+}
+
+.template-chip-remove:hover,
+.template-chip-remove:focus-visible {
+    background: #e2e8f0;
+    color: var(--text-900)
+}
+
+.template-chip-entry {
+    width: 180px;
+    min-width: 120px;
+    min-height: 28px;
+    flex: 1 1 180px;
+    padding: 4px 2px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-800);
+    font: inherit;
+    font-size: 13px;
+    resize: none
+}
+
+.template-chip-entry::placeholder {
+    color: var(--text-400)
+}
+
+.template-chip-help {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-500);
+    font-size: 11px;
+    line-height: 1.45
+}
