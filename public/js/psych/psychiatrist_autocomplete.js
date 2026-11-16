@@ -559,7 +559,7 @@
                 bind(input, presets.diagnoses);
             });
         scope
-            .querySelectorAll(".med-name-wrap input, #tpl-meds")
+            .querySelectorAll(".med-name-wrap input, #tpl-med-name")
             .forEach(function (input) {
                 bind(input, presets.medications);
             });
@@ -582,7 +582,7 @@
             bind(input, source);
         });
         scope
-            .querySelectorAll("#rx-notes,#dx-notes,#tpl-desc,#tpl-lx-items")
+            .querySelectorAll("#rx-notes,#dx-notes,#tpl-desc")
             .forEach(function (input) {
                 bind(input, presets.phrases);
             });
@@ -602,7 +602,7 @@
             bind(input, tags);
         });
         scope
-            .querySelectorAll("#dx-test-search,#tpl-tests")
+            .querySelectorAll("#dx-test-search")
             .forEach(function (input) {
                 bind(input, presets.tests, function (item) {
                     var checkbox = document.querySelector(

@@ -693,7 +693,7 @@ class PsychiatristController extends Controller
             'meds.*.dose' => ['nullable', 'string', 'max:100'],
             'meds.*.freq' => ['nullable', 'array'],
             'meds.*.freq.*' => ['string', 'max:100'],
-            'meds.*.qty' => ['nullable', 'string', 'max:100'],
+            'meds.*.qty' => ['nullable', 'integer', 'min:1', 'max:100000'],
             'diag' => ['nullable', 'string', 'max:255'],
             'lifestyle' => ['nullable', 'array'],
             'lifestyle.*.category' => ['required', 'string', 'in:sleep,exercise,nutrition,stress,social,other'],

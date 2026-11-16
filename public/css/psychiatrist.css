@@ -7929,6 +7929,39 @@ a.psych-page-btn:hover {
     display: contents
 }
 
+.template-medication-fields,
+.template-lifestyle-fields,
+.template-list-entry {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    gap: 7px
+}
+
+.template-medication-fields {
+    grid-template-columns: repeat(4, minmax(0, 1fr))
+}
+
+.template-lifestyle-fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+}
+
+.template-list-entry {
+    grid-template-columns: minmax(0, 1fr) auto
+}
+
+.template-medication-fields .field-input,
+.template-lifestyle-fields .field-input,
+.template-list-entry .field-input {
+    min-width: 0
+}
+
+.template-medication-fields .btn-outline-add,
+.template-lifestyle-fields .btn-outline-add {
+    grid-column: 1 / -1;
+    justify-self: start
+}
+
 .template-chip {
     display: inline-flex;
     max-width: 100%;
@@ -7992,4 +8025,14 @@ a.psych-page-btn:hover {
     color: var(--text-500);
     font-size: 11px;
     line-height: 1.45
+}
+
+@media (max-width: 640px) {
+    .template-medication-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+
+    .template-lifestyle-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
 }

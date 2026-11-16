@@ -897,29 +897,55 @@ $lifeCoaches = collect();
         <input type="text" class="field-input" id="tpl-diag" placeholder="ICD / diagnosis label" />
       </div>
       <div class="field-group" style="margin-top:10px;" id="tpl-meds-wrap">
-        <label class="field-label" for="tpl-meds-entry">Medications</label>
+        <label class="field-label" for="tpl-med-name">Medications</label>
         <div class="template-chip-editor" id="tpl-meds-editor">
           <div class="template-chip-list" id="tpl-meds-chip-list" aria-live="polite"></div>
-          <textarea class="template-chip-entry" id="tpl-meds-entry" rows="1"
-            placeholder="Name | Dose | Frequency | Qty"></textarea>
+          <div class="template-medication-fields">
+            <input type="text" class="field-input" id="tpl-med-name" maxlength="255" placeholder="Medication name" />
+            <input type="text" class="field-input" id="tpl-med-dose" maxlength="100" placeholder="Dose" />
+            <input type="text" class="field-input" id="tpl-med-frequency" maxlength="100" placeholder="Frequency" />
+            <input type="number" class="field-input" id="tpl-med-qty" min="1" max="100000" step="1" placeholder="Qty" />
+            <button type="button" class="btn-outline-add" id="tpl-meds-add-btn">Add medication</button>
+          </div>
           <input type="hidden" id="tpl-meds" value="[]" />
         </div>
-        <small class="template-chip-help">Add each complete medication with Enter or a comma. Use | between its fields.</small>
+        <small class="template-chip-help">Enter medication details in the fields, then add it to the template.</small>
       </div>
       <div class="field-group hidden" style="margin-top:10px;" id="tpl-tests-wrap">
-        <label class="field-label" for="tpl-tests-entry">Tests</label>
+        <label class="field-label" for="tpl-test-entry">Tests</label>
         <div class="template-chip-editor" id="tpl-tests-editor">
           <div class="template-chip-list" id="tpl-tests-chip-list" aria-live="polite"></div>
-          <textarea class="template-chip-entry" id="tpl-tests-entry" rows="1"
-            placeholder="Type a test and press Enter, comma, or |"></textarea>
+          <div class="template-list-entry">
+            <input type="text" class="field-input" id="tpl-test-entry" maxlength="255" placeholder="Test name" />
+            <button type="button" class="btn-outline-add" id="tpl-tests-add-btn">Add test</button>
+          </div>
           <input type="hidden" id="tpl-tests" value="[]" />
         </div>
-        <small class="template-chip-help">Separate test names with a comma, |, or a new line.</small>
+        <small class="template-chip-help">Add each test as its own item.</small>
       </div>
       <div class="field-group hidden" style="margin-top:10px;" id="tpl-lifestyle-wrap">
-        <label class="field-label">Lifestyle Interventions (one per line: Category | Title | Target | Frequency | Duration | Instructions)</label>
-        <textarea class="field-textarea" id="tpl-lx-items" rows="5"
-          placeholder="Sleep | Fixed wake-up time | 7-8 h sleep | Daily | 4 weeks | Wake at the same time every day"></textarea>
+        <label class="field-label" for="tpl-lx-title">Lifestyle Interventions</label>
+        <div class="template-chip-editor" id="tpl-lx-editor">
+          <div class="template-chip-list" id="tpl-lx-chip-list" aria-live="polite"></div>
+          <div class="template-lifestyle-fields">
+            <select class="field-input" id="tpl-lx-category">
+              <option value="sleep">Sleep</option>
+              <option value="exercise">Exercise</option>
+              <option value="nutrition">Nutrition</option>
+              <option value="stress">Stress / Mindfulness</option>
+              <option value="social">Social</option>
+              <option value="other">Other</option>
+            </select>
+            <input type="text" class="field-input" id="tpl-lx-title" maxlength="255" placeholder="Intervention" />
+            <input type="text" class="field-input" id="tpl-lx-target" maxlength="100" placeholder="Target" />
+            <input type="text" class="field-input" id="tpl-lx-frequency" maxlength="100" placeholder="Frequency" />
+            <input type="text" class="field-input" id="tpl-lx-duration" maxlength="100" placeholder="Duration" />
+            <input type="text" class="field-input" id="tpl-lx-instructions" maxlength="500" placeholder="Instructions" />
+            <button type="button" class="btn-outline-add" id="tpl-lx-add-btn">Add intervention</button>
+          </div>
+          <input type="hidden" id="tpl-lx-items" value="[]" />
+        </div>
+        <small class="template-chip-help">Enter each intervention's details, then add it to the template.</small>
       </div>
     </div>
     <div class="modal-footer">
