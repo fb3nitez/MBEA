@@ -704,6 +704,7 @@ class LifeCoachService
             'family' => $familyHistory,
             'psychiatric' => $psychiatric,
             'lifestyle' => $lifestyle,
+            'dietary_history' => $ls?->dietary_history,
             'phq' => $phq,
             'substances' => $substancesUsed,
             'motivation' => $motivation,

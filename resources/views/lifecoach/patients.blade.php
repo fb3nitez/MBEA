@@ -367,6 +367,92 @@
       background: var(--green-600, #16a34a);
       color: #fff;
     }
+
+    .intake-dietary-overview {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px solid var(--green-200, #bbf7d0);
+      border-radius: 8px;
+      background: var(--green-50, #f0fdf4);
+    }
+
+    .intake-dietary-overview-item span,
+    .intake-dietary-meal>span {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-500, #64748b);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .intake-dietary-overview-item>div,
+    .intake-dietary-meal>div {
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text-800, #1e293b);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .intake-dietary-days {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: start;
+      gap: 12px;
+    }
+
+    .intake-dietary-day {
+      overflow: hidden;
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+    }
+
+    .intake-dietary-day>header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border, #e2e8f0);
+      background: #f8fafc;
+    }
+
+    .intake-dietary-day>header span {
+      color: var(--text-500, #64748b);
+      font-size: 10px;
+    }
+
+    .intake-dietary-meal {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border, #e2e8f0);
+    }
+
+    .intake-dietary-meal:last-child {
+      border-bottom: 0;
+    }
+
+    @media (max-width: 900px) {
+      .intake-dietary-days {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .intake-dietary-overview {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
   {{--
   </edit-marker> --}}

@@ -211,3 +211,25 @@ it('renders lifecoach dashboard with assigned patient data', function () {
         ->assertOk()
         ->assertSee('Dashboard Patient', false);
 });
+
+it('includes dietary history in the read-only intake data', function () {
+    $coach = makeLifeCoachUser('coach-dietary@medcare.ph');
+    $patient = makeAssignedPatient($coach, 'Dietary Intake Patient');
+    \App\Models\LifestyleAssessment::create([
+        'patient_record_id' => $patient->id,
+        'dietary_history' => [
+            'overview' => ['diet' => 'Balanced', 'home' => '80%', 'time' => '1', 'foods' => 'None'],
+            'day1' => ['meals' => ['breakfast' => 'Eggs', 'am_snack' => 'Fruit', 'lunch' => 'Rice meal', 'pm_snack' => 'Yogurt', 'dinner' => 'Fish']],
+            'day2' => ['meals' => ['breakfast' => 'Oats', 'am_snack' => 'Nuts', 'lunch' => 'Chicken', 'pm_snack' => 'Banana', 'dinner' => 'Soup']],
+            'day3' => ['meals' => ['breakfast' => 'Toast', 'am_snack' => 'Apple', 'lunch' => 'Salad', 'pm_snack' => 'Cheese', 'dinner' => 'Pasta']],
+        ],
+    ]);
+
+    $this->actingAs($coach);
+
+    $history = app(LifeCoachService::class)->patientToArray($patient)['intake']['dietary_history'];
+
+    expect($history['overview']['diet'])->toBe('Balanced')
+        ->and($history['day1']['meals']['breakfast'])->toBe('Eggs')
+        ->and($history['day3']['meals']['dinner'])->toBe('Pasta');
+});

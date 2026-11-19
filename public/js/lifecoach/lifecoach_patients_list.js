@@ -295,6 +295,25 @@ document.addEventListener('DOMContentLoaded', function () {
       lifestyleHtml += section('Motivation', motivationHtml);
     }
 
+    var dietary = intake.dietary_history || {};
+    var dietaryOverview = dietary.overview || (dietary.day1 || {});
+    var overviewLabels = { diet: 'Usual diet', home: 'Home-cooked meals', time: 'Restaurant meals', foods: 'Food intolerances' };
+    var overviewHtml = Object.keys(overviewLabels).map(function (key) {
+      return '<div class="intake-dietary-overview-item"><span>' + lcEscape(overviewLabels[key]) + '</span><div>' + lcEscape(dietaryOverview[key] || '—') + '</div></div>';
+    }).join('');
+    var mealLabels = { breakfast: 'Breakfast', am_snack: 'AM Snack', lunch: 'Lunch', pm_snack: 'PM Snack', dinner: 'Dinner' };
+    var dayKeys = ['day1', 'day2', 'day3'];
+    var hasDietary = dayKeys.some(function (day) { return dietary[day] && Object.keys(dietary[day].meals || {}).length; }) || Object.keys(dietaryOverview).length;
+    var dayHtml = dayKeys.map(function (day, index) {
+      var meals = dietary[day] && dietary[day].meals ? dietary[day].meals : {};
+      return '<article class="intake-dietary-day"><header><strong>Day ' + (index + 1) + '</strong><span>5 meal entries</span></header><div>' +
+        Object.keys(mealLabels).map(function (meal) {
+          return '<div class="intake-dietary-meal"><span>' + lcEscape(mealLabels[meal]) + '</span><div>' + lcEscape(meals[meal] || '—') + '</div></div>';
+        }).join('') + '</div></article>';
+    }).join('');
+    lifestyleHtml += '<div class="intake-section intake-dietary-section"><div class="intake-section-title">3-Day Dietary History</div>' +
+      (hasDietary ? '<div class="intake-dietary-overview">' + overviewHtml + '</div><div class="intake-dietary-days">' + dayHtml + '</div>' : '<span class="intake-empty">No dietary history on file.</span>') + '</div>';
+
     var spiritualHtml = '';
     (intake.spiritual || []).forEach(function (f) { spiritualHtml += row(f.label, f.value); });
     var interventionsHtml = '';
