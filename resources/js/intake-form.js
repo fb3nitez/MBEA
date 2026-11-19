@@ -109,13 +109,13 @@ class PatientIntakeForm {
             data[radio.name] = radio.value;
         });
 
-        // Dietary history: convert bracketed fields into structured JSON.
-        data.dietaryHistory = {};
+        // Dietary history: one shared overview plus three daily meal records.
+        data.dietaryHistory = { overview: {} };
+        for (const field of ['diet', 'home', 'time', 'foods']) {
+            data.dietaryHistory.overview[field] = document.querySelector(`[name="dietaryHistory[overview][${field}]"]`)?.value || '';
+        }
         for (const day of ['day1', 'day2', 'day3']) {
             data.dietaryHistory[day] = { meals: {} };
-            for (const field of ['diet', 'home', 'time', 'foods']) {
-                data.dietaryHistory[day][field] = document.querySelector(`[name="dietaryHistory[${day}][${field}]"]`)?.value || '';
-            }
             for (const meal of ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner']) {
                 data.dietaryHistory[day].meals[meal] = document.querySelector(`[name="dietaryHistory[${day}][meals][${meal}]"]`)?.value || '';
             }
@@ -127,12 +127,13 @@ class PatientIntakeForm {
     populateForm(data) {
         if (data.dietaryHistory) {
             document.querySelectorAll('[name^="dietaryHistory["]').forEach(input => {
-                const match = input.name.match(/^dietaryHistory\[(day[123])\](?:\[meals\])?\[([^\]]+)\]$/);
-                if (!match) return;
-                const [, day, field] = match;
-                input.value = input.name.includes('[meals]')
-                    ? data.dietaryHistory[day]?.meals?.[field] || ''
-                    : data.dietaryHistory[day]?.[field] || '';
+                const overviewMatch = input.name.match(/^dietaryHistory\[overview\]\[([^\]]+)\]$/);
+                if (overviewMatch) {
+                    input.value = data.dietaryHistory.overview?.[overviewMatch[1]] || '';
+                    return;
+                }
+                const mealMatch = input.name.match(/^dietaryHistory\[(day[123])\]\[meals\]\[([^\]]+)\]$/);
+                if (mealMatch) input.value = data.dietaryHistory[mealMatch[1]]?.meals?.[mealMatch[2]] || '';
             });
         }
 
@@ -246,6 +247,19 @@ class PatientIntakeForm {
         });
     }
 
+    addInteractionTooltips() {
+        document.querySelectorAll('#intake-form input[data-expands]').forEach((input) => {
+            input.setAttribute('title', 'Select to show additional details');
+            input.setAttribute('aria-label', `${input.parentElement?.textContent?.trim() || 'Option'}; select to show additional details`);
+        });
+        document.querySelectorAll('#intake-form input[type="range"]').forEach((input) => {
+            input.setAttribute('title', 'Drag to choose a value');
+        });
+        document.querySelectorAll('#intake-form input[type="file"]').forEach((input) => {
+            input.setAttribute('title', 'Choose a file to upload');
+        });
+    }
+
     debounceSave() {
         clearTimeout(this.saveTimeout);
         this.saveTimeout = setTimeout(() => {
@@ -337,18 +351,16 @@ class PatientIntakeForm {
 
         if (!data.healthScore) errors.healthScore = 'Health score is required';
 
-        for (const day of ['day1', 'day2', 'day3']) {
-            for (const field of ['diet', 'home', 'time', 'foods']) {
-                if (!data.dietaryHistory?.[day]?.[field]?.trim()) {
-                    const dayLabel = day.replace('day', 'Day ');
-                    errors[`dietaryHistory[${day}][${field}]`] = `${dayLabel}: please complete all dietary questions`;
-                }
+        for (const field of ['diet', 'home', 'time', 'foods']) {
+            if (!data.dietaryHistory?.overview?.[field]?.trim()) {
+                errors[`dietaryHistory[overview][${field}]`] = 'Please complete the shared dietary question';
             }
+        }
+        for (const day of ['day1', 'day2', 'day3']) {
             for (const meal of ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner']) {
                 if (!data.dietaryHistory?.[day]?.meals?.[meal]?.trim()) {
                     const dayLabel = day.replace('day', 'Day ');
-                    const mealLabel = meal.replace('_', ' ');
-                    errors[`dietaryHistory[${day}][meals][${meal}]`] = `${dayLabel} ${mealLabel}: please describe this meal`;
+                    errors[`dietaryHistory[${day}][meals][${meal}]`] = `${dayLabel}: please describe this meal`;
                 }
             }
         }
@@ -366,22 +378,6 @@ class PatientIntakeForm {
         for (const field of substanceFields) {
             if (data[field.check] && !data[field.amount]?.trim()) {
                 errors[field.amount] = `Please specify the amount for ${field.label}`;
-            }
-        }
-
-        // Validate dietary history fields
-        for (const day of ['day1', 'day2', 'day3']) {
-            if (data.dietaryHistory[day]) {
-                for (const field of ['diet', 'home', 'time', 'foods']) {
-                    if (!data.dietaryHistory[day][field]?.trim()) {
-                        errors[`dietaryHistory[${day}][${field}]`] = `Please fill out the ${field} for ${day}`;
-                    }
-                }
-                for (const meal of ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner']) {
-                    if (!data.dietaryHistory[day].meals[meal]?.trim()) {
-                        errors[`dietaryHistory[${day}][meals][${meal}]`] = `Please specify the ${meal} for ${day}`;
-                    }
-                }
             }
         }
 
@@ -822,9 +818,8 @@ class PatientIntakeForm {
         document.getElementById('summary-fruitsveg').textContent = data.fruitsVeg || 'Not provided';
         document.getElementById('summary-exercise').textContent = data.exerciseFreq || 'Not provided';
         const dietaryDays = Object.values(data.dietaryHistory || {}).filter(day => {
-            const promptsComplete = ['diet', 'home', 'time', 'foods'].every(field => day?.[field]?.trim());
             const mealsComplete = ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner'].every(meal => day?.meals?.[meal]?.trim());
-            return promptsComplete && mealsComplete;
+            return mealsComplete;
         }).length;
         document.getElementById('summary-dietary').textContent = dietaryDays === 3 ? 'All 3 days complete' : `${dietaryDays}/3 days complete`;
 

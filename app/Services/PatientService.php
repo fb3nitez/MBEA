@@ -446,11 +446,14 @@ class PatientService
 
         if ($payload === null) {
             if ($type === 'dx') {
-                $payload = ['tests' => $data['tests'] ?? ($existing?->payload['tests'] ?? [])];
+                $payload = ['tests' => array_values(array_unique(array_filter(array_map(
+                    fn ($test) => trim((string) $test),
+                    $data['tests'] ?? ($existing?->payload['tests'] ?? [])
+                ))))];
             } else {
                 $payload = [
                     'diag' => $data['diag'] ?? ($existing?->payload['diag'] ?? null),
-                    'meds' => $data['meds'] ?? ($existing?->payload['meds'] ?? []),
+                    'meds' => array_values($data['meds'] ?? ($existing?->payload['meds'] ?? [])),
                     'lifestyle' => $data['lifestyle'] ?? ($existing?->payload['lifestyle'] ?? []),
                 ];
             }

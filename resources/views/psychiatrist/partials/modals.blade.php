@@ -473,40 +473,45 @@ $lifeCoaches = collect();
         </div>
 
         <div class="pm-section-label pm-form-section-title">3-Day Dietary History</div>
-        <p style="font-size:13px;color:#64748b;margin:0 0 10px;">Record all five eating occasions for each day, including beverages and approximate portions.</p>
-        <div class="pm-dietary-days">
-          @php
+        <p style="font-size:13px;color:#64748b;margin:0 0 10px;">Complete the shared eating-habit questions, then record all five eating occasions for each day.</p>
+        @php
           $dietaryPrompts = [
-            'diet' => 'Describe your diet in one sentence',
+            'diet' => 'Describe your usual diet in one sentence',
             'home' => 'What percent of your meals are home-cooked?',
             'time' => 'How many times per week do you eat at restaurants?',
             'foods' => 'Are there any foods that you do not tolerate?',
           ];
           $mealLabels = ['breakfast' => 'Breakfast', 'am_snack' => 'AM snack', 'lunch' => 'Lunch', 'pm_snack' => 'PM snack', 'dinner' => 'Dinner'];
-          @endphp
-          @foreach (['day1' => 'Day 1', 'day2' => 'Day 2', 'day3' => 'Day 3'] as $dayKey => $dayLabel)
-          <details class="pm-dietary-day" {{ $dayKey === 'day1' ? 'open' : '' }}>
-            <summary>{{ $dayLabel }}</summary>
-            <div class="pm-dietary-prompts modal-grid-2">
-              @foreach ($dietaryPrompts as $promptKey => $promptLabel)
-              <div class="field-group">
-                <label class="field-label" for="ls-dietary-{{ $dayKey }}-{{ $promptKey }}">{{ $promptLabel }}</label>
-                <textarea class="field-textarea ls-dietary-field" id="ls-dietary-{{ $dayKey }}-{{ $promptKey }}" data-day="{{ $dayKey }}" data-kind="prompt" data-field="{{ $promptKey }}" rows="2" required></textarea>
-              </div>
-              @endforeach
+        @endphp
+        <section class="pm-dietary-overview">
+          <div class="pm-dietary-overview-heading">
+            <strong>Overall eating habits</strong>
+            <span>Applies to the full three-day history</span>
+          </div>
+          <div class="pm-dietary-prompts">
+            @foreach ($dietaryPrompts as $promptKey => $promptLabel)
+            <div class="field-group">
+              <label class="field-label" for="ls-dietary-overview-{{ $promptKey }}">{{ $promptLabel }}</label>
+              <textarea class="field-textarea ls-dietary-field" id="ls-dietary-overview-{{ $promptKey }}" data-kind="overview" data-field="{{ $promptKey }}" rows="2" required></textarea>
             </div>
+            @endforeach
+          </div>
+        </section>
+        <section class="pm-dietary-days" aria-label="Daily meals">
+          @foreach (['day1' => 'Day 1', 'day2' => 'Day 2', 'day3' => 'Day 3'] as $dayKey => $dayLabel)
+          <article class="pm-dietary-day">
+            <header><strong>{{ $dayLabel }}</strong><span>5 meal entries</span></header>
             <div class="pm-dietary-meals">
               @foreach ($mealLabels as $mealKey => $mealLabel)
-              <div class="pm-dietary-meal">
-                <label class="field-label" for="ls-dietary-{{ $dayKey }}-{{ $mealKey }}">{{ $mealLabel }}</label>
+              <label class="pm-dietary-meal" for="ls-dietary-{{ $dayKey }}-{{ $mealKey }}">
+                <span class="field-label">{{ $mealLabel }}</span>
                 <textarea class="field-textarea ls-dietary-field" id="ls-dietary-{{ $dayKey }}-{{ $mealKey }}" data-day="{{ $dayKey }}" data-kind="meal" data-field="{{ $mealKey }}" rows="3" placeholder="Foods, beverages, and approximate portions" required></textarea>
-              </div>
+              </label>
               @endforeach
             </div>
-          </details>
+          </article>
           @endforeach
-        </div>
-
+        </section>
         <div class="pm-section-label pm-form-section-title">Mental Health &amp; Well-being</div>
         <p style="font-size:13px;color:#64748b;margin:0 0 10px;">Over the past 2 weeks, how often have you experienced the following?</p>
         <div class="pm-phq-table-wrap">
@@ -932,17 +937,55 @@ $lifeCoaches = collect();
         <input type="text" class="field-input" id="tpl-diag" placeholder="ICD / diagnosis label" />
       </div>
       <div class="field-group" style="margin-top:10px;" id="tpl-meds-wrap">
-        <label class="field-label">Medications (one per line: Name | Dose | Freq | Qty)</label>
-        <textarea class="field-textarea" id="tpl-meds" rows="4" placeholder="Sertraline | 50mg | Morning | 30"></textarea>
+        <label class="field-label" for="tpl-med-name">Medications</label>
+        <div class="template-chip-editor" id="tpl-meds-editor">
+          <div class="template-chip-list" id="tpl-meds-chip-list" aria-live="polite"></div>
+          <div class="template-medication-fields">
+            <input type="text" class="field-input" id="tpl-med-name" maxlength="255" placeholder="Medication name" />
+            <input type="text" class="field-input" id="tpl-med-dose" maxlength="100" placeholder="Dose" />
+            <input type="text" class="field-input" id="tpl-med-frequency" maxlength="100" placeholder="Frequency" />
+            <input type="number" class="field-input" id="tpl-med-qty" min="1" max="100000" step="1" placeholder="Qty" />
+            <button type="button" class="btn-outline-add" id="tpl-meds-add-btn">Add medication</button>
+          </div>
+          <input type="hidden" id="tpl-meds" value="[]" />
+        </div>
+        <small class="template-chip-help">Enter medication details in the fields, then add it to the template.</small>
       </div>
       <div class="field-group hidden" style="margin-top:10px;" id="tpl-tests-wrap">
-        <label class="field-label">Tests (comma or newline separated)</label>
-        <textarea class="field-textarea" id="tpl-tests" rows="4" placeholder="CBC with differential, TSH, Fasting Blood Sugar"></textarea>
+        <label class="field-label" for="tpl-test-entry">Tests</label>
+        <div class="template-chip-editor" id="tpl-tests-editor">
+          <div class="template-chip-list" id="tpl-tests-chip-list" aria-live="polite"></div>
+          <div class="template-list-entry">
+            <input type="text" class="field-input" id="tpl-test-entry" maxlength="255" placeholder="Test name" />
+            <button type="button" class="btn-outline-add" id="tpl-tests-add-btn">Add test</button>
+          </div>
+          <input type="hidden" id="tpl-tests" value="[]" />
+        </div>
+        <small class="template-chip-help">Add each test as its own item.</small>
       </div>
       <div class="field-group hidden" style="margin-top:10px;" id="tpl-lifestyle-wrap">
-        <label class="field-label">Lifestyle Interventions (one per line: Category | Title | Target | Frequency | Duration | Instructions)</label>
-        <textarea class="field-textarea" id="tpl-lx-items" rows="5"
-          placeholder="Sleep | Fixed wake-up time | 7-8 h sleep | Daily | 4 weeks | Wake at the same time every day"></textarea>
+        <label class="field-label" for="tpl-lx-title">Lifestyle Interventions</label>
+        <div class="template-chip-editor" id="tpl-lx-editor">
+          <div class="template-chip-list" id="tpl-lx-chip-list" aria-live="polite"></div>
+          <div class="template-lifestyle-fields">
+            <select class="field-input" id="tpl-lx-category">
+              <option value="sleep">Sleep</option>
+              <option value="exercise">Exercise</option>
+              <option value="nutrition">Nutrition</option>
+              <option value="stress">Stress / Mindfulness</option>
+              <option value="social">Social</option>
+              <option value="other">Other</option>
+            </select>
+            <input type="text" class="field-input" id="tpl-lx-title" maxlength="255" placeholder="Intervention" />
+            <input type="text" class="field-input" id="tpl-lx-target" maxlength="100" placeholder="Target" />
+            <input type="text" class="field-input" id="tpl-lx-frequency" maxlength="100" placeholder="Frequency" />
+            <input type="text" class="field-input" id="tpl-lx-duration" maxlength="100" placeholder="Duration" />
+            <input type="text" class="field-input" id="tpl-lx-instructions" maxlength="500" placeholder="Instructions" />
+            <button type="button" class="btn-outline-add" id="tpl-lx-add-btn">Add intervention</button>
+          </div>
+          <input type="hidden" id="tpl-lx-items" value="[]" />
+        </div>
+        <small class="template-chip-help">Enter each intervention's details, then add it to the template.</small>
       </div>
     </div>
     <div class="modal-footer">

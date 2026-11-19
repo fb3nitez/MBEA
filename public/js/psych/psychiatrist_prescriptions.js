@@ -151,6 +151,11 @@ function createMedRow(prefill, templateId) {
     customDoseInput.className = "field-input hidden";
     customDoseInput.placeholder = "Custom dosage...";
     customDoseInput.style.marginTop = "4px";
+    if (prefill.dose && DOSAGES.indexOf(prefill.dose) === -1) {
+        doseSelect.value = "Custom";
+        customDoseInput.value = prefill.dose;
+        show(customDoseInput);
+    }
     var doseWrap = document.createElement("div");
     doseWrap.appendChild(doseSelect);
     doseWrap.appendChild(customDoseInput);
@@ -167,12 +172,24 @@ function createMedRow(prefill, templateId) {
     var freqCheckboxes = document.createElement("div");
     freqCheckboxes.className = "freq-checkboxes";
     var FREQS = ["Morning", "Breakfast", "Lunch", "Dinner", "Bedtime"];
+    var prefillFrequencies = Array.isArray(prefill.freq)
+        ? prefill.freq
+        : prefill.freq
+          ? [prefill.freq]
+          : [];
+    var customFrequencies = prefillFrequencies.filter(function (value) {
+        return !FREQS.some(function (frequency) {
+            return String(value).toLowerCase() === frequency.toLowerCase();
+        });
+    });
     FREQS.forEach(function (f) {
         var lbl = document.createElement("label");
         lbl.className = "freq-cb-label";
         var cb = document.createElement("input");
         cb.type = "checkbox";
-        if (prefill.freq && prefill.freq.includes(f)) cb.checked = true;
+        cb.checked = prefillFrequencies.some(function (value) {
+            return String(value).toLowerCase() === f.toLowerCase();
+        });
         lbl.appendChild(cb);
         lbl.appendChild(document.createTextNode(f));
         freqCheckboxes.appendChild(lbl);
@@ -181,6 +198,13 @@ function createMedRow(prefill, templateId) {
     freqCustom.type = "text";
     freqCustom.className = "freq-custom-input";
     freqCustom.placeholder = "Custom (e.g. PRN)...";
+    freqCustom.value = Array.isArray(prefill.freq)
+        ? customFrequencies.join(", ")
+        : prefill.freq && !FREQS.some(function (frequency) {
+            return String(prefill.freq).toLowerCase() === frequency.toLowerCase();
+        })
+          ? prefill.freq
+          : "";
     freqCol.appendChild(freqCheckboxes);
     freqCol.appendChild(freqCustom);
 
@@ -706,8 +730,15 @@ function applyDxTemplate(t) {
 }
 
 function parseMedsText(text) {
+    try {
+        var parsed = JSON.parse(String(text || ""));
+        if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+        // Existing templates may still have the original line-based format.
+    }
+
     return String(text || "")
-        .split("\n")
+        .split(/(?:\r\n|\r|\n|,\s*(?=[^|,\n]+(?:\|[^|\n]*){3}))/)
         .map(function (line) {
             line = line.trim();
             if (!line) return null;
@@ -731,26 +762,180 @@ function parseMedsText(text) {
         .filter(Boolean);
 }
 
-function medsToText(meds) {
-    return (meds || [])
-        .map(function (m) {
-            return [
-                m.name || "",
-                m.dose || "",
-                Array.isArray(m.freq) ? m.freq.join(", ") : m.freq || "",
-                m.qty || "",
-            ].join(" | ");
-        })
-        .join("\n");
-}
-
 function parseTestsText(text) {
+    try {
+        var parsed = JSON.parse(String(text || ""));
+        if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+        // Existing templates may still have the original text format.
+    }
+
     return String(text || "")
-        .split(/[\n,]+/)
+        .split(/[\n,|]+/)
         .map(function (t) {
             return t.trim();
         })
         .filter(Boolean);
+}
+
+function templateMedLabel(med) {
+    var frequency = Array.isArray(med.freq) ? med.freq.join(", ") : med.freq || "";
+    return [
+        med.name && "Medication: " + med.name,
+        med.dose && "Dose: " + med.dose,
+        frequency && "Frequency: " + frequency,
+        med.qty && "Qty: " + med.qty,
+    ].filter(Boolean).join(" · ");
+}
+
+function renderTemplateChipEditor(kind, items) {
+    var listId = kind === "lifestyle" ? "tpl-lx-chip-list" : "tpl-" + kind + "-chip-list";
+    var hiddenId = kind === "lifestyle" ? "tpl-lx-items" : "tpl-" + kind;
+    var list = document.getElementById(listId);
+    var hidden = document.getElementById(hiddenId);
+    if (!list || !hidden) return;
+
+    list.innerHTML = items.map(function (item, index) {
+        var label;
+        if (kind === "meds") {
+            label = templateMedLabel(item);
+        } else if (kind === "lifestyle") {
+            label = [
+                item.category,
+                item.title,
+                item.target && "Target: " + item.target,
+                item.frequency && "Frequency: " + item.frequency,
+                item.duration && "Duration: " + item.duration,
+                item.instructions && "Instructions: " + item.instructions,
+            ].filter(Boolean).join(" · ");
+        } else {
+            label = item;
+        }
+        return '<span class="template-chip">' + escHtml(label) +
+            '<button type="button" class="template-chip-remove" data-index="' + index +
+            '" aria-label="Remove ' + escHtml(label) + '">&times;</button></span>';
+    }).join("");
+    hidden.value = JSON.stringify(items);
+    list.querySelectorAll(".template-chip-remove").forEach(function (button) {
+        button.addEventListener("click", function () {
+            var next = list._templateItems.slice();
+            next.splice(Number(button.dataset.index), 1);
+            list._templateItems = next;
+            renderTemplateChipEditor(kind, next);
+        });
+    });
+    list._templateItems = items;
+}
+
+function setTemplateChipEditor(kind, items) {
+    var listId = kind === "lifestyle" ? "tpl-lx-chip-list" : "tpl-" + kind + "-chip-list";
+    var list = document.getElementById(listId);
+    if (!list) return;
+
+    if (kind === "meds") {
+        items = (items || []).map(function (med) {
+            if (typeof med === "string") {
+                var parts = med.split("|").map(function (part) { return part.trim(); });
+                med = {
+                    name: parts[0] || "",
+                    dose: parts[1] || "",
+                    freq: parts[2] || "",
+                    qty: parts[3] || "",
+                };
+            }
+            var frequency = med.freq || med.frequency || [];
+            return {
+                name: med.name || "",
+                dose: med.dose || "",
+                freq: Array.isArray(frequency) ? frequency : String(frequency),
+                qty: med.qty || "",
+            };
+        }).filter(function (med) { return med.name; });
+    } else if (kind === "lifestyle" && typeof items === "string") {
+        items = parseLxItemsText(items);
+    }
+
+    renderTemplateChipEditor(kind, items || []);
+    var addButton = document.getElementById({
+        meds: "tpl-meds-add-btn",
+        tests: "tpl-tests-add-btn",
+        lifestyle: "tpl-lx-add-btn",
+    }[kind]);
+    var fieldIds = {
+        meds: ["tpl-med-name", "tpl-med-dose", "tpl-med-frequency", "tpl-med-qty"],
+        tests: ["tpl-test-entry"],
+        lifestyle: [
+            "tpl-lx-category",
+            "tpl-lx-title",
+            "tpl-lx-target",
+            "tpl-lx-frequency",
+            "tpl-lx-duration",
+            "tpl-lx-instructions",
+        ],
+    }[kind];
+    var fields = fieldIds.map(function (id) { return document.getElementById(id); });
+    fields.forEach(function (field, index) {
+        if (field && !(kind === "lifestyle" && index === 0)) field.value = "";
+    });
+    if (!addButton || addButton.dataset.chipEditorBound) return;
+    addButton.dataset.chipEditorBound = "true";
+    addButton.addEventListener("click", function () {
+        var values = fields.map(function (field) {
+            return field ? field.value.trim() : "";
+        });
+        var current = list._templateItems.slice();
+        var item;
+        if (kind === "meds") {
+            item = {
+                name: values[0],
+                dose: values[1],
+                freq: values[2] ? [values[2]] : [],
+                qty: values[3] ? Number(values[3]) || values[3] : "",
+            };
+            if (!item.name) {
+                fields[0].focus();
+                return;
+            }
+            if (values[3] && (!/^\d+$/.test(values[3]) ||
+                Number(values[3]) < 1 || Number(values[3]) > 100000)) {
+                showToast("Quantity must be a whole number between 1 and 100000.");
+                fields[3].focus();
+                return;
+            }
+            current.push(item);
+        } else if (kind === "lifestyle") {
+            item = {
+                category: values[0],
+                title: values[1],
+                target: values[2],
+                frequency: values[3],
+                duration: values[4],
+                instructions: values[5],
+            };
+            if (!item.title) {
+                fields[1].focus();
+                return;
+            }
+            current.push(item);
+        } else {
+            item = values[0];
+            if (!item) {
+                fields[0].focus();
+                return;
+            }
+            if (!current.some(function (test) {
+                return test.toLowerCase() === item.toLowerCase();
+            })) current.push(item);
+        }
+        list._templateItems = current;
+        renderTemplateChipEditor(kind, current);
+        fields.forEach(function (field, index) {
+            if (!field) return;
+            if (kind === "lifestyle" && index === 0) return;
+            field.value = "";
+        });
+        fields[kind === "lifestyle" ? 1 : 0].focus();
+    });
 }
 
 var LX_CATEGORIES = ["sleep", "exercise", "nutrition", "stress", "social", "other"];
@@ -765,6 +950,13 @@ var LX_CATEGORY_LABELS = {
 };
 
 function parseLxItemsText(text) {
+    try {
+        var parsed = JSON.parse(String(text || ""));
+        if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+        // Existing templates may still have the original line-based format.
+    }
+
     return String(text || "")
         .split(/\n+/)
         .map(function (line) {
@@ -789,21 +981,6 @@ function parseLxItemsText(text) {
         });
 }
 
-function lxItemsToText(items) {
-    return (items || [])
-        .map(function (item) {
-            return [
-                item.category || "",
-                item.title || "",
-                item.target || "",
-                item.frequency || "",
-                item.duration || "",
-                item.instructions || "",
-            ].join(" | ");
-        })
-        .join("\n");
-}
-
 function openTemplateModal(type, template) {
     setVal("tpl-id", template ? template.id : "");
     setVal("tpl-type", type);
@@ -811,9 +988,9 @@ function openTemplateModal(type, template) {
     setVal("tpl-tag", template ? template.tag : "");
     setVal("tpl-desc", template ? template.desc || "" : "");
     setVal("tpl-diag", template ? template.diag || "" : "");
-    setVal("tpl-meds", template ? medsToText(template.meds) : "");
-    setVal("tpl-tests", template ? (template.tests || []).join(", ") : "");
-    setVal("tpl-lx-items", template ? lxItemsToText(template.lifestyle) : "");
+    setTemplateChipEditor("meds", template ? template.meds || [] : []);
+    setTemplateChipEditor("tests", template ? template.tests || [] : []);
+    setTemplateChipEditor("lifestyle", template ? template.lifestyle || [] : []);
 
     var title = document.getElementById("template-modal-title");
     if (title)

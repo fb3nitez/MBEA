@@ -117,9 +117,11 @@ function populatePatientModal(p) {
     var day = field.getAttribute('data-day');
     var kind = field.getAttribute('data-kind');
     var key = field.getAttribute('data-field');
-    field.value = kind === 'meal'
-      ? ((dietaryHistory[day] && dietaryHistory[day].meals && dietaryHistory[day].meals[key]) || '')
-      : ((dietaryHistory[day] && dietaryHistory[day][key]) || '');
+    field.value = kind === 'overview'
+      ? ((dietaryHistory.overview && dietaryHistory.overview[key]) || (dietaryHistory.day1 && dietaryHistory.day1[key]) || '')
+      : kind === 'meal'
+        ? ((dietaryHistory[day] && dietaryHistory[day].meals && dietaryHistory[day].meals[key]) || '')
+        : ((dietaryHistory[day] && dietaryHistory[day][key]) || '');
   });
   qsa('.ls-sub-check').forEach(function (cb) {
     cb.checked = !!ls[cb.getAttribute('data-field')];
@@ -361,61 +363,23 @@ function collectLifestyle() {
       data[f] = getVal('ls-' + f);
     });
   qsa('.ls-phq-radio').forEach(function (rb) {
-    if (rb.checked) {
-      data[rb.getAttribute('data-field')] = rb.value;
-    }
+    if (rb.checked) data[rb.getAttribute('data-field')] = rb.value;
   });
-  var dietaryHistory = {};
-  qsa('.ls-dietary-field').forEach(function (field) {
-    var day = field.getAttribute('data-day');
-    var kind = field.getAttribute('data-kind');
-    var key = field.getAttribute('data-field');
-    if (!dietaryHistory[day]) dietaryHistory[day] = {};
-    if (kind === 'meal') {
-      if (!dietaryHistory[day].meals) dietaryHistory[day].meals = {};
-      dietaryHistory[day].meals[key] = getVal('ls-' + key);
-    } else {
-      dietaryHistory[day][key] = getVal('ls-' + key);
-    }
+  data.dietary_history = { overview: {} };
+  qsa('.ls-dietary-field[data-kind="overview"]').forEach(function (field) {
+    data.dietary_history.overview[field.getAttribute('data-field')] = field.value.trim();
   });
-  data.dietary_history = {};
   ['day1', 'day2', 'day3'].forEach(function (day) {
     data.dietary_history[day] = { meals: {} };
   });
-  qsa('.ls-dietary-field').forEach(function (field) {
-    var day = field.getAttribute('data-day');
-    var kind = field.getAttribute('data-kind');
-    var key = field.getAttribute('data-field');
-    if (kind === 'meal') data.dietary_history[day].meals[key] = field.value.trim();
-    else data.dietary_history[day][key] = field.value.trim();
+  qsa('.ls-dietary-field[data-kind="meal"]').forEach(function (field) {
+    data.dietary_history[field.getAttribute('data-day')].meals[field.getAttribute('data-field')] = field.value.trim();
   });
-  data.motivation_level = getVal('ls-motivation_level');
-  return data;
-}
-
-function collectSpiritualIntake() {
-  var data = {};
-  qsa('.si-check').forEach(function (cb) {
+  qsa('.ls-sub-check').forEach(function (cb) {
     data[cb.getAttribute('data-field')] = cb.checked;
   });
-  [
-    'spiritual_explain_hypnosis',
-    'spiritual_guidance_question',
-    'spiritual_voices_question',
-    'spiritual_unusual_experiences_question',
-    'spiritual_prayer_question',
-    'spiritual_ritual_worship_question'
-  ].forEach(function (field) {
-    data[field] = getVal('si-' + field);
-  });
-  [
-    'religious_background_childhood_other_text',
-    'religious_background_adolescent_other_text',
-    'religious_background_current_other_text',
-    'new_age_other_text',
-    'additional_spiritual_issues_other_text',
-  ].forEach(function (field) {
-    data[field] = getVal('si-' + field);
+  ['sub_nicotine_amount', 'sub_nicotine_concern', 'sub_alcohol_amount', 'sub_alcohol_concern', 'sub_recreational_amount', 'sub_recreational_concern', 'sub_marijuana_amount', 'sub_marijuana_concern', 'sub_screentime_amount', 'sub_screentime_concern', 'sub_gambling_amount', 'sub_gambling_concern', 'sub_others_specify', 'sub_others_concern'].forEach(function (field) {
+    data[field] = getVal('ls-' + field);
   });
   return data;
 }

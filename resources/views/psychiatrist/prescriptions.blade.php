@@ -1,4 +1,4 @@
-﻿@extends('layouts.psychiatrist')
+@extends('layouts.psychiatrist')
 
 @section('title', 'Prescriptions')
 @section('page', 'prescriptions')
@@ -23,94 +23,108 @@
         <!-- Left: Form -->
         <div class="rx-form-col">
           <div class="card prescription-form-card" role="main" aria-label="Prescription form">
-            <!-- Doctor Info (logged-in psychiatrist) -->
-            <div class="rx-doctor-block">
-              <div class="rx-stamp">Rx</div>
-              <div class="rx-doctor-info">
-                <div class="rx-doctor-name">{{ $prescriber->name }}</div>
-                <div class="rx-doctor-role">Psychiatrist &middot; MB.EA Wellness Center</div>
-                @if($prescriber->license_no)
-                <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
-              </div>
-            </div>
-
-            <!-- Patient & Date -->
-            <div class="rx-patient-row">
-              <div class="field-group">
-                <label class="field-label">Patient Name</label>
-                <div class="typeahead-wrap">
-                  <input type="text" class="field-input" id="rx-patient-search"
-                    placeholder="Search patient by name or ID..." autocomplete="off" />
-                  <div class="typeahead-dropdown hidden" id="rx-patient-dropdown" style="max-height:220px;overflow:auto;">
-                  </div>
+            <div class="prescription-form-section rx-patient-section">
+              <!-- Doctor Info (logged-in psychiatrist) -->
+              <div class="rx-doctor-block">
+                <div class="rx-stamp">Rx</div>
+                <div class="rx-doctor-info">
+                  <div class="rx-doctor-name">{{ $prescriber->name }}</div>
+                  <div class="rx-doctor-role">Psychiatrist &middot; MB.EA Wellness Center</div>
+                  @if($prescriber->license_no)
+                  <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
                 </div>
-                <input type="hidden" id="rx-patient" />
               </div>
+
+              <!-- Patient & Date -->
+              <div class="rx-patient-row">
+                <div class="field-group">
+                  <label class="field-label">Patient Name</label>
+                  <div class="typeahead-wrap">
+                    <input type="text" class="field-input" id="rx-patient-search"
+                      placeholder="Search patient by name or ID..." autocomplete="off" />
+                    <div class="typeahead-dropdown hidden" id="rx-patient-dropdown"
+                      style="max-height:220px;overflow:auto;">
+                    </div>
+                  </div>
+                  <input type="hidden" id="rx-patient" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Age</label>
+                  <input type="number" class="field-input" id="rx-age" placeholder="Age" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Date</label>
+                  <input type="date" class="field-input" id="rx-date" />
+                </div>
+              </div>
+            </div>
+
+            <div class="prescription-form-section rx-medication-section">
+              <!-- Medications -->
+              <div class="rx-meds-header">
+                <span class="field-label">Medications</span>
+              </div>
+              <div class="rx-meds-table-header">
+                <span>MEDICATION</span><span>DOSAGE</span><span>FREQUENCY /
+                  TIMING</span><span>QTY</span><span></span>
+              </div>
+              <div id="rx-meds-list">
+                <!-- Med rows injected by JS -->
+              </div>
+              <div class="rx-med-actions">
+                <button class="btn-outline-add" id="add-med-btn">
+                  <i data-feather="plus"></i> Add Medication
+                </button>
+              </div>
+
+            </div>
+
+            <div class="prescription-form-section rx-lifestyle-intervention-section">
+              <!-- Lifestyle Interventions -->
+              <div class="rx-meds-header" style="padding-top:6px;">
+                <span class="field-label">Lifestyle Interventions <span
+                    style="font-weight:400;color:var(--text-500);">(optional)</span></span>
+              </div>
+              <div class="lx-items-table-header">
+                <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
+              </div>
+              <div id="rx-lifestyle-list">
+                <div class="lx-empty-state">No lifestyle interventions added yet.</div>
+              </div>
+              <div class="rx-med-actions">
+                <button class="btn-outline-add" id="add-lifestyle-btn">
+                  <i data-feather="heart"></i> Add Lifestyle Intervention
+                </button>
+              </div>
+            </div>
+
+            <div class="prescription-form-section rx-instructions-section">
+              <!-- Diagnosis -->
+              <div class="field-group rx-diagnosis-field">
+                <label class="field-label">Diagnosis</label>
+                <div class="typeahead-wrap">
+                  <input type="text" class="field-input" id="rx-diagnosis" placeholder="Type or select diagnosis..."
+                    autocomplete="off" />
+                  <div class="typeahead-dropdown hidden" id="rx-diag-dropdown"></div>
+                </div>
+              </div>
+
+              <!-- Special Instructions -->
               <div class="field-group">
-                <label class="field-label">Age</label>
-                <input type="number" class="field-input" id="rx-age" placeholder="Age" />
+                <label class="field-label">Notes / Instructions</label>
+                <textarea class="field-textarea" id="rx-notes" rows="3"
+                  placeholder="Additional notes, special instructions, follow-up schedule..."></textarea>
               </div>
-              <div class="field-group">
-                <label class="field-label">Date</label>
-                <input type="date" class="field-input" id="rx-date" />
-              </div>
-            </div>
 
-            <!-- Diagnosis -->
-            <div class="field-group" style="margin-bottom:12px;">
-              <label class="field-label">Diagnosis</label>
-              <div class="typeahead-wrap">
-                <input type="text" class="field-input" id="rx-diagnosis" placeholder="Type or select diagnosis..."
-                  autocomplete="off" />
-                <div class="typeahead-dropdown hidden" id="rx-diag-dropdown"></div>
+              <div class="rx-form-footer-actions">
+                <button class="btn-generate" id="generate-rx-btn" type="button" onclick="printRx()">
+                  <i data-feather="printer"></i> Print preview
+                </button>
+                <button class="btn-outline-add rx-save-current-btn" id="save-rx-template-btn" type="button">
+                  <i data-feather="bookmark"></i> Save template
+                </button>
               </div>
             </div>
-
-            <!-- Medications -->
-            <div class="rx-meds-header">
-              <span class="field-label">Medications</span>
-            </div>
-            <div class="rx-meds-table-header">
-              <span>MEDICATION</span><span>DOSAGE</span><span>FREQUENCY /
-                TIMING</span><span>QTY</span><span></span>
-            </div>
-            <div id="rx-meds-list">
-              <!-- Med rows injected by JS -->
-            </div>
-            <div style="display:flex;gap:12px;margin:10px 16px;">
-              <button class="btn-outline-add" id="add-med-btn" style="margin:0;">
-                <i data-feather="plus"></i> Add Medication
-              </button>
-              <button class="btn-outline-add" id="add-lifestyle-btn" style="margin:0;">
-                <i data-feather="heart"></i> Add Lifestyle Intervention
-              </button>
-            </div>
-
-            <!-- Lifestyle Interventions -->
-            <div class="rx-meds-header" style="padding-top:6px;">
-              <span class="field-label">Lifestyle Interventions <span
-                  style="font-weight:400;color:var(--text-500);">(optional)</span></span>
-            </div>
-            <div class="lx-items-table-header">
-              <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
-            </div>
-            <div id="rx-lifestyle-list">
-              <div class="lx-empty-state">No lifestyle interventions added yet.</div>
-            </div>
-
-            <!-- Special Instructions -->
-            <div class="field-group" style="margin-top:12px;">
-              <label class="field-label">Notes / Instructions</label>
-              <textarea class="field-textarea" id="rx-notes" rows="3"
-                placeholder="Additional notes, special instructions, follow-up schedule..."></textarea>
-            </div>
-
-            <button class="btn-generate" id="generate-rx-btn" type="button" onclick="printRx()">
-              <i data-feather="printer"></i> Print preview
-            </button>
-            <button class="btn-outline-add rx-save-current-btn" id="save-rx-template-btn" type="button">
-              <i data-feather="bookmark"></i> Save current form as template
-            </button>
           </div>
         </div>
 
@@ -182,73 +196,80 @@
       <div class="prescription-workspace rx-layout">
         <div class="rx-form-col">
           <div class="card prescription-form-card" role="main" aria-label="Diagnostic request form">
-            <div class="rx-doctor-block">
-              <div class="rx-stamp">Dx</div>
-              <div class="rx-doctor-info">
-                <div class="rx-doctor-name">{{ $prescriber->name }}</div>
-                <div class="rx-doctor-role">Psychiatrist &middot; MB.EA Wellness Center</div>
-                @if($prescriber->license_no)
-                <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
-              </div>
-            </div>
-
-            <div class="rx-patient-row">
-              <div class="field-group">
-                <label class="field-label">Patient Name</label>
-                <div class="typeahead-wrap">
-                  <input type="text" class="field-input" id="dx-patient-search"
-                    placeholder="Search patient by name or ID..." autocomplete="off" />
-                  <div class="typeahead-dropdown hidden" id="dx-patient-dropdown" style="max-height:220px;overflow:auto;">
-                  </div>
+            <div class="prescription-form-section rx-patient-section">
+              <div class="rx-doctor-block">
+                <div class="rx-stamp">Dx</div>
+                <div class="rx-doctor-info">
+                  <div class="rx-doctor-name">{{ $prescriber->name }}</div>
+                  <div class="rx-doctor-role">Psychiatrist &middot; MB.EA Wellness Center</div>
+                  @if($prescriber->license_no)
+                  <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
                 </div>
-                <input type="hidden" id="dx-patient" />
               </div>
-              <div class="field-group">
-                <label class="field-label">Age</label>
-                <input type="number" class="field-input" id="dx-age" placeholder="Age" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Date</label>
-                <input type="date" class="field-input" id="dx-date" />
-              </div>
-            </div>
 
-            <div class="field-group" style="margin-bottom:16px;">
-              <label class="field-label">Clinical Notes / Reason for Request</label>
-              <textarea class="field-textarea" id="dx-notes" rows="3"
-                placeholder="Clinical notes and reason for diagnostic request..."></textarea>
-            </div>
-
-            <!-- Lab Tests -->
-            <div class="dx-section-label">Laboratory Tests</div>
-            <div class="dx-tools">
-              <label class="sr-only" for="dx-test-search">Search laboratory tests</label>
-              <input class="field-input" id="dx-test-search" type="search" placeholder="Search tests..." />
-              <span class="dx-selected-count" id="dx-selected-count">0 tests selected</span>
-            </div>
-            <div class="dx-checklist" id="dx-checklist">
-              <!-- Filled by JS -->
-            </div>
-
-            <!-- Imaging -->
-            <div class="dx-section-label" style="margin-top:12px;">Imaging</div>
-            <div class="dx-imaging-grid">
-              <label class="dx-check-item"><input type="checkbox" class="dx-cb" data-test="Chest X-ray" /> Chest
-                X-ray</label>
-              <label class="dx-check-item"><input type="checkbox" class="dx-cb" data-test="Whole Abdomen Ultrasound" />
-                Whole Abdomen Ultrasound</label>
-              <div class="field-group" style="grid-column:1/-1;">
-                <label class="field-label" style="font-size:12px;">Other Imaging</label>
-                <input type="text" class="field-input" id="dx-other-imaging" placeholder="Specify other imaging..." />
+              <div class="rx-patient-row">
+                <div class="field-group">
+                  <label class="field-label">Patient Name</label>
+                  <div class="typeahead-wrap">
+                    <input type="text" class="field-input" id="dx-patient-search"
+                      placeholder="Search patient by name or ID..." autocomplete="off" />
+                    <div class="typeahead-dropdown hidden" id="dx-patient-dropdown"
+                      style="max-height:220px;overflow:auto;">
+                    </div>
+                  </div>
+                  <input type="hidden" id="dx-patient" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Age</label>
+                  <input type="number" class="field-input" id="dx-age" placeholder="Age" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Date</label>
+                  <input type="date" class="field-input" id="dx-date" />
+                </div>
               </div>
             </div>
 
-            <button class="btn-generate" id="generate-dx-btn" type="button" onclick="printDx()">
-              <i data-feather="printer"></i> Print preview
-            </button>
-            <button class="btn-outline-add rx-save-current-btn" id="save-dx-template-btn" type="button">
-              <i data-feather="bookmark"></i> Save current form as template
-            </button>
+            <div class="prescription-form-section rx-diagnostic-section">
+              <div class="field-group" style="margin-bottom:16px;">
+                <label class="field-label">Clinical Notes / Reason for Request</label>
+                <textarea class="field-textarea" id="dx-notes" rows="3"
+                  placeholder="Clinical notes and reason for diagnostic request..."></textarea>
+              </div>
+
+              <!-- Lab Tests -->
+              <div class="dx-section-label">Laboratory Tests</div>
+              <div class="dx-tools">
+                <label class="sr-only" for="dx-test-search">Search laboratory tests</label>
+                <input class="field-input" id="dx-test-search" type="search" placeholder="Search tests..." />
+                <span class="dx-selected-count" id="dx-selected-count">0 tests selected</span>
+              </div>
+              <div class="dx-checklist" id="dx-checklist">
+                <!-- Filled by JS -->
+              </div>
+
+              <!-- Imaging -->
+              <div class="dx-section-label" style="margin-top:12px;">Imaging</div>
+              <div class="dx-imaging-grid">
+                <label class="dx-check-item"><input type="checkbox" class="dx-cb" data-test="Chest X-ray" /> Chest
+                  X-ray</label>
+                <label class="dx-check-item"><input type="checkbox" class="dx-cb" data-test="Whole Abdomen Ultrasound" />
+                  Whole Abdomen Ultrasound</label>
+                <div class="field-group" style="grid-column:1/-1;">
+                  <label class="field-label" style="font-size:12px;">Other Imaging</label>
+                  <input type="text" class="field-input" id="dx-other-imaging" placeholder="Specify other imaging..." />
+                </div>
+              </div>
+
+              <div class="rx-form-footer-actions">
+                <button class="btn-generate" id="generate-dx-btn" type="button" onclick="printDx()">
+                  <i data-feather="printer"></i> Print preview
+                </button>
+                <button class="btn-outline-add rx-save-current-btn" id="save-dx-template-btn" type="button">
+                  <i data-feather="bookmark"></i> Save template
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -20,11 +20,11 @@ class UpdateLifestyleAssessmentRequest extends FormRequest
 
         $rules['health_score'] = ['nullable', 'integer', 'min:0', 'max:10'];
         $rules['sleep_hours'] = ['nullable', 'integer', 'min:0', 'max:24'];
-        $rules['dietary_history'] = ['nullable', 'array', 'size:3'];
+        $rules['dietary_history'] = ['nullable', 'array', 'size:4'];
+        foreach (['diet', 'home', 'time', 'foods'] as $field) {
+            $rules["dietary_history.overview.{$field}"] = ['required_with:dietary_history', 'string', 'max:3000'];
+        }
         foreach (['day1', 'day2', 'day3'] as $day) {
-            foreach (['diet', 'home', 'time', 'foods'] as $field) {
-                $rules["dietary_history.{$day}.{$field}"] = ['required_with:dietary_history', 'string', 'max:3000'];
-            }
             $rules["dietary_history.{$day}.meals"] = ['required_with:dietary_history', 'array', 'size:5'];
             foreach (['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner'] as $meal) {
                 $rules["dietary_history.{$day}.meals.{$meal}"] = ['required_with:dietary_history', 'string', 'max:3000'];

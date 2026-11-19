@@ -254,12 +254,12 @@
             <div class="card-body gap-6">
                 <div>
                     <h3 class="card-title text-lg">3-Day Dietary History</h3>
-                    <p class="text-sm text-base-content/70">Describe a recent typical day and what you ate or drank. Include beverages and portion estimates when possible.</p>
+                    <p class="text-sm text-base-content/70">Complete the shared overview once, then record each eating occasion for all three days.</p>
                 </div>
 
                 @php
                     $dietaryPrompts = [
-                        'diet' => 'Describe your diet in one sentence',
+                        'diet' => 'Describe your usual diet in one sentence',
                         'home' => 'What percent of your meals are home-cooked?',
                         'time' => 'How many times per week do you eat at restaurants?',
                         'foods' => 'Are there any foods that you do not tolerate?',
@@ -273,40 +273,42 @@
                     ];
                 @endphp
 
-                <div class="space-y-4">
-                    @foreach ([1, 2, 3] as $day)
-                        <details class="collapse collapse-arrow border border-base-content/10 bg-base-200/30" {{ $day === 1 ? 'open' : '' }}>
-                            <summary class="collapse-title min-h-0 py-3 text-base font-bold">Day {{ $day }}</summary>
-                            <div class="collapse-content space-y-4">
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    @foreach ($dietaryPrompts as $promptKey => $promptLabel)
-                                        <div class="form-control">
-                                            <label class="label" for="dietary-{{ $day }}-{{ $promptKey }}">
-                                                <span class="label-text">{{ $promptLabel }}</span>
-                                            </label>
-                                            <textarea required name="dietaryHistory[day{{ $day }}][{{ $promptKey }}]" id="dietary-{{ $day }}-{{ $promptKey }}" rows="2" class="textarea textarea-bordered w-full" placeholder="Enter details"></textarea>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                <div>
-                                    <h4 class="mb-3 font-semibold">Complete a recent, detailed meal day</h4>
-                                    <div class="grid gap-3 md:grid-cols-2">
-                                        @foreach ($mealTimes as $mealKey => $mealLabel)
-                                            <div class="rounded-box border border-base-content/10 bg-base-100 p-4">
-                                                <label class="form-control" for="dietary-{{ $day }}-{{ $mealKey }}">
-                                                    <span class="mb-2 font-semibold text-base-content">{{ $mealLabel }}</span>
-                                                    <span class="label-text mb-2">Foods, drinks, and approximate amount</span>
-                                                    <textarea required name="dietaryHistory[day{{ $day }}][meals][{{ $mealKey }}]" id="dietary-{{ $day }}-{{ $mealKey }}" rows="3" class="textarea textarea-bordered w-full min-h-24" placeholder="What did you have? Include beverages and portions if known."></textarea>
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
+                <section class="rounded-box border border-primary/15 bg-primary/5 p-4 sm:p-5" aria-labelledby="dietary-overview-title">
+                    <h4 id="dietary-overview-title" class="font-semibold text-base-content">Overall eating habits</h4>
+                    <p class="mb-4 mt-1 text-sm text-base-content/70">These answers apply to the full three-day history.</p>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        @foreach ($dietaryPrompts as $promptKey => $promptLabel)
+                            <div class="form-control">
+                                <label class="label" for="dietary-overview-{{ $promptKey }}">
+                                    <span class="label-text font-medium">{{ $promptLabel }}</span>
+                                </label>
+                                <textarea required name="dietaryHistory[overview][{{ $promptKey }}]" id="dietary-overview-{{ $promptKey }}" rows="2" class="textarea textarea-bordered w-full bg-base-100" placeholder="Enter details"></textarea>
                             </div>
-                        </details>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section aria-label="Daily meals" class="grid items-start gap-4 lg:grid-cols-3">
+                    @foreach ([1, 2, 3] as $day)
+                        <article class="rounded-box border border-base-content/10 bg-base-100 overflow-hidden shadow-sm">
+                            <header class="flex items-center justify-between gap-3 border-b border-base-content/10 bg-base-200/60 px-4 py-3">
+                                <div>
+                                    <h4 class="font-bold text-base-content">Day {{ $day }}</h4>
+                                    <p class="text-xs text-base-content/60">5 meal entries</p>
+                                </div>
+                                <span class="badge badge-primary badge-sm">Day {{ $day }}</span>
+                            </header>
+                            <div class="divide-y divide-base-content/10">
+                                @foreach ($mealTimes as $mealKey => $mealLabel)
+                                    <label class="block bg-base-100 p-3 sm:p-4" for="dietary-{{ $day }}-{{ $mealKey }}">
+                                        <span class="mb-2 block text-sm font-semibold text-base-content">{{ $mealLabel }}</span>
+                                        <textarea required name="dietaryHistory[day{{ $day }}][meals][{{ $mealKey }}]" id="dietary-{{ $day }}-{{ $mealKey }}" rows="3" class="textarea textarea-bordered min-h-24 w-full text-sm" placeholder="Foods, drinks, and approximate amount"></textarea>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </article>
                     @endforeach
-                </div>
+                </section>
             </div>
         </div>
 </div>
