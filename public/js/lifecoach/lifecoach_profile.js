@@ -18,15 +18,20 @@ document.addEventListener('DOMContentLoaded', function () {
     toast.setAttribute('aria-live', 'polite');
     toast.innerHTML = '<span class="toast-content"></span>';
     toast.querySelector('.toast-content').textContent = message;
-    toast.classList.remove('hidden');
+    toast.classList.remove('is-closing', 'hidden');
     clearTimeout(toast._timer);
-    toast._timer = setTimeout(function () { toast.classList.add('hidden'); }, 3000);
+    clearTimeout(toast._motionHideTimer);
+    toast._timer = setTimeout(function () { lcHide(toast); }, 3000);
   }
   function csrfToken() { var meta = qs('meta[name="csrf-token"]'); return meta ? meta.content : ''; }
   function apiFetch(url, options) {
     options = options || {};
     options.headers = Object.assign({ 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'X-Requested-With': 'XMLHttpRequest' }, options.headers || {});
+    options.redirect = options.redirect || 'manual';
     return fetch(url, options).then(function (response) {
+      if (response.type === 'opaqueredirect') {
+        throw new Error('The server redirected this request. Refresh the page and try again.');
+      }
       return response.json().then(function (body) {
         if (!response.ok) {
           var error = new Error(body.message || 'Unable to save changes.');
@@ -70,15 +75,15 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('popstate', function () { var tab = window.location.hash.replace('#', '') || 'profile'; if (confirmLeave(tab)) switchTab(tab, false); });
 
   var profileForm = qs('#profile-form');
-  if (profileForm) profileForm.addEventListener('submit', function (event) { event.preventDefault(); submitForm(profileForm, routes.profileAccount, { name: qs('#profile-name').value.trim(), phone: qs('#profile-phone').value.trim(), bio: qs('#profile-bio').value.trim(), email: coach.email }, 'profile', function (data) { applyCoach(data.coach); }); });
+  if (profileForm) profileForm.addEventListener('submit', function (event) { event.preventDefault(); submitForm(profileForm, routes.profileAccount, { name: qs('#profile-name').value.trim(), phone: formatPhone(qs('#profile-phone').value.trim()), bio: qs('#profile-bio').value.trim(), email: coach.email }, 'profile', function (data) { applyCoach(data.coach); }); });
   var accountForm = qs('#account-form');
-  if (accountForm) accountForm.addEventListener('submit', function (event) { event.preventDefault(); submitForm(accountForm, routes.profileAccount, { name: qs('#profile-name').value.trim(), email: qs('#account-email').value.trim(), phone: qs('#profile-phone').value.trim(), bio: qs('#profile-bio').value.trim() }, 'account', function (data) { applyCoach(data.coach); }); });
+  if (accountForm) accountForm.addEventListener('submit', function (event) { event.preventDefault(); submitForm(accountForm, routes.profileAccount, { name: qs('#profile-name').value.trim(), email: qs('#account-email').value.trim(), phone: formatPhone(qs('#profile-phone').value.trim()), bio: qs('#profile-bio').value.trim() }, 'account', function (data) { applyCoach(data.coach); }); });
   var securityForm = qs('#security-form');
   if (securityForm) securityForm.addEventListener('submit', function (event) { event.preventDefault(); var password = qs('#new-password').value; if (password.length < 8 || password !== qs('#confirm-password').value) { setStatus('security', 'Check your password fields.', true); return; } submitForm(securityForm, routes.profileSecurity, { current_password: qs('#current-password').value, password: password, password_confirmation: qs('#confirm-password').value }, 'security', function () { securityForm.reset(); }); });
   var notificationsForm = qs('#notifications-form');
   if (notificationsForm) notificationsForm.addEventListener('submit', function (event) { event.preventDefault(); var payload = {}; new FormData(notificationsForm).forEach(function (value, key) { payload[key] = value === 'on'; }); submitForm(notificationsForm, routes.profileNotifications, payload, 'notifications'); });
   qsa('[data-profile-form]').forEach(function (form) { form._initialState = formSnapshot(form); form.addEventListener('input', function () { markFormState(form); }); });
-  var phone = qs('#profile-phone'); if (phone) phone.addEventListener('input', function () { this.value = formatPhone(this.value); });
+  var phone = qs('#profile-phone'); if (phone) { phone.value = formatPhone(phone.value); phone.addEventListener('input', function () { this.value = formatPhone(this.value); }); }
   var bio = qs('#profile-bio'); if (bio) { bio.addEventListener('input', updateBioCount); updateBioCount(); }
   qsa('[data-password-toggle]').forEach(function (button) { button.addEventListener('click', function () { var input = qs('#' + this.getAttribute('data-password-toggle')); input.type = input.type === 'password' ? 'text' : 'password'; this.setAttribute('aria-label', input.type === 'password' ? 'Show password' : 'Hide password'); }); });
   var newPassword = qs('#new-password'); if (newPassword) newPassword.addEventListener('input', function () { var hint = qs('#password-strength'); hint.textContent = this.value.length >= 12 ? 'Strong password.' : this.value.length >= 8 ? 'Good password. Add numbers or symbols for extra strength.' : 'Use at least 8 characters with a mix of letters and numbers.'; });

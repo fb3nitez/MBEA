@@ -12,10 +12,23 @@ var LC_DATA = window.LC_DATA || {
 };
 
 function lcShow(el) {
-    if (el) el.classList.remove("hidden");
+    if (!el) return;
+    clearTimeout(el._motionHideTimer);
+    el.classList.remove("is-closing", "hidden");
 }
 function lcHide(el) {
-    if (el) el.classList.add("hidden");
+    if (!el) return;
+    clearTimeout(el._motionHideTimer);
+    if (!el.matches(".modal-overlay, #toast") || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        el.classList.remove("is-closing");
+        el.classList.add("hidden");
+        return;
+    }
+    el.classList.add("is-closing");
+    el._motionHideTimer = setTimeout(function () {
+        el.classList.add("hidden");
+        el.classList.remove("is-closing");
+    }, 170);
 }
 
 function lcToast(msg) {
@@ -28,6 +41,7 @@ function lcToast(msg) {
     t.querySelector(".toast-content").textContent = msg;
     lcShow(t);
     clearTimeout(t._t);
+    clearTimeout(t._motionHideTimer);
     t._t = setTimeout(function () {
         lcHide(t);
     }, 2800);

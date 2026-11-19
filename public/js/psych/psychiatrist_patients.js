@@ -64,7 +64,6 @@ function populatePatientModal(p) {
   setVal('pr-year', p.student_year_level);
   setVal('pr-course', p.course);
   setVal('pr-occupation', p.occupation);
-  updatePatientEmploymentFields(false);
   setVal('pr-complaint', p.chief_complaint || p.complaint);
   setVal('pr-diagnosis', p.primary_diagnosis);
   setVal('pm-coach-select', p.life_coach_id || '');
@@ -112,6 +111,15 @@ function populatePatientModal(p) {
     });
   qsa('.ls-phq-radio').forEach(function (rb) {
     rb.checked = (ls[rb.getAttribute('data-field')] || '') === rb.value;
+  });
+  var dietaryHistory = ls.dietary_history || {};
+  qsa('.ls-dietary-field').forEach(function (field) {
+    var day = field.getAttribute('data-day');
+    var kind = field.getAttribute('data-kind');
+    var key = field.getAttribute('data-field');
+    field.value = kind === 'meal'
+      ? ((dietaryHistory[day] && dietaryHistory[day].meals && dietaryHistory[day].meals[key]) || '')
+      : ((dietaryHistory[day] && dietaryHistory[day][key]) || '');
   });
   qsa('.ls-sub-check').forEach(function (cb) {
     cb.checked = !!ls[cb.getAttribute('data-field')];
@@ -357,12 +365,29 @@ function collectLifestyle() {
       data[rb.getAttribute('data-field')] = rb.value;
     }
   });
-  qsa('.ls-sub-check').forEach(function (cb) {
-    data[cb.getAttribute('data-field')] = cb.checked;
+  var dietaryHistory = {};
+  qsa('.ls-dietary-field').forEach(function (field) {
+    var day = field.getAttribute('data-day');
+    var kind = field.getAttribute('data-kind');
+    var key = field.getAttribute('data-field');
+    if (!dietaryHistory[day]) dietaryHistory[day] = {};
+    if (kind === 'meal') {
+      if (!dietaryHistory[day].meals) dietaryHistory[day].meals = {};
+      dietaryHistory[day].meals[key] = getVal('ls-' + key);
+    } else {
+      dietaryHistory[day][key] = getVal('ls-' + key);
+    }
   });
-  ['sub_nicotine_amount', 'sub_nicotine_concern', 'sub_alcohol_amount', 'sub_alcohol_concern', 'sub_recreational_amount', 'sub_recreational_concern', 'sub_marijuana_amount', 'sub_marijuana_concern', 'sub_screentime_amount', 'sub_screentime_concern', 'sub_gambling_amount', 'sub_gambling_concern', 'sub_others_specify', 'sub_others_concern'].forEach(function (field) {
-    var el = document.getElementById('ls-' + field);
-    data[field] = el ? el.value : '';
+  data.dietary_history = {};
+  ['day1', 'day2', 'day3'].forEach(function (day) {
+    data.dietary_history[day] = { meals: {} };
+  });
+  qsa('.ls-dietary-field').forEach(function (field) {
+    var day = field.getAttribute('data-day');
+    var kind = field.getAttribute('data-kind');
+    var key = field.getAttribute('data-field');
+    if (kind === 'meal') data.dietary_history[day].meals[key] = field.value.trim();
+    else data.dietary_history[day][key] = field.value.trim();
   });
   data.motivation_level = getVal('ls-motivation_level');
   return data;
@@ -474,6 +499,15 @@ function bindPatientSaves() {
   if (saveLifestyle) saveLifestyle.addEventListener('click', function () {
     var id = currentPatientId();
     if (!id) return;
+    var missingDietaryField = Array.from(document.querySelectorAll('.ls-dietary-field[required]')).find(function (field) {
+      return !field.value.trim();
+    });
+    if (missingDietaryField) {
+      missingDietaryField.closest('details')?.setAttribute('open', '');
+      missingDietaryField.focus();
+      showToast('Complete all 3 days of dietary history before saving.');
+      return;
+    }
     apiFetch(base + '/' + id + '/lifestyle', {
       method: 'PUT',
       body: JSON.stringify(collectLifestyle()),

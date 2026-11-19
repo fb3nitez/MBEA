@@ -239,6 +239,10 @@
                     <span class="font-medium">Motivation Level</span>
                     <span id="summary-motivation" class="text-base-content/80">Not provided</span>
                 </div>
+                <div class="summary-row flex justify-between py-1 border-b border-base-content/5">
+                    <span class="font-medium">3-Day Dietary History</span>
+                    <span id="summary-dietary" class="text-base-content/80">Not completed</span>
+                </div>
             </div>
         </div>
     </div>

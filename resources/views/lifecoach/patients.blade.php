@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MB.EA — Patients</title>
-  <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}" />
+  <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}?v={{ filemtime(public_path('css/lifecoach.css')) }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   @include('lifecoach.partials.boot')
@@ -615,7 +615,7 @@
 
   <div class="toast hidden" id="toast"></div>
 
-  <script src="{{ asset('js/lifecoach/lifecoach_data.js?v=3.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_data.js') }}?v={{ filemtime(public_path('js/lifecoach/lifecoach_data.js')) }}"></script>
   <script
     src="{{ asset('js/lifecoach/lifecoach_patients_list.js') }}?v={{ filemtime(public_path('js/lifecoach/lifecoach_patients_list.js')) }}-tabs"></script>
   <script>

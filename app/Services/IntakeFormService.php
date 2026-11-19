@@ -280,6 +280,7 @@ class IntakeFormService
             'fast_food_frequency' => $data['fastFood'] ?? null,
             'fruits_veg_servings' => $data['fruitsVeg'] ?? null,
             'exercise_frequency' => $data['exerciseFreq'] ?? null,
+            'dietary_history' => $data['dietaryHistory'] ?? null,
 
             // PHQ-9
             'phq_little_interest' => $data['phqLittleInterest'] ?? null,

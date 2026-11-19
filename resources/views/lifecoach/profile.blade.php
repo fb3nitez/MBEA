@@ -111,7 +111,7 @@
   </div>
 
   <div class="toast hidden" id="toast" aria-live="polite"></div>
-  <script src="{{ asset('js/lifecoach/lifecoach_data.js?v=2.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_data.js') }}?v={{ filemtime(public_path('js/lifecoach/lifecoach_data.js')) }}"></script>
   <script src="{{ asset('js/lifecoach/lifecoach_profile.js') }}?v={{ filemtime(public_path('js/lifecoach/lifecoach_profile.js')) }}"></script>
   <script>feather.replace();</script>
 </body>

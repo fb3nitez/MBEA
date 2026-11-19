@@ -78,3 +78,30 @@
 .intake-tooltip-anchor .tooltip {
     top: -39px;
 }
+
+@media (max-width: 640px) {
+    #intake-form .card-body {
+        padding: 1rem;
+    }
+
+    #intake-form .collapse-content {
+        padding-inline: .75rem;
+        padding-bottom: .75rem;
+    }
+
+    #intake-form .collapse-title {
+        padding-inline: .75rem;
+    }
+
+    #intake-form .textarea,
+    #intake-form .input,
+    #intake-form .select {
+        min-height: 46px;
+        font-size: 16px;
+    }
+
+    #intake-form .card,
+    #intake-form .rounded-box {
+        border-radius: .75rem;
+    }
+}

@@ -24,7 +24,7 @@
         </a>
     </header>
     <div id="app" class="min-h-screen bg-base-200 text-base-content">
-        <main class="mx-auto w-full max-w-5xl px-5 pb-10 pt-2">
+        <main class="mx-auto w-full max-w-5xl px-3 pb-10 pt-2 sm:px-5">
             <div class="card-body gap-6">
                 <div class="text-center">
                     <h1 class="text-3xl font-bold">Patient Intake Form</h1>
@@ -68,7 +68,7 @@
 
                 <!-- Form -->
                 <form id="intake-form"
-                    class="relative card bg-base-100 border border-base-content/10 shadow-lg py-5 px-10 space-y-5">
+                    class="relative card bg-base-100 border border-base-content/10 shadow-lg py-5 px-4 space-y-5 sm:px-10">
                     @csrf
 
                     <button type="button" class="btn btn-ghost absolute top-5 right-5" title="Clear the form and start over" aria-label="Clear the form and start over"

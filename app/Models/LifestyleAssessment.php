@@ -25,6 +25,7 @@ class LifestyleAssessment extends Model
     protected $casts = [
         'health_score' => 'integer',
         'sleep_hours' => 'integer',
+        'dietary_history' => 'array',
 
         'sub_nicotine' => 'boolean',
         'sub_nicotine_concern' => 'integer',

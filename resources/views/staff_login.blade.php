@@ -169,12 +169,9 @@
       <!-- Content -->
       <h2 class="mismatch-title">Wrong Role Selected</h2>
       <p class="mismatch-body">
-        You selected <strong id="mismatch-selected">Psychiatrist</strong> but these
-        credentials belong to a <strong id="mismatch-actual">Life Coach</strong> account.
-      </p>
-      <p class="mismatch-body" style="margin-top:6px;">
-        Would you like to proceed to the
-        <strong id="mismatch-correct-label">Life Coach</strong> dashboard instead?
+        These credentials are for <strong id="mismatch-actual">Life Coach</strong>, not
+        <strong id="mismatch-selected">Psychiatrist</strong>. Go to the
+        <strong id="mismatch-correct-label">Life Coach</strong> dashboard?
       </p>
 
       <!-- Actions -->

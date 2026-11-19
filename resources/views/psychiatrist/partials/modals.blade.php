@@ -226,8 +226,8 @@ $lifeCoaches = collect();
             <label class="field-label">Religion</label>
             <input type="text" class="field-input" id="pr-religion" />
           </div>
-          <div class="field-group">
-            <label class="field-label" for="pr-employment-status">Employment Status</label>
+          <div class="field-group" for="pr-employment-status">
+            <label class="field-label">Employment Status</label>
             <select class="field-input" id="pr-employment-status">
               <option value="">Not provided</option>
               <option value="employed">Employed</option>
@@ -470,6 +470,41 @@ $lifeCoaches = collect();
             <label class="field-label">Exercise Frequency</label>
             <input type="text" class="field-input" id="ls-exercise_frequency" />
           </div>
+        </div>
+
+        <div class="pm-section-label pm-form-section-title">3-Day Dietary History</div>
+        <p style="font-size:13px;color:#64748b;margin:0 0 10px;">Record all five eating occasions for each day, including beverages and approximate portions.</p>
+        <div class="pm-dietary-days">
+          @php
+          $dietaryPrompts = [
+            'diet' => 'Describe your diet in one sentence',
+            'home' => 'What percent of your meals are home-cooked?',
+            'time' => 'How many times per week do you eat at restaurants?',
+            'foods' => 'Are there any foods that you do not tolerate?',
+          ];
+          $mealLabels = ['breakfast' => 'Breakfast', 'am_snack' => 'AM snack', 'lunch' => 'Lunch', 'pm_snack' => 'PM snack', 'dinner' => 'Dinner'];
+          @endphp
+          @foreach (['day1' => 'Day 1', 'day2' => 'Day 2', 'day3' => 'Day 3'] as $dayKey => $dayLabel)
+          <details class="pm-dietary-day" {{ $dayKey === 'day1' ? 'open' : '' }}>
+            <summary>{{ $dayLabel }}</summary>
+            <div class="pm-dietary-prompts modal-grid-2">
+              @foreach ($dietaryPrompts as $promptKey => $promptLabel)
+              <div class="field-group">
+                <label class="field-label" for="ls-dietary-{{ $dayKey }}-{{ $promptKey }}">{{ $promptLabel }}</label>
+                <textarea class="field-textarea ls-dietary-field" id="ls-dietary-{{ $dayKey }}-{{ $promptKey }}" data-day="{{ $dayKey }}" data-kind="prompt" data-field="{{ $promptKey }}" rows="2" required></textarea>
+              </div>
+              @endforeach
+            </div>
+            <div class="pm-dietary-meals">
+              @foreach ($mealLabels as $mealKey => $mealLabel)
+              <div class="pm-dietary-meal">
+                <label class="field-label" for="ls-dietary-{{ $dayKey }}-{{ $mealKey }}">{{ $mealLabel }}</label>
+                <textarea class="field-textarea ls-dietary-field" id="ls-dietary-{{ $dayKey }}-{{ $mealKey }}" data-day="{{ $dayKey }}" data-kind="meal" data-field="{{ $mealKey }}" rows="3" placeholder="Foods, beverages, and approximate portions" required></textarea>
+              </div>
+              @endforeach
+            </div>
+          </details>
+          @endforeach
         </div>
 
         <div class="pm-section-label pm-form-section-title">Mental Health &amp; Well-being</div>

@@ -70,8 +70,25 @@
   function ri() { if (window.feather) window.feather.replace(); }
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
   function qsa(sel, ctx) { return (ctx || document).querySelectorAll(sel); }
-  function show(el) { if (el) el.classList.remove('hidden'); }
-  function hide(el) { if (el) el.classList.add('hidden'); }
+  function show(el) {
+    if (!el) return;
+    clearTimeout(el._motionHideTimer);
+    el.classList.remove('is-closing', 'hidden');
+  }
+  function hide(el) {
+    if (!el) return;
+    clearTimeout(el._motionHideTimer);
+    if (!el.matches('.modal-overlay, #toast') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.classList.remove('is-closing');
+      el.classList.add('hidden');
+      return;
+    }
+    el.classList.add('is-closing');
+    el._motionHideTimer = setTimeout(function () {
+      el.classList.add('hidden');
+      el.classList.remove('is-closing');
+    }, 170);
+  }
 
   function csrfToken() {
     var meta = document.querySelector('meta[name="csrf-token"]');
@@ -125,6 +142,8 @@
     clearTimeout(t._timer);
     t._timer = setTimeout(function () { hide(t); }, duration || 2800);
   };
+
+  window.dismissToast = function () { hide(document.getElementById('toast')); };
 
   var sessionToast = document.getElementById('toast');
   if (sessionToast && sessionToast.dataset.toastMessage) {

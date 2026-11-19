@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="dash-patient-name">' + lcEscape(p.name) + '</div>' +
             '<div class="dash-patient-complaint">' + lcEscape(p.complaint || '—') + '</div>' +
           '</div>' +
-          '<a href="' + lcRoute('patients') + '?id=' + p.id + '" class="btn-outline-sm">View</a>';
+          '<a href="' + lcRoute('patients') + '?id=' + p.id + '" class="btn-outline-sm dashboard-action">View</a>';
         dpList.appendChild(row);
       });
     }
@@ -60,13 +60,15 @@ document.addEventListener('DOMContentLoaded', function () {
         var row = document.createElement('div');
         row.className = 'dash-task-row lc-update-row' + (t.read ? '' : ' is-unread');
         row.innerHTML =
-          '<div class="dash-task-top">' +
-            '<span class="dash-task-patient"><i data-feather="' + lcEscape(t.icon || 'bell') + '"></i>' + lcEscape(t.title) + '</span>' +
-            (t.read ? '' : '<span class="lc-unread-dot" aria-label="Unread"></span>') +
+          '<div class="lc-update-content">' +
+            '<div class="dash-task-top">' +
+              '<span class="dash-task-patient"><i data-feather="' + lcEscape(t.icon || 'bell') + '"></i>' + lcEscape(t.title) + '</span>' +
+              (t.read ? '' : '<span class="lc-unread-dot" aria-label="Unread"></span>') +
+            '</div>' +
+            '<div class="dash-task-desc">' + lcEscape(t.body || '') + '</div>' +
+            '<div class="dash-task-due">' + lcEscape(t.relative_time || '') + '</div>' +
           '</div>' +
-          '<div class="dash-task-desc">' + lcEscape(t.body || '') + '</div>' +
-          '<div class="dash-task-due">' + lcEscape(t.relative_time || '') + '</div>' +
-          '<button type="button" class="btn-outline-sm lc-update-open">Open</button>';
+          '<button type="button" class="btn-outline-sm dashboard-action lc-update-open">Open</button>';
         row.querySelector('.lc-update-open').addEventListener('click', function (event) { event.stopPropagation(); openUpdate(t); });
         row.addEventListener('click', function () { openUpdate(t); });
         dtList.appendChild(row);

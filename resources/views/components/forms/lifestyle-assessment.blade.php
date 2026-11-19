@@ -249,4 +249,64 @@
             </div>
         </div>
     </div>
+
+        <div class="card bg-base-100 border border-base-content/10 shadow-sm">
+            <div class="card-body gap-6">
+                <div>
+                    <h3 class="card-title text-lg">3-Day Dietary History</h3>
+                    <p class="text-sm text-base-content/70">Describe a recent typical day and what you ate or drank. Include beverages and portion estimates when possible.</p>
+                </div>
+
+                @php
+                    $dietaryPrompts = [
+                        'diet' => 'Describe your diet in one sentence',
+                        'home' => 'What percent of your meals are home-cooked?',
+                        'time' => 'How many times per week do you eat at restaurants?',
+                        'foods' => 'Are there any foods that you do not tolerate?',
+                    ];
+                    $mealTimes = [
+                        'breakfast' => 'Breakfast',
+                        'am_snack' => 'AM snack',
+                        'lunch' => 'Lunch',
+                        'pm_snack' => 'PM snack',
+                        'dinner' => 'Dinner',
+                    ];
+                @endphp
+
+                <div class="space-y-4">
+                    @foreach ([1, 2, 3] as $day)
+                        <details class="collapse collapse-arrow border border-base-content/10 bg-base-200/30" {{ $day === 1 ? 'open' : '' }}>
+                            <summary class="collapse-title min-h-0 py-3 text-base font-bold">Day {{ $day }}</summary>
+                            <div class="collapse-content space-y-4">
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    @foreach ($dietaryPrompts as $promptKey => $promptLabel)
+                                        <div class="form-control">
+                                            <label class="label" for="dietary-{{ $day }}-{{ $promptKey }}">
+                                                <span class="label-text">{{ $promptLabel }}</span>
+                                            </label>
+                                            <textarea required name="dietaryHistory[day{{ $day }}][{{ $promptKey }}]" id="dietary-{{ $day }}-{{ $promptKey }}" rows="2" class="textarea textarea-bordered w-full" placeholder="Enter details"></textarea>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div>
+                                    <h4 class="mb-3 font-semibold">Complete a recent, detailed meal day</h4>
+                                    <div class="grid gap-3 md:grid-cols-2">
+                                        @foreach ($mealTimes as $mealKey => $mealLabel)
+                                            <div class="rounded-box border border-base-content/10 bg-base-100 p-4">
+                                                <label class="form-control" for="dietary-{{ $day }}-{{ $mealKey }}">
+                                                    <span class="mb-2 font-semibold text-base-content">{{ $mealLabel }}</span>
+                                                    <span class="label-text mb-2">Foods, drinks, and approximate amount</span>
+                                                    <textarea required name="dietaryHistory[day{{ $day }}][meals][{{ $mealKey }}]" id="dietary-{{ $day }}-{{ $mealKey }}" rows="3" class="textarea textarea-bordered w-full min-h-24" placeholder="What did you have? Include beverages and portions if known."></textarea>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+                    @endforeach
+                </div>
+            </div>
+        </div>
 </div>

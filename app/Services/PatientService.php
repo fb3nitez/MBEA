@@ -648,6 +648,8 @@ class PatientService
                 'fast_food_frequency' => $data['fast_food_frequency'] ?? null,
                 'fruits_veg_servings' => $data['fruits_veg_servings'] ?? null,
                 'exercise_frequency' => $data['exercise_frequency'] ?? null,
+                'dietary_history' => $data['dietary_history'] ?? null,
+
                 'phq_little_interest' => $data['phq_little_interest'] ?? null,
                 'phq_feeling_down' => $data['phq_feeling_down'] ?? null,
                 'phq_trouble_sleeping' => $data['phq_trouble_sleeping'] ?? null,

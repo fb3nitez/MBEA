@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
         templates = (window.PSYCH_DATA || {}).manageTemplates || templates;
         lastTrigger = document.activeElement;
         if (manageType) type.value = manageType;
-        modal.classList.remove("hidden");
+        openModal("template-manage-modal");
         previousBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
         render();
@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     function closeManage() {
         closeDeleteConfirm();
-        modal.classList.add("hidden");
+        closeModal("template-manage-modal");
         document.body.style.overflow = previousBodyOverflow;
         if (lastTrigger) lastTrigger.focus();
     }

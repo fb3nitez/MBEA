@@ -109,10 +109,33 @@ class PatientIntakeForm {
             data[radio.name] = radio.value;
         });
 
+        // Dietary history: convert bracketed fields into structured JSON.
+        data.dietaryHistory = {};
+        for (const day of ['day1', 'day2', 'day3']) {
+            data.dietaryHistory[day] = { meals: {} };
+            for (const field of ['diet', 'home', 'time', 'foods']) {
+                data.dietaryHistory[day][field] = document.querySelector(`[name="dietaryHistory[${day}][${field}]"]`)?.value || '';
+            }
+            for (const meal of ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner']) {
+                data.dietaryHistory[day].meals[meal] = document.querySelector(`[name="dietaryHistory[${day}][meals][${meal}]"]`)?.value || '';
+            }
+        }
+
         return data;
     }
 
     populateForm(data) {
+        if (data.dietaryHistory) {
+            document.querySelectorAll('[name^="dietaryHistory["]').forEach(input => {
+                const match = input.name.match(/^dietaryHistory\[(day[123])\](?:\[meals\])?\[([^\]]+)\]$/);
+                if (!match) return;
+                const [, day, field] = match;
+                input.value = input.name.includes('[meals]')
+                    ? data.dietaryHistory[day]?.meals?.[field] || ''
+                    : data.dietaryHistory[day]?.[field] || '';
+            });
+        }
+
         // Populate text inputs, textareas, selects
         document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]), textarea, select').forEach(input => {
             if (data[input.name] !== undefined) {
@@ -151,7 +174,7 @@ class PatientIntakeForm {
         }
 
         // Update gender display
-        if (data.gender.toLowerCase() === 'other') {
+        if (typeof data.gender === 'string' && data.gender.toLowerCase() === 'other') {
             const genderInput = document.getElementById('genderInput');
             if (genderInput) {
                 genderInput.value = data.gender_other;
@@ -166,7 +189,7 @@ class PatientIntakeForm {
     }
 
     bindEvents() {
-        this.addInteractionTooltips();
+        // Form controls and buttons already use visible labels, titles, and aria-labels.
         // Navigation
         this.elements.btnNext.addEventListener('click', () => this.nextStep());
         this.elements.btnBack.addEventListener('click', () => this.prevStep());
@@ -220,37 +243,6 @@ class PatientIntakeForm {
                     this.nextStep();
                 }
             }
-        });
-    }
-
-    addInteractionTooltips() {
-        const addTooltip = (element, text) => {
-            if (!element || element.dataset.tooltipReady) return;
-            element.dataset.tooltipReady = 'true';
-            const anchor = document.createElement('span');
-            anchor.className = 'tooltip-container intake-tooltip-anchor';
-            anchor.tabIndex = 0;
-            anchor.setAttribute('aria-label', text);
-            anchor.innerHTML = '<span aria-hidden="true">?</span><span class="tooltip" role="tooltip"></span>';
-            anchor.querySelector('.tooltip').textContent = text;
-            element.parentElement?.appendChild(anchor);
-        };
-        document.querySelectorAll('#intake-form input[data-expands]').forEach((input) => {
-            input.setAttribute('title', 'Select to show additional details');
-            input.setAttribute('aria-label', `${input.parentElement?.textContent?.trim() || 'Option'}; select to show additional details`);
-            addTooltip(input, 'Select to show additional details');
-        });
-        document.querySelectorAll('#intake-form input[type="range"]').forEach((input) => {
-            input.setAttribute('title', 'Drag to choose a value');
-            addTooltip(input, 'Drag to choose a value');
-        });
-        document.querySelectorAll('#intake-form input[type="file"]').forEach((input) => {
-            input.setAttribute('title', 'Choose a file to upload');
-            addTooltip(input, 'Choose a file to upload');
-        });
-        ['btn-back', 'btn-next', 'btn-submit'].forEach((id) => {
-            const button = document.getElementById(id);
-            if (button) addTooltip(button, button.title || button.textContent.trim());
         });
     }
 
@@ -345,6 +337,22 @@ class PatientIntakeForm {
 
         if (!data.healthScore) errors.healthScore = 'Health score is required';
 
+        for (const day of ['day1', 'day2', 'day3']) {
+            for (const field of ['diet', 'home', 'time', 'foods']) {
+                if (!data.dietaryHistory?.[day]?.[field]?.trim()) {
+                    const dayLabel = day.replace('day', 'Day ');
+                    errors[`dietaryHistory[${day}][${field}]`] = `${dayLabel}: please complete all dietary questions`;
+                }
+            }
+            for (const meal of ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner']) {
+                if (!data.dietaryHistory?.[day]?.meals?.[meal]?.trim()) {
+                    const dayLabel = day.replace('day', 'Day ');
+                    const mealLabel = meal.replace('_', ' ');
+                    errors[`dietaryHistory[${day}][meals][${meal}]`] = `${dayLabel} ${mealLabel}: please describe this meal`;
+                }
+            }
+        }
+
         const substanceFields = [
             { check: 'subNicotine', amount: 'subNicotineAmount', label: 'nicotine' },
             { check: 'subAlcohol', amount: 'subAlcoholAmount', label: 'alcohol' },
@@ -358,6 +366,22 @@ class PatientIntakeForm {
         for (const field of substanceFields) {
             if (data[field.check] && !data[field.amount]?.trim()) {
                 errors[field.amount] = `Please specify the amount for ${field.label}`;
+            }
+        }
+
+        // Validate dietary history fields
+        for (const day of ['day1', 'day2', 'day3']) {
+            if (data.dietaryHistory[day]) {
+                for (const field of ['diet', 'home', 'time', 'foods']) {
+                    if (!data.dietaryHistory[day][field]?.trim()) {
+                        errors[`dietaryHistory[${day}][${field}]`] = `Please fill out the ${field} for ${day}`;
+                    }
+                }
+                for (const meal of ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner']) {
+                    if (!data.dietaryHistory[day].meals[meal]?.trim()) {
+                        errors[`dietaryHistory[${day}][meals][${meal}]`] = `Please specify the ${meal} for ${day}`;
+                    }
+                }
             }
         }
 
@@ -797,6 +821,12 @@ class PatientIntakeForm {
         document.getElementById('summary-fastfood').textContent = data.fastFood || 'Not provided';
         document.getElementById('summary-fruitsveg').textContent = data.fruitsVeg || 'Not provided';
         document.getElementById('summary-exercise').textContent = data.exerciseFreq || 'Not provided';
+        const dietaryDays = Object.values(data.dietaryHistory || {}).filter(day => {
+            const promptsComplete = ['diet', 'home', 'time', 'foods'].every(field => day?.[field]?.trim());
+            const mealsComplete = ['breakfast', 'am_snack', 'lunch', 'pm_snack', 'dinner'].every(meal => day?.meals?.[meal]?.trim());
+            return promptsComplete && mealsComplete;
+        }).length;
+        document.getElementById('summary-dietary').textContent = dietaryDays === 3 ? 'All 3 days complete' : `${dietaryDays}/3 days complete`;
 
         // PHQ-9 Summary
         const phqFields = ['phqLittleInterest', 'phqFeelingDown', 'phqTroubleSleeping',

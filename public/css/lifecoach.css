@@ -251,7 +251,7 @@ body {
 /* ---- CARDS ---- */
 .card {
     background: var(--white);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-dark);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     min-width: 0;
@@ -263,7 +263,18 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-dark);
+    background: #f1f5f9;
+}
+
+/* Keep the Dashboard's original card surfaces; other Life Coach pages use the shared contrast treatment. */
+.lc-dashboard-page .card {
+    border-color: var(--border);
+}
+
+.lc-dashboard-page .card-header {
+    border-bottom-color: var(--border);
+    background: var(--white);
 }
 
 .card-title {
@@ -443,6 +454,54 @@ body {
     margin-top: 3px;
 }
 
+.lc-update-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lc-update-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.lc-update-open {
+    flex: 0 0 auto;
+}
+
+.content-wrap .dashboard-action,
+.content-wrap .dashboard-action:visited {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 1px solid var(--green-600);
+    border-radius: var(--radius-sm);
+    background: var(--green-600);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.content-wrap .dashboard-action:hover {
+    border-color: var(--green-700);
+    background: var(--green-700);
+    color: var(--white);
+    box-shadow: var(--shadow);
+}
+
+.content-wrap .dashboard-action:focus-visible {
+    outline: 2px solid var(--green-600);
+    outline-offset: 2px;
+}
+
 /* ---- SCHEDULE LIST ---- */
 .schedule-list {
     display: flex;
@@ -511,8 +570,9 @@ body {
 }
 
 .lc-patient-card {
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-dark);
     border-radius: var(--radius);
+    background: var(--white);
     overflow: hidden;
     box-shadow: var(--shadow);
     transition:
@@ -1745,7 +1805,138 @@ body {
     .two-col-grid {
         grid-template-columns: minmax(0, 1fr);
     }
+}
 
+/* Shared clinic motion: keep entrance and interaction feedback subtle on touch layouts. */
+.content-wrap {
+    animation: clinic-content-enter 220ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.content-wrap .card,
+.content-wrap .stat-card {
+    transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.dash-patient-row,
+.dash-task-row,
+.task-full-row,
+.global-note-item,
+.goal-item,
+.lc-activity-row {
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.btn-green,
+.btn-green-sm,
+.btn-green-full,
+.btn-ghost,
+.btn-outline,
+.btn-outline-sm,
+.btn-ghost-back,
+.btn-intake,
+.dashboard-action {
+    transition-property: background-color, border-color, color, box-shadow, transform;
+    transition-duration: 160ms;
+    transition-timing-function: ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .content-wrap .card:hover,
+    .content-wrap .stat-card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-green:hover,
+    .btn-green-sm:hover,
+    .btn-green-full:hover,
+    .btn-ghost:hover,
+    .btn-outline:hover,
+    .btn-outline-sm:hover,
+    .btn-ghost-back:hover,
+    .btn-intake:hover,
+    .content-wrap .dashboard-action:hover {
+        transform: translateY(-1px);
+    }
+}
+
+.modal-overlay:not(.hidden):not(.is-closing) {
+    animation: clinic-overlay-enter 180ms ease-out both;
+}
+
+.modal-overlay:not(.hidden):not(.is-closing) .modal-box {
+    animation: clinic-modal-enter 200ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.modal-overlay.is-closing {
+    pointer-events: none;
+    animation: clinic-overlay-exit 150ms ease-in both;
+}
+
+.modal-overlay.is-closing .modal-box {
+    animation: clinic-modal-exit 150ms ease-in both;
+}
+
+.app-toast:not(.hidden):not(.is-closing) {
+    animation: clinic-toast-enter 180ms ease-out both;
+}
+
+.app-toast.is-closing {
+    pointer-events: none;
+    animation: clinic-toast-exit 150ms ease-in both;
+}
+
+.toast.app-toast.hidden {
+    display: none !important;
+}
+
+@keyframes clinic-content-enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes clinic-overlay-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes clinic-modal-enter {
+    from { opacity: 0; transform: translateY(8px) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes clinic-overlay-exit {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes clinic-modal-exit {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(5px) scale(.99); }
+}
+
+@keyframes clinic-toast-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes clinic-toast-exit {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+@media (max-width: 900px) {
     .lc-patients-grid {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -2992,5 +3183,34 @@ body {
     .modal-footer .btn-red-sm {
         flex: 1 1 auto;
         justify-content: center;
+    }
+}
+
+/* Cross-document navigation fade for custom clinic pages; login and Filament are excluded. */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root) {
+    animation: clinic-page-fade-out 160ms ease-in both;
+}
+
+::view-transition-new(root) {
+    animation: clinic-page-fade-in 200ms ease-out both;
+}
+
+@keyframes clinic-page-fade-out {
+    to { opacity: 0; }
+}
+
+@keyframes clinic-page-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: .01ms !important;
     }
 }

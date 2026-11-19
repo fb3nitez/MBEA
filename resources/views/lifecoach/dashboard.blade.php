@@ -5,14 +5,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MB.EA — Life Coach Dashboard</title>
-  <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}" />
+  <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}?v={{ filemtime(public_path('css/lifecoach.css')) }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
   @include('lifecoach.partials.boot')
   <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
 
 </head>
 
-<body>
+<body class="lc-dashboard-page">
   <div class="app-shell">
 
     @include('lifecoach.partials.lifecoach_sidebar', ['activePage' => 'dashboard'])
@@ -71,7 +71,7 @@
           <div class="card">
             <div class="card-header">
               <span class="card-title">My Patients</span>
-              <a href="{{ route('lifecoach.patients') }}" class="btn-ghost">View All</a>
+              <a href="{{ route('lifecoach.patients') }}" class="btn-ghost dashboard-action">View All</a>
             </div>
             <div class="dash-patient-list" id="dash-patient-list"></div>
           </div>
@@ -79,7 +79,7 @@
           <div class="card">
             <div class="card-header">
               <span class="card-title">Updates and pending <span class="lc-update-count" id="update-count" aria-live="polite">{{ ($updates['unread_count'] ?? 0) + ($updates['pending_tasks'] ?? 0) }}</span></span>
-              <button type="button" class="btn-ghost" id="open-updates-btn">View All</button>
+              <button type="button" class="btn-ghost dashboard-action" id="open-updates-btn">View All</button>
             </div>
             <div class="dash-task-list" id="dash-task-list"></div>
           </div>
@@ -88,7 +88,7 @@
         <div class="card">
           <div class="card-header">
             <span class="card-title">This Week's Follow-up Schedule</span>
-            <button class="btn-ghost" id="add-schedule-btn">
+            <button class="btn-ghost dashboard-action" id="add-schedule-btn">
               <i data-feather="plus"></i> Add
             </button>
           </div>
@@ -146,8 +146,8 @@
 
   <div class="toast hidden" id="toast"></div>
 
-  <script src="{{ asset('js/lifecoach/lifecoach_data.js?v=2.0') }}"></script>
-  <script src="{{ asset('js/lifecoach/lifecoach_dashboard.js?v=2.0') }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_data.js') }}?v={{ filemtime(public_path('js/lifecoach/lifecoach_data.js')) }}"></script>
+  <script src="{{ asset('js/lifecoach/lifecoach_dashboard.js') }}?v={{ filemtime(public_path('js/lifecoach/lifecoach_dashboard.js')) }}"></script>
   <script>feather.replace();</script>
 </body>
 

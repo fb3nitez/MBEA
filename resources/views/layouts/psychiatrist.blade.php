@@ -135,7 +135,7 @@ $page = trim($__env->yieldContent('page'));
   'psychiatrist_prescriptions.js',
   'psychiatrist_init.js',
   ] as $psychScript)
-  <script src="{{ asset('js/psych/' . $psychScript) }}"></script>
+  <script src="{{ asset('js/psych/' . $psychScript) }}?v={{ filemtime(public_path('js/psych/' . $psychScript)) }}"></script>
   @endforeach
   <script>
     feather.replace();
