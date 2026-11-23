@@ -15,13 +15,21 @@ qsa(".subtab-btn").forEach(function (btn) {
         this.classList.add("active");
         var panel = document.getElementById("subtab-" + key);
         if (panel) panel.classList.add("active");
-        if (window.history && window.history.replaceState) window.history.replaceState(null, "", "#" + (key === "diagnostic" ? "dx" : "rx"));
+        if (window.history && window.history.replaceState) {
+            var hash = key === "diagnostic" ? "dx" : key === "lifestyle" ? "lifestyle" : "rx";
+            window.history.replaceState(null, "", "#" + hash);
+        }
         ri();
     });
 });
 
 /* Restore the selected prescription tab after a refresh. */
-var initialTab = window.location.hash.toLowerCase() === '#dx' ? 'diagnostic' : 'rx';
+var initialHash = window.location.hash.toLowerCase();
+var initialTab = initialHash === '#dx'
+    ? 'diagnostic'
+    : initialHash === '#lifestyle'
+      ? 'lifestyle'
+      : 'rx';
 var initialTabButton = qs('.subtab-btn[data-subtab="' + initialTab + '"]');
 if (initialTabButton) initialTabButton.click();
 
@@ -83,6 +91,90 @@ if (rxDiagInput && rxDiagDropdown) {
   ============================================================ */
 var rxMedsList = document.getElementById("rx-meds-list");
 var addMedBtn = document.getElementById("add-med-btn");
+var medicationSuggestionCounter = 0;
+
+function attachMedicationSuggestions(input, wrap, dropdown, options) {
+    var matches = [];
+    var activeIndex = -1;
+    var listId = "med-suggestions-" + (++medicationSuggestionCounter);
+    dropdown.id = listId;
+    dropdown.setAttribute("role", "listbox");
+    input.setAttribute("role", "combobox");
+    input.setAttribute("aria-autocomplete", "list");
+    input.setAttribute("aria-controls", listId);
+    input.setAttribute("aria-expanded", "false");
+
+    function setOpen(open) {
+        input.setAttribute("aria-expanded", open ? "true" : "false");
+        if (open) show(dropdown);
+        else hide(dropdown);
+    }
+
+    function selectOption(value) {
+        input.value = value;
+        setOpen(false);
+        updateRxPreview();
+    }
+
+    function renderSuggestions(showAll) {
+        var term = input.value.trim().toLowerCase();
+        matches = options.filter(function (option) {
+            return showAll || !term || option.toLowerCase().indexOf(term) >= 0;
+        });
+        activeIndex = -1;
+        dropdown.innerHTML = "";
+        if (!matches.length) {
+            setOpen(false);
+            return;
+        }
+        matches.forEach(function (option, index) {
+            var item = document.createElement("div");
+            item.className = "med-typeahead-item";
+            item.setAttribute("role", "option");
+            item.setAttribute("aria-selected", "false");
+            item.textContent = option;
+            item.addEventListener("mousedown", function (event) {
+                event.preventDefault();
+            });
+            item.addEventListener("click", function () {
+                selectOption(option);
+            });
+            dropdown.appendChild(item);
+        });
+        setOpen(true);
+    }
+
+    function setActiveOption(nextIndex) {
+        var items = dropdown.querySelectorAll(".med-typeahead-item");
+        if (!items.length) return;
+        activeIndex = (nextIndex + items.length) % items.length;
+        items.forEach(function (item, index) {
+            item.classList.toggle("active", index === activeIndex);
+            item.setAttribute("aria-selected", index === activeIndex ? "true" : "false");
+        });
+    }
+
+    input.addEventListener("focus", function () { renderSuggestions(true); });
+    input.addEventListener("click", function () { renderSuggestions(true); });
+    input.addEventListener("input", function () { renderSuggestions(false); });
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "ArrowDown" && !dropdown.classList.contains("hidden")) {
+            event.preventDefault();
+            setActiveOption(activeIndex + 1);
+        } else if (event.key === "ArrowUp" && !dropdown.classList.contains("hidden")) {
+            event.preventDefault();
+            setActiveOption(activeIndex - 1);
+        } else if (event.key === "Enter" && activeIndex >= 0) {
+            event.preventDefault();
+            selectOption(matches[activeIndex]);
+        } else if (event.key === "Escape") {
+            setOpen(false);
+        }
+    });
+    document.addEventListener("click", function (event) {
+        if (!wrap.contains(event.target)) setOpen(false);
+    });
+}
 
 function createMedRow(prefill, templateId) {
     prefill = prefill || {};
@@ -135,76 +227,59 @@ function createMedRow(prefill, templateId) {
     nameWrap.appendChild(nameInput);
     nameWrap.appendChild(dropdown);
 
-    // Dosage
-    var doseSelect = document.createElement("select");
-    doseSelect.className = "field-input";
-    DOSAGES.forEach(function (d) {
-        var opt = document.createElement("option");
-        opt.value = d;
-        opt.textContent = d;
-        if (prefill.dose === d) opt.selected = true;
-        doseSelect.appendChild(opt);
-    });
-    // Custom input
-    var customDoseInput = document.createElement("input");
-    customDoseInput.type = "text";
-    customDoseInput.className = "field-input hidden";
-    customDoseInput.placeholder = "Custom dosage...";
-    customDoseInput.style.marginTop = "4px";
-    if (prefill.dose && DOSAGES.indexOf(prefill.dose) === -1) {
-        doseSelect.value = "Custom";
-        customDoseInput.value = prefill.dose;
-        show(customDoseInput);
-    }
     var doseWrap = document.createElement("div");
-    doseWrap.appendChild(doseSelect);
-    doseWrap.appendChild(customDoseInput);
-    doseSelect.addEventListener("change", function () {
-        if (this.value === "Custom") show(customDoseInput);
-        else hide(customDoseInput);
-        validateMedicationRow(row);
-    });
-    customDoseInput.addEventListener("input", function () { validateMedicationRow(row); });
+    doseWrap.className = "dose-wrap med-suggestion-wrap";
+    var doseInput = document.createElement("input");
+    doseInput.type = "text";
+    doseInput.className = "field-input med-dose-input";
+    doseInput.placeholder = "e.g. 50mg";
+    doseInput.maxLength = 100;
+    doseInput.value = prefill.dose || "";
+    var doseDropdown = document.createElement("div");
+    doseDropdown.className = "med-typeahead hidden";
+    attachMedicationSuggestions(
+        doseInput,
+        doseWrap,
+        doseDropdown,
+        DOSAGES.filter(function (dosage) { return dosage !== "Custom"; }),
+    );
+    doseWrap.appendChild(doseInput);
+    doseWrap.appendChild(doseDropdown);
 
-    // Frequency
     var freqCol = document.createElement("div");
     freqCol.className = "med-freq-col";
     var freqCheckboxes = document.createElement("div");
     freqCheckboxes.className = "freq-checkboxes";
-    var FREQS = ["Morning", "Breakfast", "Lunch", "Dinner", "Bedtime"];
+    var frequencyOptions = ["Morning", "Breakfast", "Lunch", "Dinner", "Bedtime"];
     var prefillFrequencies = Array.isArray(prefill.freq)
         ? prefill.freq
-        : prefill.freq
-          ? [prefill.freq]
-          : [];
+        : String(prefill.freq || prefill.frequency || "")
+              .split(",")
+              .map(function (value) { return value.trim(); })
+              .filter(Boolean);
     var customFrequencies = prefillFrequencies.filter(function (value) {
-        return !FREQS.some(function (frequency) {
+        return !frequencyOptions.some(function (frequency) {
             return String(value).toLowerCase() === frequency.toLowerCase();
         });
     });
-    FREQS.forEach(function (f) {
-        var lbl = document.createElement("label");
-        lbl.className = "freq-cb-label";
-        var cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = prefillFrequencies.some(function (value) {
-            return String(value).toLowerCase() === f.toLowerCase();
+    frequencyOptions.forEach(function (frequency) {
+        var label = document.createElement("label");
+        label.className = "freq-cb-label";
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = prefillFrequencies.some(function (value) {
+            return String(value).toLowerCase() === frequency.toLowerCase();
         });
-        lbl.appendChild(cb);
-        lbl.appendChild(document.createTextNode(f));
-        freqCheckboxes.appendChild(lbl);
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(frequency));
+        freqCheckboxes.appendChild(label);
     });
     var freqCustom = document.createElement("input");
     freqCustom.type = "text";
     freqCustom.className = "freq-custom-input";
-    freqCustom.placeholder = "Custom (e.g. PRN)...";
-    freqCustom.value = Array.isArray(prefill.freq)
-        ? customFrequencies.join(", ")
-        : prefill.freq && !FREQS.some(function (frequency) {
-            return String(prefill.freq).toLowerCase() === frequency.toLowerCase();
-        })
-          ? prefill.freq
-          : "";
+    freqCustom.placeholder = "PRN / other timing";
+    freqCustom.maxLength = 100;
+    freqCustom.value = customFrequencies.join(", ");
     freqCol.appendChild(freqCheckboxes);
     freqCol.appendChild(freqCustom);
 
@@ -222,7 +297,7 @@ function createMedRow(prefill, templateId) {
     var delBtn = document.createElement("button");
     delBtn.type = "button";
     delBtn.className = "med-del-btn";
-    delBtn.innerHTML = '<i data-feather="x"></i>';
+    delBtn.innerHTML = '<i data-feather="trash-2"></i>';
     delBtn.addEventListener("click", function () {
         row.remove();
         ri();
@@ -238,16 +313,8 @@ function createMedRow(prefill, templateId) {
 }
 
 function validateMedicationRow(row) {
-    var doseSelect = row.querySelector("select");
-    var customDose = row.querySelector('input[placeholder="Custom dosage..."]');
     var qty = row.querySelector(".med-qty-input");
     var valid = true;
-    if (doseSelect && doseSelect.value === "Custom" && customDose && !customDose.value.trim()) {
-        customDose.classList.add("field-invalid");
-        valid = false;
-    } else if (customDose) {
-        customDose.classList.remove("field-invalid");
-    }
     if (qty && qty.value && (!/^\d+$/.test(qty.value) || Number(qty.value) < 1)) {
         qty.classList.add("field-invalid");
         valid = false;
@@ -294,37 +361,29 @@ if (generateRxBtn) {
         var invalidMedication = false;
         rows.forEach(function (row) {
             if (!validateMedicationRow(row)) invalidMedication = true;
-            var name = row.querySelector('input[type="text"]').value;
-            var sel = row.querySelector("select");
-            var dose = sel ? sel.value : "";
-            if (dose === "Custom") {
-                var ci = row.querySelectorAll('input[type="text"]')[1];
-                dose = ci ? ci.value : "";
-            }
-            var freq = [];
-            row.querySelectorAll('input[type="checkbox"]:checked').forEach(
-                function (cb) {
-                    freq.push(cb.parentElement.textContent.trim());
-                },
-            );
-            var customFreq = row.querySelector(".freq-custom-input");
-            if (customFreq && customFreq.value.trim())
-                freq.push(customFreq.value.trim());
+            var name = row.querySelector(".med-name-wrap input").value.trim();
+            var dose = row.querySelector(".med-dose-input").value.trim();
+            var frequencies = [];
+            row.querySelectorAll(".freq-checkboxes input:checked").forEach(function (checkbox) {
+                frequencies.push(checkbox.parentElement.textContent.trim());
+            });
+            var customFrequency = row.querySelector(".freq-custom-input").value.trim();
+            if (customFrequency) frequencies.push(customFrequency);
+            var frequency = frequencies.join(", ");
             var qty = row.querySelector(".med-qty-input").value;
             if (!name) return;
             var med = {
                 name: name,
                 dose: dose,
-                frequency: freq.join(", "),
+                frequency: frequency,
                 qty: qty,
             };
             medications.push(med);
             var li = document.createElement("li");
             li.textContent =
                 name +
-                " " +
-                dose +
-                (freq.length ? " \u2014 " + freq.join(", ") : "") +
+                (dose ? " " + dose : "") +
+                (frequency ? " \u2014 " + frequency : "") +
                 (qty ? " \u00b7 Qty: " + qty : "");
             medsList.appendChild(li);
         });
@@ -413,6 +472,14 @@ function upsertTemplateLocal(template) {
     else list.push(t);
     if (t.type === "dx") DX_TEMPLATES = list;
     else RX_TEMPLATES = list;
+
+    var manageTemplates = (window.PSYCH_DATA || {}).manageTemplates || [];
+    var manageIndex = manageTemplates.findIndex(function (item) {
+        return String(item.id) === String(template.id);
+    });
+    if (manageIndex >= 0) manageTemplates[manageIndex] = template;
+    else manageTemplates.push(template);
+    window.PSYCH_DATA.manageTemplates = manageTemplates;
 }
 
 function removeTemplateLocal(type, id) {
@@ -683,6 +750,7 @@ function buildTemplateLibrary(type) {
 function buildTemplateLibraries() {
     buildTemplateLibrary("rx");
     buildTemplateLibrary("dx");
+    lifestyleTemplateItems();
 }
 
 function buildRxTemplates() {
@@ -983,7 +1051,7 @@ function parseLxItemsText(text) {
 
 function openTemplateModal(type, template) {
     setVal("tpl-id", template ? template.id : "");
-    setVal("tpl-type", type);
+    setVal("tpl-type", type === "lifestyle" ? "rx" : type);
     setVal("tpl-name", template ? template.name : "");
     setVal("tpl-tag", template ? template.tag : "");
     setVal("tpl-desc", template ? template.desc || "" : "");
@@ -996,13 +1064,22 @@ function openTemplateModal(type, template) {
     if (title)
         title.textContent =
             (template ? "Edit" : "Add") +
-            (type === "dx" ? " Diagnostic Template" : " Rx Template");
+            (type === "dx"
+                ? " Diagnostic Template"
+                : type === "lifestyle"
+                  ? " Lifestyle Template"
+                  : " Rx Template");
 
     var diagWrap = document.getElementById("tpl-diag-wrap");
     var medsWrap = document.getElementById("tpl-meds-wrap");
     var testsWrap = document.getElementById("tpl-tests-wrap");
     var lifestyleWrap = document.getElementById("tpl-lifestyle-wrap");
-    if (type === "dx") {
+    if (type === "lifestyle") {
+        if (diagWrap) hide(diagWrap);
+        if (medsWrap) hide(medsWrap);
+        if (testsWrap) hide(testsWrap);
+        if (lifestyleWrap) show(lifestyleWrap);
+    } else if (type === "dx") {
         if (diagWrap) hide(diagWrap);
         if (medsWrap) hide(medsWrap);
         if (testsWrap) show(testsWrap);
@@ -1110,14 +1187,14 @@ if (saveRxTemplateBtn) saveRxTemplateBtn.addEventListener("click", function () {
 var saveDxTemplateBtn = document.getElementById("save-dx-template-btn");
 if (saveDxTemplateBtn) saveDxTemplateBtn.addEventListener("click", function () { saveCurrentFormAsTemplate("dx"); });
 
-qsa(".template-search").forEach(function (input) {
+qsa(".template-search:not(#lifestyle-template-search)").forEach(function (input) {
     input.addEventListener("input", function () {
         var type = this.id.indexOf("dx-") === 0 ? "dx" : "rx";
         TEMPLATE_LIBRARY_STATE[type].query = this.value.trim();
         buildTemplateLibraries();
     });
 });
-qsa(".template-favorite-toggle").forEach(function (button) {
+qsa(".template-favorite-toggle:not(#lifestyle-template-favorites)").forEach(function (button) {
     button.addEventListener("click", function () {
         var type = this.closest(".template-library").getAttribute("data-template-type");
         var next = !TEMPLATE_LIBRARY_STATE[type].favoritesOnly;
@@ -1208,31 +1285,21 @@ function collectRxMeds() {
     var meds = [];
     var rows = qsa(".rx-med-row", rxMedsList);
     rows.forEach(function (row) {
-        var name = row.querySelector('input[type="text"]').value;
-        var sel = row.querySelector("select");
-        var dose = sel ? sel.value : "";
-        if (dose === "Custom") {
-            var ci = row.querySelectorAll('input[type="text"]')[1];
-            dose = ci ? ci.value : "";
-        }
-        var freq = [];
-        row.querySelectorAll('input[type="checkbox"]:checked').forEach(
-            function (cb) {
-                freq.push(cb.parentElement.textContent.trim());
-            },
-        );
-        var customFreq = row.querySelector(".freq-custom-input");
-        var customFreqVal =
-            customFreq && customFreq.value.trim()
-                ? customFreq.value.trim()
-                : "";
+        var name = row.querySelector(".med-name-wrap input").value.trim();
+        var dose = row.querySelector(".med-dose-input").value.trim();
+        var frequencies = [];
+        row.querySelectorAll(".freq-checkboxes input:checked").forEach(function (checkbox) {
+            frequencies.push(checkbox.parentElement.textContent.trim());
+        });
+        var customFrequency = row.querySelector(".freq-custom-input").value.trim();
+        if (customFrequency) frequencies.push(customFrequency);
+        var frequency = frequencies.join(", ");
         var qty = row.querySelector(".med-qty-input").value;
         if (!name || (qty && (!/^\d+$/.test(qty) || Number(qty) < 1))) return;
         meds.push({
             name: name,
             dose: dose,
-            frequency: freq.join(", "),
-            customFreq: customFreqVal,
+            frequency: frequency,
             qty: qty,
         });
     });
@@ -1356,9 +1423,9 @@ function buildRxMedRowsHtml(medList, fillerRows) {
             '<div style="font-weight:700;">' +
             escHtml(medLabel) +
             "</div>" +
-            (med.customFreq
+            (med.frequency
                 ? '<div style="font-size:11px;">' +
-                  escHtml(med.customFreq) +
+                  escHtml(med.frequency) +
                   "</div>"
                 : "") +
             "</td>" +
@@ -1856,6 +1923,168 @@ function collectLxItems() {
         });
     });
     return items;
+}
+
+function lifestyleTemplateItems() {
+    var list = document.getElementById("lifestyle-template-list");
+    if (!list) return;
+    var query = getVal("lifestyle-template-search").toLowerCase();
+    var allTemplates = RX_TEMPLATES
+        .map(normalizeTemplate)
+        .filter(function (template) { return (template.lifestyle || []).length > 0; });
+    var categoryFor = function (template) {
+        var firstItem = template.lifestyle[0];
+        return template.tag || LX_CATEGORY_LABELS[firstItem.category] || "General";
+    };
+    var categories = allTemplates
+        .map(categoryFor)
+        .filter(function (category, index, values) { return values.indexOf(category) === index; })
+        .sort();
+    var filterContainer = document.getElementById("lifestyle-template-filters");
+    var currentCategory = filterContainer ? filterContainer.getAttribute("data-active-category") || "All" : "All";
+    if (filterContainer) {
+        filterContainer.innerHTML = ["All"].concat(categories).map(function (category) {
+            var active = currentCategory === category;
+            return '<button type="button" class="template-filter-chip' + (active ? " active" : "") +
+                '" aria-pressed="' + (active ? "true" : "false") + '" data-template-category="' +
+                escHtml(category) + '">' + escHtml(category) + "</button>";
+        }).join("");
+        filterContainer.querySelectorAll("[data-template-category]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                filterContainer.setAttribute("data-active-category", this.getAttribute("data-template-category"));
+                lifestyleTemplateItems();
+            });
+        });
+    }
+    var favoritesOnly = document.getElementById("lifestyle-template-favorites")
+        ? document.getElementById("lifestyle-template-favorites").getAttribute("aria-pressed") === "true"
+        : false;
+    var templates = allTemplates.filter(function (template) {
+        return (!query || templateSearchText(template).indexOf(query) >= 0) &&
+            (currentCategory === "All" || categoryFor(template) === currentCategory) &&
+            (!favoritesOnly || template.favorite || isTemplateFavorite("rx", template.id));
+    });
+
+    list.innerHTML = "";
+    if (!templates.length) {
+        list.innerHTML = '<div class="template-empty"><i data-feather="search"></i><strong>' +
+            (allTemplates.length ? "No templates match" : "No lifestyle templates yet") +
+            '</strong><span>' + (allTemplates.length ? "Clear filters or try another search." : "Save one from the form.") + "</span></div>";
+        ri();
+        return;
+    }
+
+    function section(title, items) {
+        if (!items.length) return;
+        var group = document.createElement("div");
+        group.className = "template-library-section";
+        group.innerHTML = '<span class="template-library-group-label" aria-hidden="true">' +
+            escHtml(title) + ' <span>' + items.length + '</span></span><div class="template-library-section-list"></div>';
+        var sectionList = group.querySelector(".template-library-section-list");
+        items.forEach(function (template) {
+            sectionList.appendChild(buildTemplateItem(template, function (selected) {
+                applyRxTemplate(Object.assign({}, selected, { meds: [], diag: "" }), "merge");
+            }));
+        });
+        list.appendChild(group);
+    }
+
+    var favorites = templates.filter(function (template) {
+        return template.favorite || isTemplateFavorite("rx", template.id);
+    });
+    var recent = templates
+        .filter(function (template) { return template.lastUsedAt; })
+        .sort(function (a, b) { return String(b.lastUsedAt).localeCompare(String(a.lastUsedAt)); })
+        .slice(0, 5);
+    var seen = {};
+    section("Favorites", favorites);
+    favorites.forEach(function (template) { seen[template.id] = true; });
+    section("Recently used", recent.filter(function (template) { return !seen[template.id]; }));
+    recent.forEach(function (template) { seen[template.id] = true; });
+    section("All lifestyle templates", templates);
+    ri();
+}
+
+function buildLifestylePrintDocument() {
+    var patient = findPatientLocal(getVal("rx-patient"));
+    var interventions = collectLxItems();
+    var P = window.PSYCH_DATA || {};
+    var doc = P.prescriber || {};
+    var styles =
+        "body{font-family:Arial,sans-serif;margin:0;padding:32px;color:#111827;} " +
+        ".plan{max-width:760px;margin:auto;border:1px solid #cbd5e1;padding:28px;} " +
+        ".clinic{font-size:20px;font-weight:800;text-align:center;} " +
+        ".meta{display:flex;justify-content:space-between;margin:20px 0;border-bottom:1px solid #cbd5e1;padding-bottom:10px;} " +
+        ".lx-cat{font-size:12px;font-weight:800;text-transform:uppercase;margin-top:14px;} " +
+        ".lx-row{border-left:2px solid #2563eb;padding:4px 0 4px 10px;margin:5px 0;} " +
+        ".lx-title{font-weight:700;} .lx-meta{color:#475569;font-size:12px;} " +
+        ".lx-instructions{font-size:12px;margin-top:3px;} " +
+        ".signature{text-align:right;margin-top:36px;} ";
+    var empty = !interventions.length
+        ? '<p>No lifestyle interventions have been added.</p>'
+        : buildLxPadHtml(interventions);
+
+    return "<html><head><title>Lifestyle Intervention</title><style>" + styles +
+        "</style></head><body><div class='plan'>" +
+        "<div class='clinic'>" + escHtml(doc.clinic || "MB.EA Wellness Center") + "</div>" +
+        "<div class='meta'><span>Patient: <strong>" + escHtml(patient ? patient.name : "\u2014") + "</strong></span>" +
+        "<span>Date: <strong>" + escHtml(displayDate(getVal("rx-date"))) + "</strong></span></div>" +
+        empty +
+        "<div class='signature'>" + escHtml(doc.name || "\u2014") +
+        (doc.license_no ? "<br/><small>License No. " + escHtml(doc.license_no) + "</small>" : "") +
+        "</div></div></body></html>";
+}
+
+var printLifestyleFormBtn = document.getElementById("print-lifestyle-form-btn");
+if (printLifestyleFormBtn) {
+    printLifestyleFormBtn.addEventListener("click", printLifestylePlan);
+}
+
+function printLifestylePlan() {
+    if (!getVal("rx-patient")) {
+        showToast("Please select a patient first.");
+        return;
+    }
+    if (!collectLxItems().length) {
+        showToast("Please add at least one lifestyle intervention.");
+        return;
+    }
+    showPrintPreview(
+        "Print Preview - Lifestyle Intervention",
+        buildLifestylePrintDocument(),
+    );
+}
+
+var saveLifestyleTemplateBtn = document.getElementById("save-lifestyle-template-btn");
+if (saveLifestyleTemplateBtn) {
+    saveLifestyleTemplateBtn.addEventListener("click", function () {
+        var interventions = collectLxItems();
+        if (!interventions.length) {
+            showToast("Add at least one lifestyle intervention before saving a template.");
+            return;
+        }
+        openTemplateModal("lifestyle", {
+            name: "",
+            desc: "",
+            diag: "",
+            meds: [],
+            lifestyle: interventions,
+        });
+    });
+}
+
+var lifestyleTemplateSearch = document.getElementById("lifestyle-template-search");
+if (lifestyleTemplateSearch) {
+    lifestyleTemplateSearch.addEventListener("input", lifestyleTemplateItems);
+}
+
+var lifestyleTemplateFavorites = document.getElementById("lifestyle-template-favorites");
+if (lifestyleTemplateFavorites) {
+    lifestyleTemplateFavorites.addEventListener("click", function () {
+        var next = this.getAttribute("aria-pressed") !== "true";
+        this.setAttribute("aria-pressed", next ? "true" : "false");
+        lifestyleTemplateItems();
+    });
 }
 
 /* On-screen preview, grouped by category */

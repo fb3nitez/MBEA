@@ -1343,6 +1343,10 @@ a.nav-item {
     margin-bottom: 16px;
 }
 
+.subtab-bar {
+    flex-wrap: wrap;
+}
+
 .subtab-btn {
     display: flex;
     align-items: center;
@@ -1391,6 +1395,12 @@ a.nav-item {
     grid-template-columns: 1fr 340px;
     gap: 16px;
     align-items: start;
+}
+
+.lifestyle-tab-intro {
+    margin: 0 0 12px;
+    color: var(--text-500);
+    font-size: 13px;
 }
 
 .rx-right-col {
@@ -1505,46 +1515,80 @@ a.nav-item {
 .med-freq-col {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
 }
 
 .freq-checkboxes {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 4px 8px;
 }
 
 .freq-cb-label {
-    font-size: 11px;
     display: flex;
+    min-height: 28px;
     align-items: center;
-    gap: 3px;
-    cursor: pointer;
+    gap: 6px;
+    padding: 3px 0;
     color: var(--text-700);
-    padding: 4px 7px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--white);
+    font-size: 12px;
+    line-height: 1.2;
+    cursor: pointer;
 }
 
 .freq-cb-label input {
-    accent-color: var(--blue-500);
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    border: 1px solid #dce5ef;
+    border-radius: 4px;
+    background: #f3f5f8;
+    cursor: pointer;
 }
 
-.freq-cb-label:has(input:checked) {
-    color: var(--blue-700);
-    background: var(--blue-50);
-    border-color: var(--blue-300);
+.freq-cb-label input:checked {
+    border-color: var(--blue-500);
+    background-color: var(--blue-500);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m3.5 8 3 3 6-6' fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+}
+
+.freq-cb-label input:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, .2);
+    outline-offset: 2px;
+}
+
+.med-suggestion-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.med-suggestion-wrap .med-typeahead {
+    z-index: 60;
+}
+
+.med-dose-input {
+    width: 100%;
 }
 
 .freq-custom-input {
     width: 100%;
-    padding: 4px 8px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    margin-top: 2px;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: #f3f5f8;
+    color: var(--text-800);
     outline: none;
+    font-size: 12px;
+    transition: border .15s, background .15s, box-shadow .15s;
+}
+
+.freq-custom-input:focus {
+    border-color: #dce5ef;
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
 }
 
 .med-qty-input {
@@ -5688,9 +5732,14 @@ a.psych-page-btn:hover {
 
 .template-manage-toolbar {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 140px 160px;
+    grid-template-columns: minmax(0, 1fr) 160px;
     gap: 10px;
     padding: 14px
+}
+
+.template-manage-toolbar .template-manage-search {
+    width: 100%;
+    min-width: 0;
 }
 
 .template-manage-modal-box {
@@ -5805,7 +5854,6 @@ a.psych-page-btn:hover {
 }
 
 .template-icon-button:focus-visible,
-.template-tags-toggle:focus-visible,
 .template-delete-yes:focus-visible,
 .template-delete-no:focus-visible {
     outline: 3px solid rgba(37, 99, 235, .25);
@@ -5834,79 +5882,6 @@ a.psych-page-btn:hover {
     padding: 28px;
     text-align: center;
     color: var(--text-500)
-}
-
-.template-tags-panel {
-    overflow: visible
-}
-
-.template-tags-toggle {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border: 0;
-    background: transparent;
-    color: var(--text-700);
-    cursor: pointer;
-    text-align: left
-}
-
-.template-tags-toggle svg {
-    width: 16px;
-    height: 16px;
-    transition: transform .15s ease
-}
-
-.template-tags-toggle[aria-expanded="true"] svg {
-    transform: rotate(180deg)
-}
-
-.template-tags-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    max-height: 140px;
-    overflow-y: auto;
-    padding: 0 16px 14px;
-    overscroll-behavior: contain
-}
-
-.template-tag-manage {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 6px 4px 9px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--white);
-    color: var(--text-700)
-}
-
-.template-tag-manage button {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer
-}
-
-.template-tag-manage svg {
-    width: 12px;
-    height: 12px
-}
-
-.template-tag-delete {
-    padding: 3px !important;
-    border-radius: 50%
-}
-
-.template-tag-delete:hover {
-    background: var(--red-50);
-    color: var(--red-600) !important
 }
 
 .template-delete-confirm {

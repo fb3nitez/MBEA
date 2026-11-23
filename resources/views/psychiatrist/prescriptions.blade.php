@@ -11,6 +11,9 @@
       <button class="subtab-btn active" data-subtab="rx">
         <i data-feather="tag"></i> Medication Prescription (Rx)
       </button>
+      <button class="subtab-btn" data-subtab="lifestyle">
+        <i data-feather="heart"></i> Lifestyle Intervention
+      </button>
       <button class="subtab-btn" data-subtab="diagnostic">
         <i data-feather="activity"></i> Diagnostic Request
       </button>
@@ -77,25 +80,6 @@
                 </button>
               </div>
 
-            </div>
-
-            <div class="prescription-form-section rx-lifestyle-intervention-section">
-              <!-- Lifestyle Interventions -->
-              <div class="rx-meds-header" style="padding-top:6px;">
-                <span class="field-label">Lifestyle Interventions <span
-                    style="font-weight:400;color:var(--text-500);">(optional)</span></span>
-              </div>
-              <div class="lx-items-table-header">
-                <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
-              </div>
-              <div id="rx-lifestyle-list">
-                <div class="lx-empty-state">No lifestyle interventions added yet.</div>
-              </div>
-              <div class="rx-med-actions">
-                <button class="btn-outline-add" id="add-lifestyle-btn">
-                  <i data-feather="heart"></i> Add Lifestyle Intervention
-                </button>
-              </div>
             </div>
 
             <div class="prescription-form-section rx-instructions-section">
@@ -182,6 +166,72 @@
                 aria-label="Rx template categories"></div>
               <div class="template-library-status" id="rx-template-status"></div>
               <div class="template-list" id="rx-template-list" aria-live="polite" role="list">
+                <div class="template-skeleton" aria-hidden="true"><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-TAB: LIFESTYLE INTERVENTION -->
+    <div class="subtab-panel" id="subtab-lifestyle">
+      <div class="prescription-workspace rx-layout">
+        <div class="rx-form-col">
+          <div class="card prescription-form-card" role="main" aria-label="Lifestyle intervention form">
+            <div class="prescription-form-section rx-patient-section">
+              <div class="rx-meds-header">
+                <span class="field-label">Lifestyle Interventions <span
+                    style="font-weight:400;color:var(--text-500);">(optional)</span></span>
+              </div>
+              <p class="lifestyle-tab-intro">Add health habits and behavior goals for the selected prescription patient.</p>
+              <div class="lx-items-table-header">
+                <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
+              </div>
+              <div id="rx-lifestyle-list">
+                <div class="lx-empty-state">No lifestyle interventions added yet.</div>
+              </div>
+              <div class="rx-med-actions">
+                <button class="btn-outline-add" id="add-lifestyle-btn" type="button">
+                  <i data-feather="heart"></i> Add Lifestyle Intervention
+                </button>
+              </div>
+              <div class="rx-form-footer-actions">
+                <button class="btn-generate" id="print-lifestyle-form-btn" type="button">
+                  <i data-feather="printer"></i> Print preview
+                </button>
+                <button class="btn-outline-add rx-save-current-btn" id="save-lifestyle-template-btn" type="button">
+                  <i data-feather="bookmark"></i> Save template
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rx-right-col">
+          <aside class="card rx-templates-card workspace-template-panel" aria-label="Lifestyle template library">
+            <div class="card-header template-rail-header"
+              style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <span class="card-title"><i data-feather="star"
+                  style="width:14px;height:14px;vertical-align:middle;color:#f59e0b;"></i> Lifestyle Template
+                Library</span>
+              <button type="button" class="btn-outline-sm template-manage-open" data-manage-type="lifestyle">Manage</button>
+            </div>
+            <div class="template-library" data-template-type="lifestyle">
+              <div class="template-library-toolbar">
+                <label class="sr-only" for="lifestyle-template-search">Search lifestyle templates</label>
+                <input class="field-input template-search" id="lifestyle-template-search" type="search"
+                  placeholder="Search lifestyle templates" />
+                <button class="template-favorite-toggle" type="button" id="lifestyle-template-favorites"
+                  aria-pressed="false" title="Show favorite templates">
+                  <i data-feather="star"></i><span>Favorites</span>
+                </button>
+              </div>
+              <div class="template-filter-chips" id="lifestyle-template-filters" role="group"
+                aria-label="Lifestyle template categories"></div>
+              <div class="template-library-status" id="lifestyle-template-status"></div>
+              <div class="template-list" id="lifestyle-template-list" aria-live="polite" role="list">
                 <div class="template-skeleton" aria-hidden="true"><span></span><span></span><span></span><span></span>
                 </div>
               </div>
@@ -353,41 +403,16 @@
       </div>
     </div>
 
-    <div class="modal-overlay hidden" id="template-manage-modal">
-      <div class="modal-box template-manage-modal-box" role="dialog" aria-modal="true"
-        aria-labelledby="template-manage-title">
-        <div class="modal-header">
-          <div>
-            <h3 id="template-manage-title">Manage Templates</h3><span class="template-manage-modal-subtitle">Shared Rx and
-              Diagnostic templates</span>
-          </div><button class="modal-close" id="template-manage-close" aria-label="Close template management"><i
-              data-feather="x"></i></button>
-        </div>
-        <div class="modal-body template-manage-modal-body">
-          <div class="template-manage-head"><button type="button" class="btn-blue" id="manage-new-template"><i
-                data-feather="plus"></i> New template</button></div>
-          <div class="template-manage-toolbar card"><input class="field-input" id="manage-search" type="search"
-              placeholder="Search templates" /><select class="field-input" id="manage-type">
-              <option value="">Rx and Dx</option>
-              <option value="rx">Rx</option>
-              <option value="dx">Dx</option>
-            </select><select class="field-input" id="manage-sort">
-              <option value="name">Name</option>
-              <option value="updated">Last updated</option>
-              <option value="usage">Most used</option>
-            </select></div>
-          <section class="template-tags-panel card"><button type="button" class="template-tags-toggle"
-              id="template-tags-toggle" aria-expanded="false" aria-controls="template-tags-list"><span
-                class="card-title">Tags (<span id="template-tags-count">0</span>)</span><i
-                data-feather="chevron-down"></i></button>
-            <div class="template-tags-list" id="template-tags-list" hidden></div>
-          </section>
-          <div class="template-manage-table-scroll">
-            <div class="template-manage-table card" id="template-manage-list" aria-live="polite"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    @foreach ([
+      ['type' => 'rx', 'title' => 'Medication Prescription (Rx)'],
+      ['type' => 'lifestyle', 'title' => 'Lifestyle Intervention'],
+      ['type' => 'dx', 'title' => 'Diagnostic Request'],
+    ] as $manager)
+      @include('psychiatrist.partials.template-manage-modal', [
+        'managerType' => $manager['type'],
+        'managerTitle' => $manager['title'],
+      ])
+    @endforeach
   </section>
 @endsection
 

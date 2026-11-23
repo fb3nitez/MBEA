@@ -263,6 +263,18 @@ it('creates a lifestyle-only rx template', function () {
         ->assertJsonPath('template.meds', []);
 });
 
+it('renders separate template managers for rx lifestyle and diagnostic tabs', function () {
+    $psychiatrist = makeRxPsychiatristUser('rx-template-managers@medcare.ph');
+
+    $this->actingAs($psychiatrist)
+        ->get(route('psychiatrist.prescriptions'))
+        ->assertOk()
+        ->assertSee('id="template-manage-modal-rx"', false)
+        ->assertSee('id="template-manage-modal-lifestyle"', false)
+        ->assertSee('id="template-manage-modal-dx"', false)
+        ->assertDontSee('id="manage-type"', false);
+});
+
 it('returns an empty lifestyle array for old-shaped templates', function () {
     $psychiatrist = makeRxPsychiatristUser('rx-template-old@medcare.ph');
 
