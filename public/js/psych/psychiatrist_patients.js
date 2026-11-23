@@ -568,4 +568,10 @@ dxPatientPicker = createPatientPicker({
   dropdownId: 'dx-patient-dropdown',
   ageId: 'dx-age',
 });
+lxPatientPicker = createPatientPicker({
+  searchId: 'lx-patient-search',
+  hiddenId: 'lx-patient',
+  dropdownId: 'lx-patient-dropdown',
+  ageId: 'lx-age',
+});
 

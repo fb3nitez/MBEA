@@ -181,11 +181,43 @@
         <div class="rx-form-col">
           <div class="card prescription-form-card" role="main" aria-label="Lifestyle intervention form">
             <div class="prescription-form-section rx-patient-section">
-              <div class="rx-meds-header">
-                <span class="field-label">Lifestyle Interventions <span
-                    style="font-weight:400;color:var(--text-500);">(optional)</span></span>
+              <div class="rx-doctor-block">
+                <div class="rx-stamp">Lx</div>
+                <div class="rx-doctor-info">
+                  <div class="rx-doctor-name">{{ $prescriber->name }}</div>
+                  <div class="rx-doctor-role">Psychiatrist &middot; MB.EA Wellness Center</div>
+                  @if($prescriber->license_no)
+                  <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
+                </div>
               </div>
-              <p class="lifestyle-tab-intro">Add health habits and behavior goals for the selected prescription patient.</p>
+
+              <div class="rx-patient-row">
+                <div class="field-group">
+                  <label class="field-label" for="lx-patient-search">Patient Name</label>
+                  <div class="typeahead-wrap">
+                    <input type="text" class="field-input" id="lx-patient-search"
+                      placeholder="Search patient by name or ID..." autocomplete="off" />
+                    <div class="typeahead-dropdown hidden" id="lx-patient-dropdown"
+                      style="max-height:220px;overflow:auto;">
+                    </div>
+                  </div>
+                  <input type="hidden" id="lx-patient" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="lx-age">Age</label>
+                  <input type="number" class="field-input" id="lx-age" placeholder="Age" min="0" max="150" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="lx-date">Date</label>
+                  <input type="date" class="field-input" id="lx-date" />
+                </div>
+              </div>
+            </div>
+
+            <div class="prescription-form-section rx-instructions-section">
+              <div class="rx-meds-header">
+                <span class="field-label">Lifestyle Interventions</span>
+              </div>
               <div class="lx-items-table-header">
                 <span>CATEGORY</span><span>INTERVENTION</span><span>TARGET</span><span>FREQUENCY</span><span>DURATION</span><span></span>
               </div>

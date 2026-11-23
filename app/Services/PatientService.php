@@ -876,15 +876,16 @@ class PatientService
 
     public function savePrescription(PatientRecord $patient, array $data): Prescription
     {
+        $values = [];
+        foreach (['diagnosis', 'medications', 'lifestyle_interventions', 'notes', 'status', 'age', 'prescription_date'] as $field) {
+            if (array_key_exists($field, $data)) {
+                $values[$field] = $data[$field];
+            }
+        }
+
         return Prescription::updateOrCreate(
             ['patient_record_id' => $patient->id],
-            [
-                'diagnosis' => $data['diagnosis'] ?? null,
-                'medications' => $data['medications'] ?? [],
-                'lifestyle_interventions' => $data['lifestyle_interventions'] ?? [],
-                'notes' => $data['notes'] ?? null,
-                'status' => $data['status'] ?? 'Draft',
-            ]
+            $values
         );
     }
 

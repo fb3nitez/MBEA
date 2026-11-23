@@ -132,6 +132,41 @@ it('saves a prescription with only lifestyle interventions', function () {
         ->and($row->medications)->toBe([]);
 });
 
+it('renders lifestyle patient metadata fields and preserves an existing medication plan', function () {
+    $psychiatrist = makeRxPsychiatristUser('rx-lifestyle-fields@medcare.ph');
+    $patient = makeRxPatient('Rx Lifestyle Fields');
+
+    $this->actingAs($psychiatrist)
+        ->postJson(route('psychiatrist.prescriptions.store', $patient->id), rxPayload())
+        ->assertOk();
+
+    $this->actingAs($psychiatrist)
+        ->get(route('psychiatrist.prescriptions'))
+        ->assertOk()
+        ->assertSee('id="lx-patient-search"', false)
+        ->assertSee('id="lx-age"', false)
+        ->assertSee('id="lx-date"', false)
+        ->assertSee('id="save-lifestyle-template-btn"', false)
+        ->assertSee('id="print-lifestyle-form-btn"', false)
+        ->assertDontSee('id="save-lifestyle-btn"', false);
+
+    $this->actingAs($psychiatrist)
+        ->postJson(route('psychiatrist.prescriptions.store', $patient->id), [
+            'lifestyle_interventions' => [
+                ['category' => 'sleep', 'title' => 'Fixed bedtime', 'target' => '10 PM'],
+            ],
+            'age' => 30,
+            'prescription_date' => '2026-11-23',
+        ])
+        ->assertOk();
+
+    $row = Prescription::where('patient_record_id', $patient->id)->first();
+    expect($row->medications[0]['name'])->toBe('Sertraline')
+        ->and($row->lifestyle_interventions[0]['title'])->toBe('Fixed bedtime')
+        ->and($row->age)->toBe(30)
+        ->and($row->prescription_date->toDateString())->toBe('2026-11-23');
+});
+
 it('rejects an invalid lifestyle category', function () {
     $psychiatrist = makeRxPsychiatristUser('rx-bad-category@medcare.ph');
     $patient = makeRxPatient('Rx Bad Category');

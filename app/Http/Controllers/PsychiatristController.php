@@ -591,6 +591,8 @@ class PsychiatristController extends Controller
             'medications.*.qty' => ['nullable', 'integer', 'min:1', 'max:100000'],
             'notes' => ['nullable', 'string', 'max:5000'],
             'status' => ['nullable', 'string', 'in:Draft,Active,Completed,Cancelled'],
+            'age' => ['nullable', 'integer', 'min:0', 'max:150'],
+            'prescription_date' => ['nullable', 'date'],
             'lifestyle_interventions' => ['nullable', 'array'],
             'lifestyle_interventions.*.category' => ['required', 'string', 'in:sleep,exercise,nutrition,stress,social,other'],
             'lifestyle_interventions.*.title' => ['required', 'string', 'max:255'],
@@ -599,9 +601,6 @@ class PsychiatristController extends Controller
             'lifestyle_interventions.*.duration' => ['nullable', 'string', 'max:100'],
             'lifestyle_interventions.*.instructions' => ['nullable', 'string', 'max:500'],
         ]);
-
-        $validated['medications'] = $validated['medications'] ?? [];
-        $validated['lifestyle_interventions'] = $validated['lifestyle_interventions'] ?? [];
 
         $prescription = $this->patientService->savePrescription($patient, $validated);
 

@@ -358,6 +358,7 @@
   var consultPatientPicker = null;
   var rxPatientPicker = null;
   var dxPatientPicker = null;
+  var lxPatientPicker = null;
 
   function populateConsultPatientSelect(selectedId) {
     if (!consultPatientPicker) return;

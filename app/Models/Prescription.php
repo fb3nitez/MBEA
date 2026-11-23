@@ -12,6 +12,8 @@ class Prescription extends Model
     protected $casts = [
         'medications' => 'array',
         'lifestyle_interventions' => 'array',
+        'prescription_date' => 'date',
+        'age' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

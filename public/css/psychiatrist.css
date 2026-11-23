@@ -7757,6 +7757,10 @@ a.psych-page-btn:hover {
     margin-top: 40px
 }
 
+.prescription-form-card .rx-meds-header + .lx-items-table-header {
+    margin-top: 40px
+}
+
 .prescription-form-card .rx-med-row,
 .prescription-form-card .lx-item-row {
     padding-top: 18px;

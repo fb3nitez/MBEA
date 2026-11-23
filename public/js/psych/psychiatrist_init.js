@@ -128,6 +128,12 @@
         setVal('rx-patient-search', patientLabel(patient));
         if (patient.age != null) setVal('rx-age', patient.age);
       }
+      if (lxPatientPicker) lxPatientPicker.setSelected(patient);
+      else {
+        setVal('lx-patient', patient.id);
+        setVal('lx-patient-search', patientLabel(patient));
+        if (patient.age != null) setVal('lx-age', patient.age);
+      }
     }
 
     if (page === 'prescriptions') {

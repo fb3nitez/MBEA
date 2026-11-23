@@ -38,10 +38,12 @@ if (initialTabButton) initialTabButton.click();
   ============================================================ */
 var rxDate = document.getElementById("rx-date");
 var dxDate = document.getElementById("dx-date");
+var lxDate = document.getElementById("lx-date");
 var todayStr = today();
 var todayInputValue = new Date().toISOString().slice(0, 10);
 if (rxDate) rxDate.value = todayInputValue;
 if (dxDate) dxDate.value = todayInputValue;
+if (lxDate) lxDate.value = todayInputValue;
 
 /* ============================================================
      RX: DIAGNOSIS TYPEAHEAD
@@ -425,6 +427,8 @@ if (generateRxBtn) {
                     lifestyle_interventions: interventions,
                     notes: notes,
                     status: "Draft",
+                    age: document.getElementById("rx-age").value || null,
+                    prescription_date: document.getElementById("rx-date").value || null,
                 }),
             },
         )
@@ -2006,7 +2010,7 @@ function lifestyleTemplateItems() {
 }
 
 function buildLifestylePrintDocument() {
-    var patient = findPatientLocal(getVal("rx-patient"));
+    var patient = findPatientLocal(getVal("lx-patient"));
     var interventions = collectLxItems();
     var P = window.PSYCH_DATA || {};
     var doc = P.prescriber || {};
@@ -2028,7 +2032,8 @@ function buildLifestylePrintDocument() {
         "</style></head><body><div class='plan'>" +
         "<div class='clinic'>" + escHtml(doc.clinic || "MB.EA Wellness Center") + "</div>" +
         "<div class='meta'><span>Patient: <strong>" + escHtml(patient ? patient.name : "\u2014") + "</strong></span>" +
-        "<span>Date: <strong>" + escHtml(displayDate(getVal("rx-date"))) + "</strong></span></div>" +
+        "<span>Age: <strong>" + escHtml(getVal("lx-age") || "\u2014") + "</strong></span>" +
+        "<span>Date: <strong>" + escHtml(displayDate(getVal("lx-date"))) + "</strong></span></div>" +
         empty +
         "<div class='signature'>" + escHtml(doc.name || "\u2014") +
         (doc.license_no ? "<br/><small>License No. " + escHtml(doc.license_no) + "</small>" : "") +
@@ -2041,7 +2046,7 @@ if (printLifestyleFormBtn) {
 }
 
 function printLifestylePlan() {
-    if (!getVal("rx-patient")) {
+    if (!getVal("lx-patient")) {
         showToast("Please select a patient first.");
         return;
     }
@@ -2219,7 +2224,7 @@ function updateGenerateButtons() {
     if (dxButton) dxButton.disabled = !getVal("dx-patient");
 }
 
-qsa("#rx-patient,#rx-patient-search,#rx-age,#rx-date,#rx-diagnosis,#rx-notes,#dx-patient,#dx-patient-search,#dx-age,#dx-date,#dx-notes,#dx-other-imaging").forEach(function (field) {
+qsa("#rx-patient,#rx-patient-search,#rx-age,#rx-date,#rx-diagnosis,#rx-notes,#lx-patient,#lx-patient-search,#lx-age,#lx-date,#dx-patient,#dx-patient-search,#dx-age,#dx-date,#dx-notes,#dx-other-imaging").forEach(function (field) {
     field.addEventListener("input", function () { updateRxPreview(); updateDxPreview(); });
     field.addEventListener("change", function () { updateRxPreview(); updateDxPreview(); });
 });
