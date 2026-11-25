@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateSpiritualIntakeRequest;
 use App\Models\BiopsychosocialAssessment;
 use App\Models\ClinicalTemplate;
 use App\Models\ConsultationSchedule;
+use App\Models\ExerciseNutritionPrescription;
 use App\Models\PatientRecord;
 use App\Models\Prescription;
 use App\Models\User;
@@ -608,6 +609,38 @@ class PsychiatristController extends Controller
             'message' => 'Prescription saved.',
             'prescription' => $prescription,
         ]);
+    }
+
+    public function storeExerciseNutritionPrescription(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'type' => ['required', 'in:exercise,nutrition'],
+            'patient_record_id' => ['nullable', 'integer', 'exists:patient_records,id'],
+            'patient_name' => ['required', 'string', 'max:255'],
+            'patient_age' => ['required', 'integer', 'min:0', 'max:150'],
+            'patient_sex' => ['required', 'string', 'max:40'],
+            'data' => ['required', 'array', 'max:80'],
+            'data.goals' => ['nullable', 'array', 'max:3'],
+            'data.goals.*' => ['string', 'max:255'],
+        ]);
+        $validated['data'] = $request->input('data');
+
+        $prescription = ExerciseNutritionPrescription::create([
+            'patient_record_id' => $validated['patient_record_id'] ?? null,
+            'prescribed_by' => $request->user()->id,
+            'type' => $validated['type'],
+            'patient_name' => $validated['patient_name'],
+            'patient_age' => $validated['patient_age'] ?? null,
+            'patient_sex' => $validated['patient_sex'] ?? null,
+            'prescription_date' => today(),
+            'form_data' => $validated['data'],
+        ]);
+
+        return response()->json([
+            'message' => 'Prescription saved.',
+            'prescription' => $prescription,
+            'prescription_date' => $prescription->prescription_date->toDateString(),
+        ], 201);
     }
 
     public function storeClinicalTemplate(Request $request): JsonResponse

@@ -17,6 +17,12 @@
       <button class="subtab-btn" data-subtab="diagnostic">
         <i data-feather="activity"></i> Diagnostic Request
       </button>
+      <button class="subtab-btn" data-subtab="exercise">
+        <i data-feather="activity"></i> Exercise Prescription
+      </button>
+      <button class="subtab-btn" data-subtab="nutrition">
+        <i data-feather="coffee"></i> Nutrition Prescription
+      </button>
     </div>
 
     <!-- SUB-TAB: MEDICATION RX -->
@@ -273,6 +279,14 @@
       </div>
     </div>
 
+    <div class="subtab-panel lifestyle-form-panel" id="subtab-exercise">
+      <div id="exercise-prescription-app" data-prescription-kind="exercise"></div>
+    </div>
+
+    <div class="subtab-panel lifestyle-form-panel" id="subtab-nutrition">
+      <div id="nutrition-prescription-app" data-prescription-kind="nutrition"></div>
+    </div>
+
     <!-- SUB-TAB: DIAGNOSTIC REQUEST -->
     <div class="subtab-panel" id="subtab-diagnostic">
       <div class="prescription-workspace rx-layout">
@@ -455,6 +469,8 @@
     window.PSYCH_DATA.rxTemplates = @json($rxTemplates);
     window.PSYCH_DATA.dxTemplates = @json($dxTemplates);
     window.PSYCH_DATA.prescriber = @json($prescriberData);
+    window.PSYCH_DATA.lifestylePrescriptionDate = @json(today()->toDateString());
+    window.PSYCH_DATA.lifestylePrescriptionStore = @json(route('psychiatrist.exercise-nutrition-prescriptions.store'));
     window.PSYCH_DATA.clinicLogo = '{{ asset("assets/mbea_logo.png") }}';
     window.PSYCH_DATA.manageTemplates = (window.PSYCH_DATA.rxTemplates || []).concat(window.PSYCH_DATA.dxTemplates || []);
   </script>
@@ -462,4 +478,6 @@
     src="{{ asset('js/psych/psychiatrist_template_manage.js') }}?v={{ filemtime(public_path('js/psych/psychiatrist_template_manage.js')) }}"></script>
   <script
     src="{{ asset('js/psych/psychiatrist_autocomplete.js') }}?v={{ filemtime(public_path('js/psych/psychiatrist_autocomplete.js')) }}"></script>
+  <script
+    src="{{ asset('js/psych/exercise_nutrition_prescriptions.js') }}?v={{ filemtime(public_path('js/psych/exercise_nutrition_prescriptions.js')) }}"></script>
 @endpush

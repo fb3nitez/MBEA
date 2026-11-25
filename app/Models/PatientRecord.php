@@ -83,6 +83,11 @@ class PatientRecord extends Model
         return $this->hasMany(Prescription::class);
     }
 
+    public function exerciseNutritionPrescriptions(): HasMany
+    {
+        return $this->hasMany(ExerciseNutritionPrescription::class);
+    }
+
     public function coachingNotes(): HasMany
     {
         return $this->hasMany(CoachingNote::class);

@@ -16,7 +16,7 @@ qsa(".subtab-btn").forEach(function (btn) {
         var panel = document.getElementById("subtab-" + key);
         if (panel) panel.classList.add("active");
         if (window.history && window.history.replaceState) {
-            var hash = key === "diagnostic" ? "dx" : key === "lifestyle" ? "lifestyle" : "rx";
+            var hash = key === "diagnostic" ? "dx" : key === "lifestyle" ? "lifestyle" : key === "exercise" ? "exercise" : key === "nutrition" ? "nutrition" : "rx";
             window.history.replaceState(null, "", "#" + hash);
         }
         ri();
@@ -29,6 +29,10 @@ var initialTab = initialHash === '#dx'
     ? 'diagnostic'
     : initialHash === '#lifestyle'
       ? 'lifestyle'
+      : initialHash === '#exercise'
+        ? 'exercise'
+        : initialHash === '#nutrition'
+          ? 'nutrition'
       : 'rx';
 var initialTabButton = qs('.subtab-btn[data-subtab="' + initialTab + '"]');
 if (initialTabButton) initialTabButton.click();
