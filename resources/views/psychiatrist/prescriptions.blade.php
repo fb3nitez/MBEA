@@ -11,9 +11,6 @@
       <button class="subtab-btn active" data-subtab="rx">
         <i data-feather="tag"></i> Medication Prescription (Rx)
       </button>
-      <button class="subtab-btn" data-subtab="lifestyle">
-        <i data-feather="heart"></i> Lifestyle Intervention
-      </button>
       <button class="subtab-btn" data-subtab="diagnostic">
         <i data-feather="activity"></i> Diagnostic Request
       </button>
