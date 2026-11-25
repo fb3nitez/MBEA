@@ -231,6 +231,99 @@ document.addEventListener('input', function (e) {
 });
 
 // Patient modal quick-action buttons
+var activePrescriptionListType = null;
+var activePrescriptionListPatient = null;
+var activePrescriptionListRequest = 0;
+
+function openPatientExerciseNutritionPrescriptions(type) {
+  var modal = document.getElementById('patient-detail-modal');
+  var patient = CURRENT_PATIENT;
+  var patientId = modal ? modal.getAttribute('data-current-patient') : null;
+  if (!patientId || !patient) {
+    showToast('Open a patient record first.');
+    return;
+  }
+
+  activePrescriptionListType = type;
+  activePrescriptionListPatient = patient;
+  var requestId = ++activePrescriptionListRequest;
+  var title = type === 'exercise' ? 'Exercise Prescriptions' : 'Nutrition Prescriptions';
+  document.getElementById('en-prescription-list-title').textContent = title;
+  document.getElementById('en-prescription-list-patient').textContent = patient.name || 'Patient';
+  document.getElementById('en-prescription-list-status').textContent = 'Loading prescriptions…';
+  document.getElementById('en-prescription-list').replaceChildren();
+  document.getElementById('en-prescription-list-new').textContent = 'New ' + (type === 'exercise' ? 'Exercise' : 'Nutrition') + ' Prescription';
+  closeModal('patient-detail-modal');
+  openModal('exercise-nutrition-prescription-list-modal');
+
+  var route = (window.PSYCH_ROUTES || {}).exerciseNutritionPrescriptions || '/psychiatrist/patients/__ID__/exercise-nutrition-prescriptions';
+  apiFetch(route.replace('__ID__', encodeURIComponent(patientId)))
+    .then(function (data) {
+      if (requestId !== activePrescriptionListRequest) return;
+      var prescriptions = (data.prescriptions || []).filter(function (prescription) {
+        return prescription.type === type;
+      });
+      var list = document.getElementById('en-prescription-list');
+      var status = document.getElementById('en-prescription-list-status');
+      status.textContent = prescriptions.length
+        ? prescriptions.length + ' saved ' + (type === 'exercise' ? 'exercise' : 'nutrition') + ' prescription' + (prescriptions.length === 1 ? '' : 's')
+        : 'No saved ' + (type === 'exercise' ? 'exercise' : 'nutrition') + ' prescriptions yet.';
+
+      prescriptions.forEach(function (prescription) {
+        var item = document.createElement('article');
+        item.className = 'en-prescription-list-item';
+        var details = document.createElement('div');
+        var name = document.createElement('strong');
+        name.textContent = prescription.patient_name || patient.name;
+        var meta = document.createElement('p');
+        var date = prescription.prescription_date
+          ? new Date(prescription.prescription_date + 'T00:00:00').toLocaleDateString()
+          : 'Date unavailable';
+        meta.textContent = date + ' · Age ' + (prescription.patient_age == null ? '—' : prescription.patient_age) +
+          ' · ' + (prescription.patient_sex || 'Sex not recorded') +
+          (prescription.prescriber_name ? ' · ' + prescription.prescriber_name : '');
+        details.append(name, meta);
+
+        var openButton = document.createElement('button');
+        openButton.type = 'button';
+        openButton.className = 'btn-outline-sm';
+        openButton.textContent = 'Open';
+        openButton.addEventListener('click', function () {
+          var query = new URLSearchParams();
+          query.set('patient', patient.patient_id || patient.id);
+          query.set(type + '_prescription', prescription.id);
+          closeModal('exercise-nutrition-prescription-list-modal');
+          goToPage('prescriptions', query.toString() + '#' + type);
+        });
+        item.append(details, openButton);
+        list.appendChild(item);
+      });
+    })
+    .catch(function (error) {
+      if (requestId !== activePrescriptionListRequest) return;
+      document.getElementById('en-prescription-list-status').textContent = error.message || 'Unable to load prescriptions.';
+    });
+}
+
+var pmBtnExercisePrescription = document.getElementById('pm-btn-exercise-prescription');
+if (pmBtnExercisePrescription) pmBtnExercisePrescription.addEventListener('click', function () {
+  openPatientExerciseNutritionPrescriptions('exercise');
+});
+
+var pmBtnNutritionPrescription = document.getElementById('pm-btn-nutrition-prescription');
+if (pmBtnNutritionPrescription) pmBtnNutritionPrescription.addEventListener('click', function () {
+  openPatientExerciseNutritionPrescriptions('nutrition');
+});
+
+var enPrescriptionListNew = document.getElementById('en-prescription-list-new');
+if (enPrescriptionListNew) enPrescriptionListNew.addEventListener('click', function () {
+  if (!activePrescriptionListType || !activePrescriptionListPatient) return;
+  var query = new URLSearchParams();
+  query.set('patient', activePrescriptionListPatient.patient_id || activePrescriptionListPatient.id);
+  closeModal('exercise-nutrition-prescription-list-modal');
+  goToPage('prescriptions', query.toString() + '#' + activePrescriptionListType);
+});
+
 var pmBtnConsult = document.getElementById('pm-btn-consult');
 if (pmBtnConsult) pmBtnConsult.addEventListener('click', function () {
   var modal = document.getElementById('patient-detail-modal');

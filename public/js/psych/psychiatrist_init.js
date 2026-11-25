@@ -122,6 +122,9 @@
     var p = findPatientLocal(patientId);
 
     function selectRx(patient) {
+      if (window.setExerciseNutritionPrescriptionPatient) {
+        window.setExerciseNutritionPrescriptionPatient(patient);
+      }
       if (rxPatientPicker) rxPatientPicker.setSelected(patient);
       else {
         setVal('rx-patient', patient.id);

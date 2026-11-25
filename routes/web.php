@@ -56,6 +56,7 @@ Route::middleware(['auth', 'role:psychiatrist'])
 
         Route::get('/patients/search', 'searchPatients')->name('patients.search');
         Route::get('/patients/{id}', 'showPatient')->name('patients.show');
+        Route::get('/patients/{id}/exercise-nutrition-prescriptions', 'patientExerciseNutritionPrescriptions')->name('patients.exercise-nutrition-prescriptions');
         Route::post('/patients', 'storePatient')->name('patients.store');
         Route::put('/patients/{id}', 'updatePatient')->name('patients.update');
         Route::put('/patients/{id}/medical-history', 'updateMedicalHistory')->name('patients.medical-history');
@@ -72,6 +73,7 @@ Route::middleware(['auth', 'role:psychiatrist'])
         Route::get('/patients/{id}/assessment', 'showAssessment')->name('assessments.show');
         Route::post('/patients/{id}/prescription', 'storePrescription')->name('prescriptions.store');
         Route::post('/exercise-nutrition-prescriptions', 'storeExerciseNutritionPrescription')->name('exercise-nutrition-prescriptions.store');
+        Route::get('/exercise-nutrition-prescriptions/{prescription}/pdf', 'showExerciseNutritionPrescriptionPdf')->name('exercise-nutrition-prescriptions.pdf');
 
         Route::post('/clinical-templates', 'storeClinicalTemplate')->name('templates.store');
         Route::put('/clinical-templates/{id}', 'updateClinicalTemplate')->name('templates.update');

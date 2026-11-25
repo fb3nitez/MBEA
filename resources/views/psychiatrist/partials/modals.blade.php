@@ -179,6 +179,12 @@ $lifeCoaches = collect();
             <button class="btn-outline" id="pm-btn-rx">
               <i data-feather="tag"></i> Write Prescription
             </button>
+            <button class="btn-outline" id="pm-btn-exercise-prescription">
+              <i data-feather="activity"></i> Exercise Prescriptions
+            </button>
+            <button class="btn-outline" id="pm-btn-nutrition-prescription">
+              <i data-feather="coffee"></i> Nutrition Prescriptions
+            </button>
             <button class="btn-outline" id="pm-btn-assess">
               <i data-feather="clipboard"></i> Open Assessment
             </button>
@@ -780,6 +786,27 @@ $lifeCoaches = collect();
     </div>
     <div class="modal-footer">
       <button class="btn-outline" data-close="patient-detail-modal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Exercise and Nutrition Prescription List -->
+<div class="modal-overlay hidden" id="exercise-nutrition-prescription-list-modal">
+  <div class="modal-box modal-box-lg">
+    <div class="modal-header">
+      <div>
+        <h3 id="en-prescription-list-title">Prescriptions</h3>
+        <div class="en-prescription-list-subtitle" id="en-prescription-list-patient"></div>
+      </div>
+      <button class="modal-close" data-close="exercise-nutrition-prescription-list-modal"><i data-feather="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="en-prescription-list-status" class="en-prescription-list-status" aria-live="polite"></div>
+      <div id="en-prescription-list" class="en-prescription-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" data-close="exercise-nutrition-prescription-list-modal">Close</button>
+      <button type="button" class="btn-blue" id="en-prescription-list-new">New Prescription</button>
     </div>
   </div>
 </div>

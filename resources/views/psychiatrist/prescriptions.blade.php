@@ -471,6 +471,9 @@
     window.PSYCH_DATA.prescriber = @json($prescriberData);
     window.PSYCH_DATA.lifestylePrescriptionDate = @json(today()->toDateString());
     window.PSYCH_DATA.lifestylePrescriptionStore = @json(route('psychiatrist.exercise-nutrition-prescriptions.store'));
+    window.PSYCH_DATA.exerciseNutritionPrescriptionPdfUrl = @json(route('psychiatrist.exercise-nutrition-prescriptions.pdf', ['prescription' => '__ID__']));
+    window.PSYCH_DATA.selectedExercisePrescription = @json($selectedExercisePrescription?->toArray());
+    window.PSYCH_DATA.selectedNutritionPrescription = @json($selectedNutritionPrescription?->toArray());
     window.PSYCH_DATA.clinicLogo = '{{ asset("assets/mbea_logo.png") }}';
     window.PSYCH_DATA.manageTemplates = (window.PSYCH_DATA.rxTemplates || []).concat(window.PSYCH_DATA.dxTemplates || []);
   </script>

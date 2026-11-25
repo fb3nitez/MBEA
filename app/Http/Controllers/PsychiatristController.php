@@ -16,11 +16,14 @@ use App\Models\Prescription;
 use App\Models\User;
 use App\Services\CoachUpdateService;
 use App\Services\PatientService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PsychiatristController extends Controller
@@ -99,17 +102,29 @@ class PsychiatristController extends Controller
         ]);
     }
 
-    public function prescriptions(): View
+    public function prescriptions(Request $request): View
     {
         $templates = $this->patientService->getClinicalTemplates();
 
         $user = auth()->user();
+        $selectedPrescriptionIds = $request->validate([
+            'exercise_prescription' => ['nullable', 'integer'],
+            'nutrition_prescription' => ['nullable', 'integer'],
+        ]);
+        $selectedExercisePrescription = isset($selectedPrescriptionIds['exercise_prescription'])
+            ? ExerciseNutritionPrescription::where('type', 'exercise')->findOrFail($selectedPrescriptionIds['exercise_prescription'])
+            : null;
+        $selectedNutritionPrescription = isset($selectedPrescriptionIds['nutrition_prescription'])
+            ? ExerciseNutritionPrescription::where('type', 'nutrition')->findOrFail($selectedPrescriptionIds['nutrition_prescription'])
+            : null;
 
         return view('psychiatrist.prescriptions', [
             'patientSuggestions' => $this->patientService->searchPatients(null, 12),
             'rxTemplates' => $templates->where('type', 'rx')->values(),
             'dxTemplates' => $templates->where('type', 'dx')->values(),
             'prescriber' => $user,
+            'selectedExercisePrescription' => $selectedExercisePrescription,
+            'selectedNutritionPrescription' => $selectedNutritionPrescription,
             'prescriberData' => [
                 'name' => $user->name,
                 'license_no' => $user->license_no,
@@ -383,6 +398,28 @@ class PsychiatristController extends Controller
         ]);
     }
 
+    public function patientExerciseNutritionPrescriptions(int $id): JsonResponse
+    {
+        $patient = PatientRecord::findOrFail($id);
+        $prescriptions = $patient->exerciseNutritionPrescriptions()
+            ->with('prescriber:id,name')
+            ->latest('prescription_date')
+            ->latest('id')
+            ->get()
+            ->map(fn (ExerciseNutritionPrescription $prescription) => [
+                'id' => $prescription->id,
+                'type' => $prescription->type,
+                'patient_name' => $prescription->patient_name,
+                'patient_age' => $prescription->patient_age,
+                'patient_sex' => $prescription->patient_sex,
+                'prescription_date' => $prescription->prescription_date->toDateString(),
+                'prescriber_name' => $prescription->prescriber?->name,
+            ])
+            ->values();
+
+        return response()->json(['prescriptions' => $prescriptions]);
+    }
+
     public function storePatient(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -641,6 +678,18 @@ class PsychiatristController extends Controller
             'prescription' => $prescription,
             'prescription_date' => $prescription->prescription_date->toDateString(),
         ], 201);
+    }
+
+    public function showExerciseNutritionPrescriptionPdf(ExerciseNutritionPrescription $prescription): Response
+    {
+        $prescription->loadMissing('prescriber');
+
+        return Pdf::loadView('psychiatrist.exercise_nutrition_prescription_pdf', [
+            'prescription' => $prescription,
+            'prescriberName' => $prescription->prescriber?->name ?? auth()->user()->name,
+        ])->setPaper('letter')->stream(
+            Str::slug($prescription->type . '-prescription-' . $prescription->id) . '.pdf'
+        );
     }
 
     public function storeClinicalTemplate(Request $request): JsonResponse

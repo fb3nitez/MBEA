@@ -8173,3 +8173,41 @@ a.psych-page-btn:hover {
   .en-today { display:block;margin:3px 0 0; }
   .en-sheet { padding:4px 13px; }
 }
+#exercise-nutrition-prescription-list-modal .en-prescription-list-subtitle {
+  margin-top:3px;
+  color:var(--text-500);
+  font-size:12px;
+}
+#exercise-nutrition-prescription-list-modal .en-prescription-list-status {
+  color:var(--text-500);
+  font-size:13px;
+}
+#exercise-nutrition-prescription-list-modal .en-prescription-list {
+  display:grid;
+  gap:9px;
+}
+#exercise-nutrition-prescription-list-modal .en-prescription-list-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#fff;
+}
+#exercise-nutrition-prescription-list-modal .en-prescription-list-item strong {
+  color:var(--text-900);
+  font-size:13px;
+}
+#exercise-nutrition-prescription-list-modal .en-prescription-list-item p {
+  margin-top:4px;
+  color:var(--text-500);
+  font-size:12px;
+}
+@media(max-width:520px) {
+  #exercise-nutrition-prescription-list-modal .en-prescription-list-item {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}

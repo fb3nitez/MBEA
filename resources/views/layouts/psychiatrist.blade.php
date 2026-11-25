@@ -109,6 +109,7 @@ $page = trim($__env->yieldContent('page'));
       patientsStore: @json(route('psychiatrist.patients.store')),
       patientsSearch: @json(route('psychiatrist.patients.search')),
       patientsShow: @json(url('/psychiatrist/patients')),
+      exerciseNutritionPrescriptions: @json(url('/psychiatrist/patients/__ID__/exercise-nutrition-prescriptions')),
       patientsUpdate: @json(url('/psychiatrist/patients')),
       patientsLifestyle: @json(url('/psychiatrist/patients')),
       clinicalImages: @json(route('psychiatrist.notes.images.store', ['id' => '__ID__'])),

@@ -90,6 +90,111 @@ it('shows exercise and nutrition as prescription tabs with no editable prescript
         ->assertDontSee('id="nutrition-date"');
 });
 
+it("lists a patient's saved lifestyle prescriptions and opens the selected form", function () {
+    $psychiatrist = exerciseNutritionPsychiatrist();
+    $patient = PatientRecord::create([
+        'fullname' => 'Prescription List Patient',
+        'birthday' => now()->subYears(36)->toDateString(),
+        'sex' => 'male',
+        'marital_status' => 'single',
+    ]);
+    $exercise = ExerciseNutritionPrescription::create([
+        'patient_record_id' => $patient->id,
+        'prescribed_by' => $psychiatrist->id,
+        'type' => 'exercise',
+        'patient_name' => 'Exercise Snapshot Name',
+        'patient_age' => 36,
+        'patient_sex' => 'Male',
+        'prescription_date' => today()->toDateString(),
+        'form_data' => ['name' => 'Exercise Snapshot Name', 'age' => '36', 'sex' => 'Male'],
+    ]);
+    ExerciseNutritionPrescription::create([
+        'patient_record_id' => $patient->id,
+        'prescribed_by' => $psychiatrist->id,
+        'type' => 'nutrition',
+        'patient_name' => 'Nutrition Snapshot Name',
+        'patient_age' => 36,
+        'patient_sex' => 'Male',
+        'prescription_date' => today()->subDay()->toDateString(),
+        'form_data' => ['name' => 'Nutrition Snapshot Name', 'age' => '36', 'sex' => 'Male'],
+    ]);
+
+    $this->actingAs($psychiatrist)
+        ->getJson(route('psychiatrist.patients.exercise-nutrition-prescriptions', $patient->id))
+        ->assertOk()
+        ->assertJsonCount(2, 'prescriptions')
+        ->assertJsonPath('prescriptions.0.type', 'exercise')
+        ->assertJsonPath('prescriptions.1.type', 'nutrition');
+
+    $this->actingAs($psychiatrist)
+        ->get(route('psychiatrist.prescriptions', ['exercise_prescription' => $exercise->id]))
+        ->assertOk()
+        ->assertSee('selectedExercisePrescription')
+        ->assertSee('Exercise Snapshot Name');
+
+    $this->actingAs($psychiatrist)
+        ->get(route('psychiatrist.patients'))
+        ->assertOk()
+        ->assertSee('pm-btn-exercise-prescription')
+        ->assertSee('pm-btn-nutrition-prescription')
+        ->assertSee('exercise-nutrition-prescription-list-modal');
+});
+
+it('opens a saved exercise nutrition prescription in its PDF preview page', function () {
+    $psychiatrist = exerciseNutritionPsychiatrist();
+    $prescription = ExerciseNutritionPrescription::create([
+        'prescribed_by' => $psychiatrist->id,
+        'type' => 'exercise',
+        'patient_name' => 'PDF Preview Patient',
+        'patient_age' => 42,
+        'patient_sex' => 'Female',
+        'prescription_date' => today()->toDateString(),
+        'form_data' => [
+            'name' => 'PDF Preview Patient',
+            'age' => '42',
+            'sex' => 'Female',
+            'goals' => ['More energy'],
+        ],
+    ]);
+
+    $pdfHtml = view('psychiatrist.exercise_nutrition_prescription_pdf', [
+        'prescription' => $prescription,
+        'prescriberName' => $psychiatrist->name,
+    ])->render();
+
+    expect($pdfHtml)
+        ->toContain('Prescribed by: ' . $psychiatrist->name)
+        ->toContain('Date: ' . today()->format('m / d / Y'));
+
+    $response = $this->actingAs($psychiatrist)
+        ->get(route('psychiatrist.exercise-nutrition-prescriptions.pdf', $prescription))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+
+    expect(substr($response->getContent(), 0, 4))->toBe('%PDF');
+
+    $nutritionPrescription = ExerciseNutritionPrescription::create([
+        'prescribed_by' => $psychiatrist->id,
+        'type' => 'nutrition',
+        'patient_name' => 'PDF Preview Nutrition Patient',
+        'patient_age' => 28,
+        'patient_sex' => 'Male',
+        'prescription_date' => today()->toDateString(),
+        'form_data' => [
+            'name' => 'PDF Preview Nutrition Patient',
+            'age' => '28',
+            'sex' => 'Male',
+            'allergy' => 'Peanuts',
+        ],
+    ]);
+
+    $nutritionPdf = $this->get(route('psychiatrist.exercise-nutrition-prescriptions.pdf', $nutritionPrescription))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+
+    expect(substr($nutritionPdf->getContent(), 0, 4))->toBe('%PDF');
+});
+
 it('rejects invalid prescription types and more than three goals', function () {
     $psychiatrist = exerciseNutritionPsychiatrist();
     $payload = [
