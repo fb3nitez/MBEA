@@ -449,6 +449,43 @@
     }
 
     @media (max-width: 640px) {
+      .intake-tabs {
+        flex-wrap: nowrap;
+        gap: 7px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 9px 14px;
+        border-bottom: 1px solid var(--border, #e2e8f0);
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+      }
+
+      .intake-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .intake-tab {
+        min-height: 38px;
+        padding: 8px 12px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        white-space: nowrap;
+        scroll-snap-align: start;
+        transition: color .15s, background-color .15s, border-color .15s;
+      }
+
+      .intake-tab.active {
+        border-color: var(--green-200, #bbf7d0);
+        border-bottom-color: var(--green-200, #bbf7d0);
+        background: var(--green-50, #f0fdf4);
+      }
+
+      .intake-tab:focus-visible {
+        outline: 2px solid var(--green-500, #22c55e);
+        outline-offset: 2px;
+      }
+
       .intake-dietary-overview {
         grid-template-columns: 1fr;
       }

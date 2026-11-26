@@ -3079,6 +3079,17 @@ body {
         align-items: flex-end;
     }
 
+    /* Keep the intake viewer centered as tab content changes height. */
+    #intake-modal {
+        align-items: center;
+        padding: 16px;
+    }
+
+    #intake-modal .intake-modal-box {
+        max-height: min(88vh, calc(100dvh - 32px));
+        border-radius: var(--radius);
+    }
+
     .modal-box {
         max-width: 100%;
         max-height: 92vh;

@@ -1615,15 +1615,23 @@ function buildDxChecklist() {
         header.className = "dx-cat-label";
         header.setAttribute("role", "button");
         header.setAttribute("tabindex", "0");
+        header.setAttribute("aria-expanded", "false");
         header.innerHTML = '<span><i data-feather="chevron-down"></i>' + g.cat + '</span><span class="dx-cat-actions"><button type="button" class="dx-select-all">Select all</button><button type="button" class="dx-clear-all">Clear</button></span>';
         var items = document.createElement("div");
         items.className = "dx-category-items";
+        group.classList.add("collapsed");
         header.addEventListener("click", function (event) {
             if (event.target.closest("button")) return;
-            group.classList.toggle("collapsed");
+            var collapsed = group.classList.toggle("collapsed");
+            header.setAttribute("aria-expanded", collapsed ? "false" : "true");
         });
         header.addEventListener("keydown", function (event) {
-            if (event.key === "Enter" || event.key === " ") { event.preventDefault(); group.classList.toggle("collapsed"); }
+            if (event.target.closest("button")) return;
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                var collapsed = group.classList.toggle("collapsed");
+                header.setAttribute("aria-expanded", collapsed ? "false" : "true");
+            }
         });
         header.querySelector(".dx-select-all").addEventListener("click", function () {
             items.querySelectorAll(".dx-cb").forEach(function (cb) { cb.checked = true; });
@@ -1671,6 +1679,10 @@ function filterDxTests() {
             if (matches) visible += 1;
         });
         group.hidden = visible === 0;
+        if (query && visible > 0) {
+            group.classList.remove("collapsed");
+            group.querySelector(".dx-cat-label").setAttribute("aria-expanded", "true");
+        }
     });
 }
 

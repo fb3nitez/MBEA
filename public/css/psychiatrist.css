@@ -8211,3 +8211,435 @@ a.psych-page-btn:hover {
     flex-direction:column;
   }
 }
+
+/* Match exercise and nutrition forms to the clinical prescription workspace. */
+.en-prescription-layout {
+    grid-template-columns:minmax(0,1fr) 220px;
+    gap:20px;
+    max-width:1120px;
+    padding:18px 24px;
+    color:var(--text-900);
+    font-family:inherit;
+}
+.en-header {
+    align-items:center;
+    margin-bottom:14px;
+}
+.en-header h1 {
+    color:var(--text-900);
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:-.02em;
+}
+.en-header p {
+    color:var(--text-500);
+    font-size:12px;
+    line-height:1.5;
+}
+.en-header-actions {
+    gap:7px;
+}
+.en-action-button {
+    min-height:38px;
+    padding:8px 13px;
+    border-color:#dce5ef;
+    border-radius:8px;
+    color:#52657e;
+    font-weight:600;
+    transition:background .15s,border-color .15s,color .15s,box-shadow .15s;
+}
+.en-action-button:hover {
+    border-color:#bfcee0;
+    background:#f8fafc;
+}
+.en-action-button.en-primary {
+    border-color:var(--blue-600);
+    background:var(--blue-600);
+    color:#fff;
+}
+.en-action-button.en-primary:hover {
+    border-color:var(--blue-700);
+    background:var(--blue-700);
+}
+.en-action-button:focus-visible,
+.en-toc a:focus-visible {
+    outline:3px solid rgba(59,130,246,.3);
+    outline-offset:2px;
+}
+.en-sheet {
+    padding:8px 24px 18px;
+    border-color:#e3eaf2;
+    border-radius:14px;
+    box-shadow:0 2px 8px rgba(15,23,42,.04);
+}
+.en-section {
+    padding:20px 0;
+    border-bottom-color:#edf1f5;
+}
+.en-section h2 {
+    gap:10px;
+    margin-bottom:15px;
+    color:var(--text-900);
+    font-size:15px;
+    font-weight:700;
+}
+.en-section h2>span {
+    flex-basis:26px;
+    height:26px;
+    background:#eff5ff;
+    color:var(--blue-600);
+    font-size:11px;
+    font-weight:700;
+}
+.en-fields {
+    gap:14px 16px;
+}
+.en-field,
+.en-choice legend {
+    color:var(--text-700);
+    font-size:12px;
+    font-weight:600;
+}
+.en-field>span,
+.en-choice legend {
+    margin-bottom:6px;
+}
+.en-field input,
+.en-field textarea,
+.en-table input {
+    border-color:#dce5ef;
+    border-radius:8px;
+    background:#fff;
+    color:var(--text-800);
+    transition:border-color .15s,box-shadow .15s;
+}
+.en-field input:focus,
+.en-field textarea:focus,
+.en-table input:focus {
+    border-color:var(--blue-500);
+    outline:0;
+    box-shadow:0 0 0 3px rgba(59,130,246,.12);
+}
+.en-option {
+    border-color:#dce5ef;
+    border-radius:8px;
+    color:var(--text-700);
+    line-height:1.4;
+    transition:border-color .15s,background .15s;
+}
+.en-option:hover {
+    border-color:#bfcee0;
+    background:#f8fafc;
+}
+.en-option:has(input:checked) {
+    border-color:#93b4e8;
+    background:#f1f6ff;
+    color:var(--blue-700);
+}
+.en-option input,
+.en-table input[type=checkbox],
+.en-table input[type=radio] {
+    accent-color:var(--blue-600);
+}
+.en-note {
+    border-left-color:var(--blue-500);
+    border-radius:0 8px 8px 0;
+    background:#f1f6ff;
+    line-height:1.55;
+}
+.en-table-wrap {
+    border-color:#e3eaf2;
+    border-radius:9px;
+}
+.en-table {
+    color:var(--text-700);
+}
+.en-table th {
+    background:#f7f9fc;
+    color:#64748b;
+    font-size:11px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+}
+.en-table th,
+.en-table td {
+    border-bottom-color:#edf1f5;
+}
+.en-toc {
+    top:18px;
+    max-height:calc(100vh - 36px);
+    padding:12px 0 12px 14px;
+    border-left-color:#dce5ef;
+}
+.en-toc strong {
+    margin-bottom:9px;
+    color:var(--text-900);
+    font-size:12px;
+    font-weight:700;
+}
+.en-toc a {
+    padding:6px 0;
+    color:var(--text-500);
+    font-size:11px;
+    line-height:1.4;
+}
+.en-toc a:hover {
+    color:var(--blue-700);
+}
+@media(max-width:1000px) {
+    .en-prescription-layout {
+        gap:18px;
+        padding:16px 18px;
+    }
+    .en-sheet {
+        padding:6px 20px 16px;
+    }
+}
+@media(max-width:760px) {
+    .en-prescription-layout {
+        gap:14px;
+        padding:14px;
+    }
+    .en-toc {
+        gap:6px;
+        padding:0 0 12px;
+        border-bottom-color:#e3eaf2;
+    }
+    .en-toc strong {
+        margin-bottom:2px;
+    }
+    .en-toc a {
+        padding:6px 9px;
+        border-color:#dce5ef;
+        border-radius:7px;
+        background:#fff;
+    }
+    .en-header {
+        align-items:flex-start;
+        flex-direction:column;
+        gap:12px;
+    }
+    .en-header-actions {
+        flex-wrap:wrap;
+    }
+}
+@media(max-width:520px) {
+    .en-prescription-layout {
+        padding:10px 8px;
+    }
+    .en-header h1 {
+        font-size:18px;
+    }
+    .en-header-actions {
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        width:100%;
+    }
+    .en-action-button {
+        min-width:0;
+        padding:8px 6px;
+    }
+    .en-sheet {
+        padding:4px 14px 12px;
+        border-radius:12px;
+    }
+    .en-section {
+        padding:17px 0;
+    }
+}
+
+/* Diagnostic request: a calmer, progressive-disclosure workspace. */
+#subtab-diagnostic .prescription-form-card {
+    gap:14px;
+}
+#subtab-diagnostic .rx-patient-section,
+#subtab-diagnostic .rx-diagnostic-section {
+    padding:22px;
+    border-color:#e3eaf2;
+    border-radius:14px;
+    box-shadow:0 2px 8px rgba(15,23,42,.04);
+}
+#subtab-diagnostic .rx-patient-section .rx-doctor-block {
+    padding-bottom:16px;
+}
+#subtab-diagnostic .rx-patient-section .rx-stamp {
+    background:#eff5ff;
+    color:var(--blue-700);
+}
+#subtab-diagnostic .rx-diagnostic-section > .field-group {
+    margin-bottom:20px;
+}
+#subtab-diagnostic .rx-diagnostic-section > .field-group .field-textarea {
+    min-height:86px;
+    border-color:#dce5ef;
+    background:#fff;
+}
+#subtab-diagnostic .dx-section-label {
+    display:flex;
+    align-items:center;
+    gap:9px;
+    margin:20px 0 10px;
+    padding:0 0 10px;
+    border-bottom:1px solid #edf1f5;
+    color:var(--text-900);
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0;
+    text-transform:none;
+}
+#subtab-diagnostic .dx-section-label::before {
+    width:4px;
+    height:16px;
+    border-radius:999px;
+    background:linear-gradient(180deg,#2563eb,#60a5fa);
+    content:"";
+}
+#subtab-diagnostic .dx-tools {
+    align-items:center;
+    gap:12px;
+    padding:0 0 12px;
+}
+#subtab-diagnostic .dx-tools .field-input {
+    min-height:42px;
+    border:1px solid #dce5ef;
+    border-radius:9px;
+    background:#fff;
+}
+#subtab-diagnostic .dx-selected-count {
+    padding:7px 10px;
+    border:1px solid #dce5ef;
+    border-radius:999px;
+    background:#f8fafc;
+    color:var(--text-600);
+    font-size:11px;
+    font-weight:600;
+}
+#subtab-diagnostic .dx-checklist {
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    padding:0;
+}
+#subtab-diagnostic .dx-category-group {
+    border-color:#e3eaf2;
+    border-radius:10px;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(15,23,42,.035);
+}
+#subtab-diagnostic .dx-cat-label {
+    min-height:48px;
+    gap:12px;
+    padding:9px 13px;
+    background:#fff;
+    color:var(--text-800);
+    font-size:12px;
+    letter-spacing:0;
+    transition:background .15s ease;
+}
+#subtab-diagnostic .dx-cat-label:hover {
+    background:#f8fafc;
+}
+#subtab-diagnostic .dx-cat-label > span:first-child {
+    gap:9px;
+    font-weight:700;
+}
+#subtab-diagnostic .dx-cat-label > span:first-child svg {
+    color:var(--blue-600);
+    transition:transform .18s ease;
+}
+#subtab-diagnostic .dx-category-group.collapsed .dx-cat-label > span:first-child svg {
+    transform:rotate(-90deg);
+}
+#subtab-diagnostic .dx-cat-actions {
+    align-items:center;
+    gap:10px;
+}
+#subtab-diagnostic .dx-cat-actions button {
+    min-height:30px;
+    padding:5px 8px;
+    border-radius:6px;
+    color:var(--blue-700);
+    font-size:11px;
+    font-weight:600;
+    transition:background .15s ease;
+}
+#subtab-diagnostic .dx-cat-actions button:hover {
+    background:#eff6ff;
+}
+#subtab-diagnostic .dx-category-items {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    padding:12px;
+    border-top:1px solid #edf1f5;
+    background:#fbfcfe;
+}
+#subtab-diagnostic .dx-check-item {
+    min-height:40px;
+    padding:9px 10px;
+    border-color:#e3eaf2;
+    border-radius:8px;
+    background:#fff;
+    color:var(--text-700);
+    font-size:12px;
+    line-height:1.4;
+    transition:border-color .15s ease,background .15s ease,color .15s ease;
+}
+#subtab-diagnostic .dx-check-item:hover {
+    border-color:#bfcee0;
+    background:#f8fafc;
+}
+#subtab-diagnostic .dx-check-item:has(input:checked) {
+    border-color:#93b4e8;
+    background:#eff6ff;
+    color:var(--blue-700);
+}
+#subtab-diagnostic .dx-check-item input {
+    width:16px;
+    height:16px;
+    flex:0 0 16px;
+    accent-color:var(--blue-600);
+}
+#subtab-diagnostic .dx-imaging-grid {
+    gap:8px;
+    padding:0;
+}
+#subtab-diagnostic .dx-imaging-grid .field-group {
+    margin:6px 0 0;
+}
+#subtab-diagnostic .dx-imaging-grid .field-input {
+    min-height:40px;
+    border-color:#dce5ef;
+    border-radius:8px;
+    background:#fff;
+}
+#subtab-diagnostic .rx-form-footer-actions {
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid #edf1f5;
+}
+@media(max-width:600px) {
+    #subtab-diagnostic .rx-patient-section,
+    #subtab-diagnostic .rx-diagnostic-section {
+        padding:16px;
+        border-radius:12px;
+    }
+    #subtab-diagnostic .dx-tools {
+        align-items:stretch;
+        flex-direction:column;
+        gap:8px;
+    }
+    #subtab-diagnostic .dx-selected-count {
+        align-self:flex-start;
+    }
+    #subtab-diagnostic .dx-category-items {
+        grid-template-columns:minmax(0,1fr);
+        padding:10px;
+    }
+    #subtab-diagnostic .dx-cat-label {
+        align-items:flex-start;
+        flex-direction:column;
+        gap:6px;
+    }
+    #subtab-diagnostic .dx-cat-actions {
+        padding-left:23px;
+    }
+}
