@@ -10,7 +10,7 @@
 .psych-section#section-prescriptions {
     container-type: inline-size;
     max-width: 100%;
-    overflow-x: hidden
+    overflow-x: clip
 }
 
 .rx-layout {
@@ -6683,7 +6683,7 @@ a.psych-page-btn:hover {
 
 .psych-section#section-prescriptions {
     max-width: 100%;
-    overflow-x: hidden
+    overflow-x: clip
 }
 
 .psych-section#section-prescriptions {
@@ -8115,7 +8115,7 @@ a.psych-page-btn:hover {
 .en-save-status { color:#15803d;font-size:12px; }
 .en-save-status.is-error { color:#b91c1c; }
 .en-sheet { padding:8px 28px 28px;background:#fff;border:1px solid #e2e8f0;border-radius:8px; }
-.en-section { padding:22px 0;border-bottom:1px solid #e2e8f0;scroll-margin-top:16px; }
+.en-section { padding:22px 0;border-bottom:1px solid #e2e8f0;scroll-margin-top:calc(var(--topbar-h) + 12px); }
 .en-section:last-child { border-bottom:0; }
 .en-section h2 { display:flex;align-items:center;gap:9px;margin:0 0 15px;font-size:16px; }
 .en-section h2>span { display:grid;place-items:center;flex:0 0 25px;height:25px;border-radius:50%;background:#eff6ff;color:#2563eb;font-size:12px; }
@@ -8150,7 +8150,7 @@ a.psych-page-btn:hover {
 .en-suggestions[hidden] { display:none; }
 .en-suggestion { display:block;width:100%;padding:9px 11px;border:0;border-bottom:1px solid #f1f5f9;background:#fff;text-align:left;color:var(--text-700);cursor:pointer; }
 .en-suggestion:hover,.en-suggestion.active { background:#eff6ff;color:#1d4ed8; }
-.en-toc { position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;padding:4px 0 4px 10px;border:0;border-left:2px solid #e2e8f0;border-radius:0;background:transparent; }
+.en-toc { position:sticky;top:calc(var(--topbar-h) + 12px);max-height:calc(100vh - var(--topbar-h) - 36px);overflow:auto;padding:4px 0 4px 10px;border:0;border-left:2px solid #e2e8f0;border-radius:0;background:transparent; }
 .en-toc strong { display:block;margin:0 0 7px;color:#334155;font-size:13px;font-weight:500; }
 .en-toc a { display:block;padding:6px 0;color:#64748b;font-size:12px;text-decoration:none; }
 .en-toc a:hover { color:#2563eb; }
@@ -8160,8 +8160,8 @@ a.psych-page-btn:hover {
 }
 @media(max-width:760px) {
   .en-prescription-layout { grid-template-columns:minmax(0,1fr); }
-  .en-toc { position:static;order:-1;max-height:none;display:flex;flex-wrap:wrap;gap:4px;padding:0 0 8px;border:0;border-bottom:1px solid #e2e8f0; }
-  .en-toc strong { width:100%; }
+  .en-toc { position:sticky;top:calc(var(--topbar-h) + 12px);z-index:10;order:-1;max-height:none;display:flex;flex-wrap:nowrap;gap:4px;overflow-x:auto;padding:8px 0;border:0;border-bottom:1px solid #e2e8f0;background:#fff; }
+  .en-toc strong { width:auto;flex:0 0 auto;margin:0 6px 0 0; }
   .en-toc a { padding:5px 7px;border:1px solid #e2e8f0;border-radius:6px; }
   .en-header { align-items:flex-start;flex-direction:column; }
   .en-header-actions { flex-wrap:wrap; }
