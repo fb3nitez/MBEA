@@ -32,7 +32,7 @@
     if (cl) closeModal(cl.getAttribute('data-close'));
     // Click outside modal box
     if (e.target.classList.contains('modal-overlay')) {
-      var modals = ['add-patient-modal', 'schedule-consult-modal', 'record-modal', 'profile-modal', 'edit-consult-modal', 'patient-detail-modal', 'template-modal', 'logout-modal'];
+      var modals = ['add-patient-modal', 'schedule-consult-modal', 'record-modal', 'profile-modal', 'edit-consult-modal', 'patient-detail-modal', 'template-modal', 'logout-modal', 'prescription-reset-modal'];
       modals.forEach(function (m) { closeModal(m); });
     }
   });

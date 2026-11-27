@@ -1608,43 +1608,80 @@ function buildDxChecklist() {
     var list = document.getElementById("dx-checklist");
     if (!list) return;
     list.innerHTML = "";
+    var tabs = document.createElement("div");
+    tabs.className = "dx-category-tabs";
+    tabs.setAttribute("role", "tablist");
+    tabs.setAttribute("aria-label", "Laboratory test categories");
+    list.appendChild(tabs);
+    var panels = document.createElement("div");
+    panels.className = "dx-category-panels";
+    list.appendChild(panels);
+
     DX_LAB_GROUPS.forEach(function (g) {
         var group = document.createElement("div");
         group.className = "dx-category-group";
-        var header = document.createElement("div");
-        header.className = "dx-cat-label";
-        header.setAttribute("role", "button");
-        header.setAttribute("tabindex", "0");
-        header.setAttribute("aria-expanded", "false");
-        header.innerHTML = '<span><i data-feather="chevron-down"></i>' + g.cat + '</span><span class="dx-cat-actions"><button type="button" class="dx-select-all">Select all</button><button type="button" class="dx-clear-all">Clear</button></span>';
+        group.setAttribute("role", "presentation");
+        var tabId = "dx-tab-" + g.cat.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        var panelId = tabId + "-panel";
+        var tab = document.createElement("button");
+        tab.type = "button";
+        tab.className = "dx-category-tab";
+        tab.id = tabId;
+        tab.setAttribute("role", "tab");
+        tab.setAttribute("aria-controls", panelId);
+        tab.setAttribute("aria-selected", "false");
+        tab.setAttribute("tabindex", "-1");
+        tab.innerHTML = '<span class="dx-cat-name">' + g.cat + '</span><span class="dx-tab-count" aria-hidden="true"></span>';
+
+        var panel = document.createElement("div");
+        panel.className = "dx-category-panel";
+        panel.id = panelId;
+        panel.setAttribute("role", "tabpanel");
+        panel.setAttribute("aria-labelledby", tabId);
+        panel.tabIndex = 0;
+        panel.hidden = true;
+
+        var actions = document.createElement("div");
+        actions.className = "dx-cat-actions";
+        actions.innerHTML = '<button type="button" class="dx-select-all">Select all</button><button type="button" class="dx-clear-all">Clear</button>';
         var items = document.createElement("div");
         items.className = "dx-category-items";
-        group.classList.add("collapsed");
-        header.addEventListener("click", function (event) {
-            if (event.target.closest("button")) return;
-            var collapsed = group.classList.toggle("collapsed");
-            header.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        tab.addEventListener("click", function () {
+            setActiveDxCategory(group, false);
         });
-        header.addEventListener("keydown", function (event) {
-            if (event.target.closest("button")) return;
-            if (event.key === "Enter" || event.key === " ") {
+        tab.addEventListener("keydown", function (event) {
+            var tabButtons = Array.prototype.slice.call(tabs.querySelectorAll('[role="tab"]')).filter(function (candidate) {
+                return !candidate.hidden;
+            });
+            var currentIndex = tabButtons.indexOf(tab);
+            var nextIndex = currentIndex;
+            if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabButtons.length;
+            else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabButtons.length) % tabButtons.length;
+            else if (event.key === "Home") nextIndex = 0;
+            else if (event.key === "End") nextIndex = tabButtons.length - 1;
+            else return;
+            if (tabButtons.length) {
                 event.preventDefault();
-                var collapsed = group.classList.toggle("collapsed");
-                header.setAttribute("aria-expanded", collapsed ? "false" : "true");
+                setActiveDxCategory(tabButtons[nextIndex].closest(".dx-category-group"), true);
             }
         });
-        header.querySelector(".dx-select-all").addEventListener("click", function () {
+        actions.querySelector(".dx-select-all").addEventListener("click", function () {
             items.querySelectorAll(".dx-cb").forEach(function (cb) { cb.checked = true; });
+            updateDxCategoryIndicators();
             updateDxSelectedCount();
             updateDxPreview();
         });
-        header.querySelector(".dx-clear-all").addEventListener("click", function () {
+        actions.querySelector(".dx-clear-all").addEventListener("click", function () {
             items.querySelectorAll(".dx-cb").forEach(function (cb) { cb.checked = false; });
+            updateDxCategoryIndicators();
             updateDxSelectedCount();
             updateDxPreview();
         });
-        group.appendChild(header);
-        group.appendChild(items);
+        panel.appendChild(actions);
+        panel.appendChild(items);
+        group.appendChild(tab);
+        tabs.appendChild(group);
+        panels.appendChild(panel);
         g.tests.forEach(function (test) {
             var lbl = document.createElement("label");
             lbl.className = "dx-check-item";
@@ -1652,15 +1689,50 @@ function buildDxChecklist() {
             cb.type = "checkbox";
             cb.className = "dx-cb";
             cb.setAttribute("data-test", test);
-            cb.addEventListener("change", function () { updateDxSelectedCount(); updateDxPreview(); });
+            cb.addEventListener("change", function () { updateDxCategoryIndicators(); updateDxSelectedCount(); updateDxPreview(); });
             lbl.appendChild(cb);
             lbl.appendChild(document.createTextNode(test));
             items.appendChild(lbl);
         });
-        list.appendChild(group);
     });
+    var firstGroup = list.querySelector(".dx-category-group");
+    if (firstGroup) setActiveDxCategory(firstGroup, false);
     ri();
+    updateDxCategoryIndicators();
     updateDxSelectedCount();
+}
+
+function setActiveDxCategory(group, focusTab) {
+    if (!group) return;
+    var list = document.getElementById("dx-checklist");
+    if (!list) return;
+    list.querySelectorAll(".dx-category-group").forEach(function (candidate) {
+        var active = candidate === group;
+        var tab = candidate.querySelector('[role="tab"]');
+        var panel = tab ? document.getElementById(tab.getAttribute("aria-controls")) : null;
+        if (tab) {
+            tab.setAttribute("aria-selected", active ? "true" : "false");
+            tab.tabIndex = active ? 0 : -1;
+        }
+        if (panel) panel.hidden = !active;
+        candidate.classList.toggle("active", active);
+    });
+    if (focusTab) {
+        var activeTab = group.querySelector('[role="tab"]');
+        if (activeTab) activeTab.focus();
+    }
+}
+
+function updateDxCategoryIndicators() {
+    qsa("#dx-checklist .dx-category-group").forEach(function (group) {
+        var tab = group.querySelector('[role="tab"]');
+        var panel = tab ? document.getElementById(tab.getAttribute("aria-controls")) : null;
+        var count = panel ? panel.querySelectorAll(".dx-cb:checked").length : 0;
+        var indicator = group.querySelector(".dx-tab-count");
+        group.classList.toggle("has-selections", count > 0);
+        if (indicator) indicator.textContent = count ? String(count) : "";
+        if (tab) tab.setAttribute("aria-label", (tab.querySelector(".dx-cat-name") || {}).textContent + (count ? ", " + count + " selected" : ", no tests selected"));
+    });
 }
 
 function updateDxSelectedCount() {
@@ -1671,19 +1743,24 @@ function updateDxSelectedCount() {
 
 function filterDxTests() {
     var query = getVal("dx-test-search").trim().toLowerCase();
-    qsa(".dx-category-group").forEach(function (group) {
+    var groups = qsa("#dx-checklist .dx-category-group");
+    var firstVisibleGroup = null;
+    groups.forEach(function (group) {
+        var tab = group.querySelector('[role="tab"]');
+        var panel = tab ? document.getElementById(tab.getAttribute("aria-controls")) : null;
+        if (!panel) return;
         var visible = 0;
-        group.querySelectorAll(".dx-check-item").forEach(function (item) {
+        panel.querySelectorAll(".dx-check-item").forEach(function (item) {
             var matches = !query || item.textContent.toLowerCase().indexOf(query) >= 0;
             item.hidden = !matches;
             if (matches) visible += 1;
         });
         group.hidden = visible === 0;
-        if (query && visible > 0) {
-            group.classList.remove("collapsed");
-            group.querySelector(".dx-cat-label").setAttribute("aria-expanded", "true");
-        }
+        if (visible && !firstVisibleGroup) firstVisibleGroup = group;
     });
+    var activeGroup = document.querySelector("#dx-checklist .dx-category-group.active");
+    if (query && firstVisibleGroup && (!activeGroup || activeGroup.hidden)) setActiveDxCategory(firstVisibleGroup, false);
+    if (!query && !activeGroup) setActiveDxCategory(groups[0], false);
 }
 
 var dxTestSearch = document.getElementById("dx-test-search");
@@ -1729,8 +1806,9 @@ if (generateDxBtn) {
 
 function buildDxPrintGridHtml() {
     var groups = [];
-    qsa("#dx-checklist .dx-category-group").forEach(function (group) {
-        var heading = group.querySelector(".dx-cat-label > span:first-child");
+    qsa("#dx-checklist .dx-category-panel").forEach(function (group) {
+        var heading = document.getElementById(group.getAttribute("aria-labelledby"));
+        var categoryName = heading ? heading.querySelector(".dx-cat-name") : null;
         var tests = Array.prototype.map.call(
             group.querySelectorAll(".dx-check-item"),
             function (item) {
@@ -1744,7 +1822,7 @@ function buildDxPrintGridHtml() {
             },
         ).filter(function (test) { return test.name; });
         groups.push({
-            category: heading ? heading.textContent.trim() : "Laboratory",
+            category: categoryName ? categoryName.textContent.trim() : "Laboratory",
             tests: tests,
         });
     });
@@ -2260,5 +2338,123 @@ document.addEventListener("change", function (event) {
     if (event.target.classList.contains("dx-cb") && event.target.dataset.templateId) event.target.dataset.templateEdited = "true";
     if (row) updateRxPreview();
 });
+
+function clearPrescriptionForm(type) {
+    if (type === "exercise" || type === "nutrition") {
+        var prescriptionUrl = new URL(window.location.href);
+        prescriptionUrl.searchParams.delete("patient");
+        prescriptionUrl.searchParams.delete(type + "_prescription");
+        window.location.replace(prescriptionUrl.toString());
+        return;
+    }
+    if (type === "rx") {
+        ["rx-patient", "rx-patient-search", "rx-age", "rx-diagnosis", "rx-notes"].forEach(function (id) {
+            var field = document.getElementById(id);
+            if (field) field.value = "";
+        });
+        if (rxDate) rxDate.value = todayInputValue;
+        if (rxMedsList) {
+            rxMedsList.replaceChildren(createMedRow());
+            ri();
+        }
+        qsa("#rx-patient-dropdown, #rx-diag-dropdown").forEach(hide);
+        APPLIED_TEMPLATE_IDS.rx = {};
+        updateRxPreview();
+        buildTemplateLibraries();
+        return;
+    }
+
+    if (type === "lifestyle") {
+        ["lx-patient", "lx-patient-search", "lx-age"].forEach(function (id) {
+            var field = document.getElementById(id);
+            if (field) field.value = "";
+        });
+        if (lxDate) lxDate.value = todayInputValue;
+        if (lxItemsList) lxItemsList.innerHTML = '<div class="lx-empty-state">No lifestyle interventions added yet.</div>';
+        var lifestyleDropdown = document.getElementById("lx-patient-dropdown");
+        if (lifestyleDropdown) hide(lifestyleDropdown);
+        updateRxPreview();
+        return;
+    }
+
+    if (type === "diagnostic") {
+        ["dx-patient", "dx-patient-search", "dx-age", "dx-notes", "dx-test-search", "dx-other-imaging"].forEach(function (id) {
+            var field = document.getElementById(id);
+            if (field) field.value = "";
+        });
+        if (dxDate) dxDate.value = todayInputValue;
+        qsa(".dx-cb").forEach(function (checkbox) { checkbox.checked = false; });
+        var firstDxCategory = document.querySelector("#dx-checklist .dx-category-group");
+        if (firstDxCategory) setActiveDxCategory(firstDxCategory, false);
+        qsa("#dx-patient-dropdown").forEach(hide);
+        APPLIED_TEMPLATE_IDS.dx = {};
+        filterDxTests();
+        updateDxCategoryIndicators();
+        updateDxSelectedCount();
+        updateDxPreview();
+        buildTemplateLibraries();
+    }
+}
+
+var pendingPrescriptionReset = null;
+var prescriptionResetTrigger = null;
+var prescriptionResetModal = document.getElementById("prescription-reset-modal");
+
+function requestPrescriptionReset(type) {
+    if (!prescriptionResetModal) return;
+    var labels = {
+        rx: "Medication Prescription",
+        lifestyle: "Lifestyle Intervention",
+        diagnostic: "Diagnostic Request",
+        exercise: "Exercise Prescription",
+        nutrition: "Nutrition Prescription",
+    };
+    pendingPrescriptionReset = type;
+    prescriptionResetTrigger = document.activeElement;
+    var title = document.getElementById("prescription-reset-title");
+    var description = document.getElementById("prescription-reset-description");
+    if (title) title.textContent = "Reset " + (labels[type] || "form") + "?";
+    if (description) description.textContent = "This clears all current answers from this form. Saved prescriptions will not be deleted.";
+    show(prescriptionResetModal);
+    ri();
+    var cancelButton = prescriptionResetModal.querySelector('[data-close="prescription-reset-modal"]');
+    if (cancelButton) cancelButton.focus();
+}
+
+window.requestPrescriptionFormReset = requestPrescriptionReset;
+
+var confirmPrescriptionResetButton = document.getElementById("confirm-prescription-reset-btn");
+if (confirmPrescriptionResetButton) {
+    confirmPrescriptionResetButton.addEventListener("click", function () {
+        var type = pendingPrescriptionReset;
+        pendingPrescriptionReset = null;
+        hide(prescriptionResetModal);
+        if (type) clearPrescriptionForm(type);
+        if (prescriptionResetTrigger && prescriptionResetTrigger.focus) prescriptionResetTrigger.focus();
+    });
+}
+
+if (prescriptionResetModal) {
+    prescriptionResetModal.addEventListener("click", function (event) {
+        if (event.target === prescriptionResetModal || event.target.closest('[data-close="prescription-reset-modal"]')) {
+            pendingPrescriptionReset = null;
+            if (prescriptionResetTrigger && prescriptionResetTrigger.focus) prescriptionResetTrigger.focus();
+        }
+    });
+    prescriptionResetModal.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            pendingPrescriptionReset = null;
+            hide(prescriptionResetModal);
+            if (prescriptionResetTrigger && prescriptionResetTrigger.focus) prescriptionResetTrigger.focus();
+        }
+    });
+}
+
+document.querySelectorAll(".rx-reset-icon[data-reset-prescription]").forEach(function (button) {
+    button.addEventListener("click", function () {
+        requestPrescriptionReset(this.getAttribute("data-reset-prescription"));
+    });
+});
+
 updateRxPreview();
 updateDxPreview();

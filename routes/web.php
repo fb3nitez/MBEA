@@ -103,6 +103,7 @@ Route::middleware(['auth', 'role:lifecoach'])
         Route::get('/profile/activity', 'profileActivity')->name('profile.activity');
 
         Route::get('/patients/{id}', 'showPatient')->name('patients.show');
+        Route::post('/patients/{id}/journal-entries', 'storeJournalEntry')->name('patients.journal-entries.store');
 
         Route::post('/notes', 'storeNote')->name('notes.store');
         Route::delete('/notes/{id}', 'destroyNote')->name('notes.destroy');

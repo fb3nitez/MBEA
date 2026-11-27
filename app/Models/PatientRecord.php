@@ -108,6 +108,11 @@ class PatientRecord extends Model
         return $this->hasMany(CoachingGoal::class);
     }
 
+    public function coachingJournalEntries(): HasMany
+    {
+        return $this->hasMany(CoachingJournalEntry::class);
+    }
+
     public function clinicalUploads(): HasMany
     {
         return $this->hasMany(ClinicalUpload::class);

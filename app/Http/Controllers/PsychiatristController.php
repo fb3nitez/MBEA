@@ -656,6 +656,7 @@ class PsychiatristController extends Controller
             'patient_name' => ['required', 'string', 'max:255'],
             'patient_age' => ['required', 'integer', 'min:0', 'max:150'],
             'patient_sex' => ['required', 'string', 'max:40'],
+            'prescription_date' => ['nullable', 'date'],
             'data' => ['required', 'array', 'max:80'],
             'data.goals' => ['nullable', 'array', 'max:3'],
             'data.goals.*' => ['string', 'max:255'],
@@ -669,7 +670,7 @@ class PsychiatristController extends Controller
             'patient_name' => $validated['patient_name'],
             'patient_age' => $validated['patient_age'] ?? null,
             'patient_sex' => $validated['patient_sex'] ?? null,
-            'prescription_date' => today(),
+            'prescription_date' => $validated['prescription_date'] ?? today(),
             'form_data' => $validated['data'],
         ]);
 

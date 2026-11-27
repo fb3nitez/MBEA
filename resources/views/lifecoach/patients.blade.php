@@ -7,7 +7,6 @@
   <title>MB.EA — Patients</title>
   <link rel="stylesheet" href="{{ asset('css/lifecoach.css') }}?v={{ filemtime(public_path('css/lifecoach.css')) }}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   @include('lifecoach.partials.boot')
   <link rel="icon" type="image/png" href="{{ asset('assets/mbea_logo.png') }}" />
 
@@ -539,9 +538,7 @@
 
           <div class="tab-bar">
             <button class="tab-btn active" data-ptab="overview">Overview</button>
-            <button class="tab-btn" data-ptab="metrics">Lifestyle Metrics</button>
-            <button class="tab-btn" data-ptab="goals">Goals</button>
-            <button class="tab-btn" data-ptab="habits">Habit Tracking</button>
+            <button class="tab-btn" data-ptab="journal">Guided Journal</button>
             <button class="tab-btn" data-ptab="coachNotes">Coaching Notes</button>
           </div>
 
@@ -575,36 +572,55 @@
             </div>
           </div>
 
-          <div class="ptab-panel" id="ptab-metrics">
-            <div class="two-col-grid">
-              <div class="card chart-card">
-                <div class="card-header"><span class="card-title">Weekly Compliance</span></div>
-                <div class="chart-container"><canvas id="compliance-chart"></canvas></div>
+          <div class="ptab-panel" id="ptab-journal">
+            <section class="journal-hero">
+              <div class="journal-hero-copy">
+                <h2>Guided Wellness Journal</h2>
+                <p>A private coaching record for intentions, small steps, and progress reflections. This is separate from the patient’s intake assessment.</p>
               </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">Current Metrics</span></div>
-                <div class="metrics-list" id="pd-metrics-list"></div>
+              <div class="journal-hero-actions">
+                <button type="button" class="btn-green" id="journal-start-btn"><i data-feather="edit-3"></i> Start journey setup</button>
               </div>
-            </div>
-          </div>
+            </section>
 
-          <div class="ptab-panel" id="ptab-goals">
-            <div class="card">
-              <div class="card-header">
-                <span class="card-title">Coaching Goals</span>
-                <button class="btn-green-sm" id="add-goal-btn"><i data-feather="plus"></i> Add Goal</button>
-              </div>
-              <div class="goals-list" id="pd-goals-list"></div>
-            </div>
-          </div>
+            <div class="journal-status-row" id="journal-status-row"></div>
 
-          <div class="ptab-panel" id="ptab-habits">
-            <div class="card">
+            <section class="journal-goals-card card">
               <div class="card-header">
-                <span class="card-title">Weekly Habit Tracker</span>
+                <div>
+                  <span class="card-title">Goals for this journey</span>
+                  <div class="journal-section-hint">Connect each goal to a small weekly practice, then review it alongside the journal.</div>
+                </div>
+                <button type="button" class="journal-add-goal-btn" id="add-goal-btn"><i data-feather="plus"></i><span>Add goal</span></button>
               </div>
-              <div class="habits-table-wrap" id="pd-habits-wrap"></div>
-            </div>
+              <div class="goals-list journal-goals-list" id="pd-goals-list"></div>
+            </section>
+
+            <section class="journal-timeline-card card">
+              <div class="card-header">
+                <div>
+                  <span class="card-title">Journey timeline</span>
+                  <div class="journal-section-hint">Setup and reflections are saved as dated entries.</div>
+                </div>
+                <button type="button" class="journal-add-reflection-btn" id="journal-new-reflection-btn" hidden><span class="journal-add-reflection-icon" aria-hidden="true"><i data-feather="plus"></i></span><span>Add reflection</span></button>
+              </div>
+              <div class="journal-timeline" id="journal-timeline" aria-live="polite"></div>
+            </section>
+
+            <section class="journal-context card">
+              <div class="card-header">
+                <div>
+                  <span class="card-title">Lifestyle context</span>
+                  <div class="journal-section-hint">Intake-derived metrics stay available as background context for coaching conversations.</div>
+                </div>
+              </div>
+              <div class="journal-context-panel active" data-journal-panel="metrics">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Intake-derived baseline</span></div>
+                  <div class="metrics-list" id="pd-metrics-list"></div>
+                </div>
+              </div>
+            </section>
           </div>
 
           <div class="ptab-panel" id="ptab-coachNotes">
@@ -702,6 +718,22 @@
       <div class="modal-footer">
         <button class="btn-outline" data-close="goal-modal">Cancel</button>
         <button class="btn-green" id="save-goal-btn">Add Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="journal-modal">
+    <div class="modal-box journal-modal-box" role="dialog" aria-modal="true" aria-labelledby="journal-modal-title">
+      <div class="modal-header">
+        <div>
+          <h3 id="journal-modal-title">Journey setup</h3>
+        </div>
+        <button type="button" class="modal-close" data-close="journal-modal" aria-label="Close journal form"><i data-feather="x"></i></button>
+      </div>
+      <div class="modal-body journal-modal-body" id="journal-form-fields"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline" data-close="journal-modal">Cancel</button>
+        <button type="button" class="btn-green" id="journal-save-btn">Save entry</button>
       </div>
     </div>
   </div>

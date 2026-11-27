@@ -39,6 +39,9 @@
                   @if($prescriber->license_no)
                   <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
                 </div>
+                <button type="button" class="rx-reset-icon" data-reset-prescription="rx" aria-label="Reset medication prescription" title="Reset form">
+                  <i data-feather="rotate-ccw"></i>
+                </button>
               </div>
 
               <!-- Patient & Date -->
@@ -192,6 +195,9 @@
                   @if($prescriber->license_no)
                   <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
                 </div>
+                <button type="button" class="rx-reset-icon" data-reset-prescription="lifestyle" aria-label="Reset lifestyle intervention form" title="Reset form">
+                  <i data-feather="rotate-ccw"></i>
+                </button>
               </div>
 
               <div class="rx-patient-row">
@@ -298,6 +304,9 @@
                   @if($prescriber->license_no)
                   <div class="rx-doctor-lic">Lic #: {{ $prescriber->license_no }}</div>@endif
                 </div>
+                <button type="button" class="rx-reset-icon" data-reset-prescription="diagnostic" aria-label="Reset diagnostic request" title="Reset form">
+                  <i data-feather="rotate-ccw"></i>
+                </button>
               </div>
 
               <div class="rx-patient-row">
@@ -442,6 +451,28 @@
           <button class="btn-outline" data-close="rx-print-modal">Close</button>
           <button type="button" class="btn-print-confirm" id="rx-print-now-btn"><i data-feather="printer"></i>
             Print</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="prescription-reset-modal">
+      <div class="modal-box prescription-reset-modal-box" role="alertdialog" aria-modal="true"
+        aria-labelledby="prescription-reset-title" aria-describedby="prescription-reset-description">
+        <div class="modal-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="prescription-reset-modal-icon"><i data-feather="rotate-ccw"></i></div>
+            <h3 id="prescription-reset-title">Reset form?</h3>
+          </div>
+          <button type="button" class="modal-close" data-close="prescription-reset-modal" aria-label="Close reset confirmation">
+            <i data-feather="x"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="prescription-reset-description">This clears the answers currently in the form. Saved prescriptions will not be deleted.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" data-close="prescription-reset-modal">Cancel</button>
+          <button type="button" class="btn-red-sm" id="confirm-prescription-reset-btn">Reset form</button>
         </div>
       </div>
     </div>

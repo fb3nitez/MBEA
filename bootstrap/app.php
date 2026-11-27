@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Logout only invalidates the current session, so allow it to work when
+        // an old dashboard page submits an expired CSRF token.
+        $middleware->preventRequestForgery(except: ['auth/logout']);
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

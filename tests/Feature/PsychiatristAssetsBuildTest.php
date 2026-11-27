@@ -68,3 +68,12 @@ test('prescription module contains modal print functions', function () {
     expect($source)->toContain('window.printDx');
     expect($source)->not->toMatch('/window\\.open\\s*\\(/');
 });
+
+test('exercise and nutrition prescriptions use the shared print preview flow', function () {
+    $source = file_get_contents(public_path('js/psych/exercise_nutrition_prescriptions.js'));
+
+    expect($source)
+        ->toContain('function buildPrintDocument()')
+        ->toContain('showPrintPreview(title, buildPrintDocument());')
+        ->toContain('root.querySelector(".en-print-button").addEventListener("click", function () { savePrescription(true); });');
+});

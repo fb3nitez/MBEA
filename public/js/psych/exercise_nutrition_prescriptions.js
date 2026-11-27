@@ -354,29 +354,47 @@
         var searchTimer = null;
         var currentMatches = [];
         var activeIndex = -1;
+        var prescriber = psychData.prescriber || {};
+        var prescriberStamp = definition.type === "exercise" ? "Ex" : "Nu";
         var toc = definition.sections.map(function (section, index) {
             return '<a href="#' + attr(definition.type + "-" + section.id) + '">' + (index + 1) + ". " + esc(section.title) + "</a>";
         }).join("");
         var content = definition.sections.map(function (section, index) {
             var fields = section.fields.map(function (field) {
+                if (section.id === "about" && (field.key === "name" || field.key === "age")) return "";
                 var condition = field.when ? ' data-condition="' + attr(section.id + "-" + field.key) + '"' : "";
                 var fieldClass = field.kind === "note" || field.kind === "grid" || field.kind === "yesno" || field.kind === "check" || field.kind === "radio" || field.kind === "area" ? " en-wide" : "";
                 return '<div class="en-field-wrap' + fieldClass + '"' + condition + ">" + fieldHtml(field, values) + "</div>";
             }).join("");
-            return '<section class="en-section" id="' + attr(definition.type + "-" + section.id) + '"><h2><span>' +
+            var clinicianHeader = index === 0
+                ? '<div class="rx-doctor-block en-rx-doctor-block"><div class="rx-stamp en-rx-stamp">' + prescriberStamp +
+                    '</div><div class="rx-doctor-info"><div class="rx-doctor-name">' + esc(prescriber.name || "Prescribing clinician") +
+                    '</div><div class="rx-doctor-role">Psychiatrist &middot; ' + esc(prescriber.clinic || "MB.EA Wellness Center") +
+                    '</div>' + (prescriber.license_no ? '<div class="rx-doctor-lic">Lic #: ' + esc(prescriber.license_no) + '</div>' : "") +
+                    '</div><button type="button" class="rx-reset-icon en-reset-button" aria-label="Reset ' + attr(definition.title) + ' form" title="Reset form"><i data-feather="rotate-ccw"></i></button></div>'
+                : "";
+            var patientRow = section.id === "about"
+                ? '<div class="rx-patient-row en-patient-date-row"><div class="field-group"><label class="field-label" for="' + attr(definition.type) + '-patient-search">Patient Name</label><div class="en-typeahead">' +
+                    '<input class="field-input" type="text" id="' + attr(definition.type) + '-patient-search" data-key="name" autocomplete="off" required placeholder="Search patient by name or ID..." value="' + attr(valueAt(values, "name")) + '">' +
+                    '<div class="en-suggestions" role="listbox" hidden></div></div></div><div class="field-group"><label class="field-label" for="' + attr(definition.type) + '-age">Age</label>' +
+                    '<input class="field-input" type="number" id="' + attr(definition.type) + '-age" data-key="age" min="0" max="150" required placeholder="Age" value="' + attr(valueAt(values, "age")) + '"></div>' +
+                    '<div class="field-group"><label class="field-label" for="' + attr(definition.type) + '-date">Date</label><input class="field-input" type="date" id="' + attr(definition.type) + '-date" data-prescription-date value="' + attr(date) + '"></div></div>'
+                : "";
+            return '<section class="en-section" id="' + attr(definition.type + "-" + section.id) + '">' + clinicianHeader + patientRow + '<h2><span>' +
                 (index + 1) + "</span>" + esc(section.title) + '</h2><div class="en-fields">' + fields + "</div></section>";
         }).join("");
 
-        root.innerHTML = '<div class="en-prescription-layout"><main class="en-main"><header class="en-header"><div><h1>' +
-            esc(definition.title) + '</h1><p>Lifestyle Medicine Clinic. Complete with your doctor. <b class="en-required">*</b> Required. <span class="en-today">Date: ' + esc(date) + '</span></p></div><div class="en-header-actions"><span class="en-save-status" aria-live="polite"></span>' +
-            '<button type="button" class="en-action-button en-reset-button">Reset</button><button type="button" class="en-action-button en-save-button">Save</button><button type="button" class="en-action-button en-primary en-print-button">Print</button></div></header>' +
-            '<form class="en-sheet" novalidate>' + content + "</form></main><nav class=\"en-toc\" aria-label=\"Prescription sections\">" +
+        root.innerHTML = '<div class="en-prescription-layout"><main class="en-main">' +
+            '<form class="en-sheet" aria-label="' + attr(definition.title) + ' form" novalidate>' + content +
+            '<div class="en-form-actions"><span class="en-save-status" aria-live="polite"></span><button type="button" class="en-action-button en-primary en-print-button"><i data-feather="printer"></i> Print preview</button><button type="button" class="en-action-button en-save-button"><i data-feather="bookmark"></i> Save</button></div></form></main><nav class=\"en-toc\" aria-label=\"Prescription sections\">' +
             "<strong>Contents</strong>" + toc + "</nav></div>";
         root.dataset.prescriptionId = selectedPrescription ? String(selectedPrescription.id) : "";
 
         var form = root.querySelector(".en-sheet");
         var status = root.querySelector(".en-save-status");
         var nameInput = form.querySelector('[data-key="name"]');
+        var ageInput = form.querySelector('[data-key="age"]');
+        var dateInput = form.querySelector("[data-prescription-date]");
         var suggestionsBox = form.querySelector(".en-suggestions");
         root.querySelector(".en-toc").addEventListener("click", function (event) {
             var link = event.target.closest("a[href^='#']");
@@ -402,7 +420,7 @@
             values.age = patient.age == null ? "" : String(patient.age);
             values.sex = patient.sex || "";
             nameInput.value = values.name;
-            form.querySelector('[data-key="age"]').value = values.age;
+            ageInput.value = values.age;
             form.querySelector('[data-key="sex"]').value = values.sex;
             suggestionsBox.hidden = true;
         }
@@ -433,7 +451,7 @@
                     values.sex = patient.sex || "";
                     selectedPatientName = patient.name;
                     nameInput.value = values.name;
-                    form.querySelector('[data-key="age"]').value = values.age;
+                    ageInput.value = values.age;
                     form.querySelector('[data-key="sex"]').value = values.sex;
                     suggestionsBox.hidden = true;
                     if (selectedPrescription) changedExistingPrescription = true;
@@ -503,6 +521,11 @@
             suggestionsBox.querySelectorAll(".en-suggestion").forEach(function (option, index) {
                 option.classList.toggle("active", index === activeIndex);
             });
+        });
+        dateInput.addEventListener("change", function () {
+            date = dateInput.value || psychData.lifestylePrescriptionDate || new Date().toISOString().slice(0, 10);
+            if (selectedPrescription) changedExistingPrescription = true;
+            setStatus("", false);
         });
         document.addEventListener("click", function (event) {
             if (!root.contains(event.target) || !event.target.closest(".en-typeahead")) suggestionsBox.hidden = true;
@@ -579,45 +602,119 @@
             return true;
         }
 
-        function openPdfPage(prescriptionId, pdfWindow) {
-            var pdfUrl = psychData.exerciseNutritionPrescriptionPdfUrl;
-            if (!prescriptionId || !pdfUrl) {
-                if (pdfWindow && !pdfWindow.closed) pdfWindow.close();
-                setStatus("The saved prescription PDF page could not be opened.", true);
+        function printValue(value) {
+            if (value == null || value === "") return "—";
+            if (Array.isArray(value)) return value.length ? value.join(", ") : "—";
+            if (typeof value === "object") return "—";
+            return String(value);
+        }
+
+        function printChoice(checked, label) {
+            return '<span class="choice"><span class="box">' +
+                (checked ? "&#9745;" : "&#9744;") + "</span>" + esc(label) + "</span>";
+        }
+
+        function printField(field) {
+            if (field.when && !field.when(values)) return "";
+            if (field.kind === "note") {
+                return '<div class="print-note">' + esc(field.text) + "</div>";
+            }
+            if (field.kind === "yesno") {
+                var answers = valueAt(values, field.key) || {};
+                return '<div class="print-wide"><table><thead><tr><th>Question</th><th class="center">Yes</th><th class="center">No</th></tr></thead><tbody>' +
+                    field.rows.map(function (row, index) {
+                        return "<tr><td>" + esc(row) + "</td><td class=\"center\">" +
+                            (answers[index] === "Yes" ? "&#9745;" : "&#9744;") + "</td><td class=\"center\">" +
+                            (answers[index] === "No" ? "&#9745;" : "&#9744;") + "</td></tr>";
+                    }).join("") + "</tbody></table></div>";
+            }
+            if (field.kind === "grid") {
+                var headers = (field.head || []).concat((field.inputs || []).map(function (input) { return input.label; }));
+                var rows = field.rows || [];
+                var tableValues = valueAt(values, field.key) || [];
+                return '<div class="print-wide"><table><thead><tr>' + headers.map(function (heading) {
+                    return "<th>" + esc(heading) + "</th>";
+                }).join("") + "</tr></thead><tbody>" + rows.map(function (row, rowIndex) {
+                    var staticCells = row.map(function (cell) { return "<td>" + esc(cell) + "</td>"; }).join("");
+                    var editableCells = (field.inputs || []).map(function (input, columnIndex) {
+                        var cell = tableValues[rowIndex] && tableValues[rowIndex][columnIndex];
+                        if (input.type === "check") return '<td class="center">' + (cell ? "&#9745;" : "&#9744;") + "</td>";
+                        return "<td>" + esc(printValue(cell)) + "</td>";
+                    }).join("");
+                    return "<tr>" + staticCells + editableCells + "</tr>";
+                }).join("") + "</tbody></table></div>";
+            }
+            if (field.kind === "check" || field.kind === "radio") {
+                var selected = valueAt(values, field.key);
+                var options = field.options || [];
+                var choices = options.map(function (option) {
+                    var checked = field.kind === "radio" ? selected === option : Array.isArray(selected) && selected.includes(option);
+                    return printChoice(checked, option);
+                }).join("");
+                return '<div class="print-choices">' + choices + "</div>";
+            }
+
+            var value = field.key === "name" ? values.name : valueAt(values, field.key);
+            return '<div class="print-field"><strong>' + esc(field.label) + "</strong><div>" +
+                esc(printValue(value)) + "</div></div>";
+        }
+
+        function buildPrintDocument() {
+            var prescriber = (window.PSYCH_DATA || {}).prescriber || {};
+            var logo = (window.PSYCH_DATA || {}).clinicLogo;
+            var sections = definition.sections.map(function (section, index) {
+                var fields = section.fields.filter(function (field) {
+                    return section.id !== "about" || (field.key !== "name" && field.key !== "age");
+                }).map(printField).filter(Boolean).join("");
+                return '<section class="print-section"><h2><span>' + (index + 1) + "</span>" +
+                    esc(section.title) + "</h2><div class=\"print-fields\">" + fields + "</div></section>";
+            }).join("");
+            return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(definition.title) +
+                '</title><style>@page{size:letter portrait;margin:.55in}*{box-sizing:border-box}body{margin:0;color:#172033;font:10pt/1.45 Arial,Helvetica,sans-serif}.print-header{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:2px solid #1e293b}.print-logo{width:54px;height:54px;object-fit:contain}.print-clinic{flex:1;text-align:center}.print-clinic h1{margin:0;font-size:17pt;letter-spacing:.02em;text-transform:uppercase}.print-clinic p{margin:3px 0 0;color:#52657e;font-size:9pt}.print-title{margin:18px 0 4px;font-size:16pt}.print-meta{margin:0 0 15px;color:#52657e;font-size:9pt}.print-section{margin:13px 0 0;padding:12px 14px;border:1px solid #dce5ef;border-radius:8px;break-inside:avoid-page}.print-section h2{display:flex;align-items:center;gap:8px;margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid #e8edf3;font-size:11pt;break-after:avoid}.print-section h2 span{display:inline-grid;width:22px;height:22px;place-items:center;border-radius:50%;background:#eff5ff;color:#1d4ed8;font-size:9pt}.print-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 12px}.print-field{min-width:0;break-inside:avoid}.print-field strong{display:block;margin-bottom:3px;color:#52657e;font-size:8pt;text-transform:uppercase;letter-spacing:.04em}.print-field>div{min-height:20px;padding:4px 7px;border:1px solid #dce5ef;border-radius:5px;white-space:pre-wrap;overflow-wrap:anywhere}.print-field:has(textarea){} .print-wide{grid-column:1/-1;min-width:0;break-inside:avoid}.print-wide table{width:100%;border-collapse:collapse;font-size:8.5pt}.print-wide th,.print-wide td{padding:5px 6px;border:1px solid #dce5ef;text-align:left;vertical-align:top;overflow-wrap:anywhere}.print-wide th{background:#f3f6fa;color:#334155;font-size:8pt}.center{text-align:center!important}.print-note{grid-column:1/-1;padding:8px 10px;border-left:3px solid #2563eb;border-radius:0 5px 5px 0;background:#f1f6ff;white-space:pre-line;break-inside:avoid}.print-choices{display:flex;grid-column:1/-1;flex-wrap:wrap;gap:5px}.choice{display:inline-flex;align-items:flex-start;gap:4px;padding:4px 6px;border:1px solid #e3eaf2;border-radius:5px;font-size:8.5pt;break-inside:avoid}.box{flex:0 0 12px;font-size:11pt;line-height:1}.print-answer{grid-column:1/-1}.print-footer{margin-top:20px;padding-top:8px;border-top:1px solid #cbd5e1;color:#52657e;font-size:8pt}.print-signatures{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}.print-signatures div{padding-top:5px;border-top:1px solid #334155;text-align:center;font-size:8pt}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}.print-section{box-shadow:none}}@media(max-width:600px){.print-fields{grid-template-columns:1fr}}</style></head><body>' +
+                '<header class="print-header">' + (logo ? '<img class="print-logo" src="' + attr(logo) + '" alt="">' : "") +
+                '<div class="print-clinic"><h1>' + esc(prescriber.clinic || "MB.EA Wellness Center") +
+                '</h1><p>' + esc(prescriber.clinic_sub || "Mental Health and Wellness Clinic") + "</p><p>Prescribed by " +
+                esc(prescriber.name || "") + (prescriber.license_no ? " · License No. " + esc(prescriber.license_no) : "") +
+                "</p></div></header><h1 class=\"print-title\">" + esc(definition.title) + "</h1><p class=\"print-meta\">Patient: " +
+                esc(values.name || "—") + " · Age: " + esc(printValue(values.age)) + " · Sex: " + esc(printValue(values.sex)) +
+                " · Date: " + esc(date) + "</p>" + sections +
+                '<div class="print-signatures"><div>Doctor\'s signature</div><div>Patient\'s signature</div></div><footer class="print-footer">This prescription is general guidance and does not replace individual medical advice.</footer></body></html>';
+        }
+
+        function openPrintPreview() {
+            var title = "Print Preview — " + definition.title;
+            if (typeof showPrintPreview !== "function") {
+                setStatus("The print preview could not be opened.", true);
                 return;
             }
-            var destination = pdfUrl.replace("__ID__", encodeURIComponent(prescriptionId));
-            if (pdfWindow && !pdfWindow.closed) pdfWindow.location.replace(destination);
-            else window.location.assign(destination);
+            showPrintPreview(title, buildPrintDocument());
         }
 
         function savePrescription(shouldPrint) {
             if (!validateForm()) return;
-            var pdfWindow = shouldPrint ? window.open("about:blank", "_blank") : null;
             var payload = {
                 type: definition.type,
                 patient_record_id: patientRecordId,
                 patient_name: values.name,
                 patient_age: values.age || null,
                 patient_sex: values.sex || null,
+                prescription_date: date,
                 data: values
             };
             var serializedPayload = JSON.stringify(payload);
             if (selectedPrescription && !changedExistingPrescription) {
-                if (shouldPrint) openPdfPage(selectedPrescription.id, pdfWindow);
+                if (shouldPrint) openPrintPreview();
                 else setStatus("This prescription is already saved.", false);
                 return;
             }
             if (serializedPayload === lastSavedPayload) {
                 date = lastSavedDate;
-                root.querySelector(".en-today").textContent = "Date: " + date;
-                if (shouldPrint) openPdfPage(root.dataset.prescriptionId, pdfWindow);
+                if (shouldPrint) openPrintPreview();
                 else setStatus("This version is already saved.", false);
                 return;
             }
 
-            var busyControls = Array.prototype.slice.call(form.querySelectorAll("input,textarea,button"))
-                .concat([root.querySelector(".en-reset-button")]);
+            var busyControls = Array.prototype.slice.call(form.querySelectorAll("input,textarea,button"));
             var isNewVersion = !!selectedPrescription;
             var priorDisabledStates = busyControls.map(function (control) {
                 var wasDisabled = control.disabled;
@@ -640,16 +737,15 @@
                 });
             }).then(function (payload) {
                 date = payload.prescription_date;
+                dateInput.value = date;
                 lastSavedDate = date;
                 lastSavedPayload = serializedPayload;
                 selectedPrescription = null;
                 changedExistingPrescription = false;
                 root.dataset.prescriptionId = String(payload.prescription.id);
-                root.querySelector(".en-today").textContent = "Date: " + date;
-                if (shouldPrint) openPdfPage(payload.prescription.id, pdfWindow);
+                if (shouldPrint) openPrintPreview();
                 else setStatus(isNewVersion ? "Changes saved as a new prescription." : "Saved to patient records.", false);
             }).catch(function (error) {
-                if (pdfWindow && !pdfWindow.closed) pdfWindow.close();
                 setStatus(error.message || "The prescription could not be saved.", true);
             }).finally(function () {
                 busyControls.forEach(function (control, index) {
@@ -661,11 +757,7 @@
         root.querySelector(".en-save-button").addEventListener("click", function () { savePrescription(false); });
         root.querySelector(".en-print-button").addEventListener("click", function () { savePrescription(true); });
         root.querySelector(".en-reset-button").addEventListener("click", function () {
-            if (!window.confirm("Clear all answers in this form? Saved prescriptions will not be deleted.")) return;
-            var url = new URL(window.location.href);
-            url.searchParams.delete("patient");
-            url.searchParams.delete(definition.type + "_prescription");
-            window.location.replace(url.toString());
+            if (window.requestPrescriptionFormReset) window.requestPrescriptionFormReset(definition.type);
         });
 
         suggestions = Array.isArray((window.PSYCH_DATA || {}).patientSuggestions)

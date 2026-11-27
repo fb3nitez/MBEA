@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\CoachingGoal;
+use App\Models\CoachingJournalEntry;
 use App\Models\CoachingNote;
 use App\Models\CoachingSchedule;
 use App\Models\CoachingTask;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LifeCoachService
 {
@@ -74,6 +76,7 @@ class LifeCoachService
             'interventions',
             'coachingNotes' => fn($query) => $query->where('life_coach_id', $coachId)->latest(),
             'coachingGoals' => fn($query) => $query->where('life_coach_id', $coachId)->latest(),
+            'coachingJournalEntries' => fn($query) => $query->where('life_coach_id', $coachId)->latest('entry_date'),
         ])
             ->where('life_coach_id', $coachId)
             ->orderBy('fullname')
@@ -95,6 +98,7 @@ class LifeCoachService
             'interventions',
             'coachingNotes' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
             'coachingGoals' => fn($q) => $q->where('life_coach_id', $coachId)->latest(),
+            'coachingJournalEntries' => fn($q) => $q->where('life_coach_id', $coachId)->latest('entry_date'),
         ])
             ->where('life_coach_id', $coachId)
             ->findOrFail($id);
@@ -278,6 +282,80 @@ class LifeCoachService
             ->delete();
     }
 
+    public function createJournalEntry(int $patientId, array $data, ?int $coachId = null): CoachingJournalEntry
+    {
+        $coachId ??= $this->currentCoach()->id;
+        $this->assertAssignedPatient($patientId, $coachId);
+
+        $hasSetup = CoachingJournalEntry::where('patient_record_id', $patientId)
+            ->where('life_coach_id', $coachId)
+            ->where('kind', 'setup')
+            ->exists();
+
+        if ($data['kind'] === 'setup' && $hasSetup) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'kind' => 'Journey setup has already been completed for this patient.',
+            ]);
+        }
+
+        if ($data['kind'] === 'review' && ! $hasSetup) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'kind' => 'Complete the journey setup before adding a reflection.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($patientId, $data, $coachId) {
+            $content = $data['content'];
+            $submittedGoalCheckins = $data['kind'] === 'review'
+                ? ($content['goal_checkins'] ?? [])
+                : [];
+
+            if ($data['kind'] === 'review' && array_key_exists('goal_checkins', $content)) {
+                $goalSnapshots = [];
+                foreach ($submittedGoalCheckins as $checkin) {
+                    $goal = CoachingGoal::where('patient_record_id', $patientId)
+                        ->where('life_coach_id', $coachId)
+                        ->find($checkin['goal_id']);
+
+                    if (! $goal) {
+                        throw \Illuminate\Validation\ValidationException::withMessages([
+                            'content.goal_checkins' => 'One or more selected goals are no longer available for this patient.',
+                        ]);
+                    }
+
+                    $weeklyCheckins = array_values(array_map(
+                        fn ($checked) => (bool) $checked,
+                        $checkin['weekly_checkins']
+                    ));
+                    $progress = (int) round((count(array_filter($weeklyCheckins)) / 7) * 100);
+                    $goal->update([
+                        'weekly_checkins' => $weeklyCheckins,
+                        'progress' => $progress,
+                    ]);
+
+                    $goalSnapshots[] = [
+                        'goal_id' => $goal->id,
+                        'title' => $goal->title,
+                        'category' => $goal->category,
+                        'weekly_checkins' => $weeklyCheckins,
+                        'progress' => $progress,
+                    ];
+                }
+
+                $content['goal_checkins'] = $goalSnapshots;
+            }
+
+            return CoachingJournalEntry::create([
+                'patient_record_id' => $patientId,
+                'life_coach_id' => $coachId,
+                'kind' => $data['kind'],
+                'cadence' => $data['kind'] === 'setup' ? ($data['cadence'] ?? 'weekly') : null,
+                'entry_date' => $data['entry_date'] ?? now()->toDateString(),
+                'content' => $content,
+            ]);
+        });
+    }
+
     public function dashboardStats(?int $coachId = null): array
     {
         $coachId ??= $this->currentCoach()->id;
@@ -315,6 +393,7 @@ class LifeCoachService
             'prescriptions',
             'coachingNotes',
             'coachingGoals',
+            'coachingJournalEntries',
             'medicalHistory',
             'psychiatricHistory',
             'spiritualIntake',
@@ -366,11 +445,15 @@ class LifeCoachService
             'nextAppt' => $this->nextAppointmentLabel($patient),
             'prescriptions' => $this->prescriptionsToArray($patient),
             'metrics' => $this->metricsFromLifestyle($patient),
-            'compliance' => $this->complianceSeries($patient),
             'goals' => $goals,
             'habits' => $habitNames,
             'habitData' => $habitData,
             'notes' => $notes,
+            'journalEntries' => $patient->coachingJournalEntries
+                ->where('life_coach_id', $coachId)
+                ->sortByDesc('entry_date')
+                ->values()
+                ->map(fn (CoachingJournalEntry $entry) => $this->journalEntryToArray($entry)),
             'intake' => $this->intakeToArray($patient),
         ];
     }
@@ -443,6 +526,21 @@ class LifeCoachService
             'date_raw' => $goal->target_date?->format('Y-m-d') ?? null,
             'prog' => (int) $goal->progress,
             'weekly_checkins' => array_values($goal->weekly_checkins ?? array_fill(0, 7, false)),
+        ];
+    }
+
+    public function journalEntryToArray(CoachingJournalEntry $entry): array
+    {
+        $rawDate = $entry->getRawOriginal('entry_date');
+        $entryDate = $rawDate ? Carbon::parse($rawDate) : null;
+
+        return [
+            'id' => $entry->id,
+            'kind' => $entry->kind,
+            'cadence' => $entry->cadence,
+            'date' => $entryDate?->format('M j, Y') ?? '',
+            'date_raw' => $entryDate?->format('Y-m-d') ?? '',
+            'content' => $entry->content ?? [],
         ];
     }
 
@@ -763,16 +861,6 @@ class LifeCoachService
                 'icon' => 'droplet',
             ],
         ];
-    }
-
-    private function complianceSeries(PatientRecord $patient): array
-    {
-        $ls = $patient->lifestyleAssessment;
-        $base = $ls?->health_score !== null ? (int) ($ls->health_score * 10) : 60;
-
-        return collect(range(0, 6))
-            ->map(fn($i) => max(20, min(100, $base + (($i % 3) * 5) - 5)))
-            ->all();
     }
 
     private function barClass(int $pct): string

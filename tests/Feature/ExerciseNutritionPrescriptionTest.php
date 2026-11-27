@@ -20,7 +20,7 @@ function exerciseNutritionPsychiatrist(): User
     return $psychiatrist;
 }
 
-it('saves exercise and nutrition form answers with patient snapshots and today date', function () {
+it('saves exercise and nutrition form answers with patient snapshots and the selected date', function () {
     $psychiatrist = exerciseNutritionPsychiatrist();
     $patient = PatientRecord::create([
         'fullname' => 'Exercise Nutrition Patient',
@@ -34,6 +34,7 @@ it('saves exercise and nutrition form answers with patient snapshots and today d
             [today()->toDateString(), 'Walk, 20 minutes', 4, 6, 7, 'Felt better'],
         ],
     ];
+    $selectedDate = now()->subDay()->toDateString();
 
     $this->actingAs($psychiatrist)
         ->postJson(route('psychiatrist.exercise-nutrition-prescriptions.store'), [
@@ -42,20 +43,20 @@ it('saves exercise and nutrition form answers with patient snapshots and today d
             'patient_name' => 'Editable Patient Name',
             'patient_age' => 33,
             'patient_sex' => 'Other',
-            'prescription_date' => now()->subDay()->toDateString(),
+            'prescription_date' => $selectedDate,
             'data' => $answers,
         ])
         ->assertCreated()
         ->assertJsonPath('prescription.type', 'exercise')
         ->assertJsonPath('prescription.patient_name', 'Editable Patient Name')
-        ->assertJsonPath('prescription_date', today()->toDateString());
+        ->assertJsonPath('prescription_date', $selectedDate);
 
     $record = ExerciseNutritionPrescription::firstOrFail();
     expect($record->patient_record_id)->toBe($patient->id)
         ->and($record->prescribed_by)->toBe($psychiatrist->id)
         ->and($record->patient_age)->toBe(33)
         ->and($record->patient_sex)->toBe('Other')
-        ->and($record->prescription_date->toDateString())->toBe(today()->toDateString())
+        ->and($record->prescription_date->toDateString())->toBe($selectedDate)
         ->and($record->form_data['tracker'][0][1])->toBe('Walk, 20 minutes')
         ->and($record->form_data['goals'])->toBe(['More energy']);
 
@@ -75,7 +76,7 @@ it('saves exercise and nutrition form answers with patient snapshots and today d
         ->and(ExerciseNutritionPrescription::latest('id')->first()->form_data['allergy'])->toBe('Peanuts');
 });
 
-it('shows exercise and nutrition as prescription tabs with no editable prescription date or prescriber field', function () {
+it('shows exercise and nutrition as prescription tabs without a duplicate prescriber field', function () {
     $psychiatrist = exerciseNutritionPsychiatrist();
 
     $this->actingAs($psychiatrist)
@@ -85,9 +86,7 @@ it('shows exercise and nutrition as prescription tabs with no editable prescript
         ->assertSee('Nutrition Prescription')
         ->assertSee('exercise-prescription-app')
         ->assertSee('exercise_nutrition_prescriptions.js')
-        ->assertDontSee('Prescribed by:')
-        ->assertDontSee('id="exercise-date"')
-        ->assertDontSee('id="nutrition-date"');
+        ->assertDontSee('Prescribed by:');
 });
 
 it("lists a patient's saved lifestyle prescriptions and opens the selected form", function () {

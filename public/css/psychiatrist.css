@@ -8515,43 +8515,93 @@ a.psych-page-btn:hover {
     font-weight:600;
 }
 #subtab-diagnostic .dx-checklist {
-    grid-template-columns:minmax(0,1fr);
-    gap:8px;
+    display:block;
     padding:0;
 }
+#subtab-diagnostic .dx-category-tabs {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:0 0 12px;
+    border-bottom:1px solid #e3eaf2;
+}
 #subtab-diagnostic .dx-category-group {
-    border-color:#e3eaf2;
-    border-radius:10px;
-    background:#fff;
-    box-shadow:0 1px 3px rgba(15,23,42,.035);
+    display:contents;
 }
-#subtab-diagnostic .dx-cat-label {
-    min-height:48px;
-    gap:12px;
-    padding:9px 13px;
+#subtab-diagnostic .dx-category-tab {
+    display:inline-flex;
+    min-height:38px;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:8px 11px;
+    border:1px solid #dce5ef;
+    border-radius:9px;
     background:#fff;
-    color:var(--text-800);
+    color:var(--text-700);
+    cursor:pointer;
+    font:inherit;
     font-size:12px;
-    letter-spacing:0;
-    transition:background .15s ease;
+    font-weight:650;
+    transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease;
 }
-#subtab-diagnostic .dx-cat-label:hover {
+#subtab-diagnostic .dx-category-tab:hover {
+    border-color:#bfcee0;
     background:#f8fafc;
 }
-#subtab-diagnostic .dx-cat-label > span:first-child {
-    gap:9px;
-    font-weight:700;
+#subtab-diagnostic .dx-category-tab[aria-selected="true"] {
+    border-color:var(--blue-600);
+    background:#eff5ff;
+    color:var(--blue-700);
+    box-shadow:0 0 0 2px rgba(59,130,246,.08);
 }
-#subtab-diagnostic .dx-cat-label > span:first-child svg {
-    color:var(--blue-600);
-    transition:transform .18s ease;
+#subtab-diagnostic .dx-category-tab:focus-visible {
+    outline:3px solid rgba(59,130,246,.28);
+    outline-offset:2px;
 }
-#subtab-diagnostic .dx-category-group.collapsed .dx-cat-label > span:first-child svg {
-    transform:rotate(-90deg);
+#subtab-diagnostic .dx-category-tab.has-selections,
+#subtab-diagnostic .dx-category-group.has-selections .dx-category-tab {
+    border-color:#86c9a4;
+    background:#f0fdf4;
+    color:#166534;
+}
+#subtab-diagnostic .dx-category-group.active.has-selections .dx-category-tab {
+    border-color:#4ade80;
+    background:#dcfce7;
+    color:#14532d;
+}
+#subtab-diagnostic .dx-tab-count {
+    display:inline-grid;
+    min-width:19px;
+    height:19px;
+    place-items:center;
+    padding:0 5px;
+    border-radius:999px;
+    background:#dcfce7;
+    color:#166534;
+    font-size:10px;
+    font-weight:750;
+}
+#subtab-diagnostic .dx-tab-count:empty {
+    display:none;
+}
+#subtab-diagnostic .dx-category-panel[hidden],
+#subtab-diagnostic .dx-category-group[hidden] {
+    display:none !important;
+}
+#subtab-diagnostic .dx-category-panel {
+    padding-top:10px;
+}
+#subtab-diagnostic .dx-category-panel:focus-visible {
+    outline:3px solid rgba(59,130,246,.22);
+    outline-offset:3px;
 }
 #subtab-diagnostic .dx-cat-actions {
+    display:flex;
     align-items:center;
+    justify-content:flex-end;
     gap:10px;
+    margin-bottom:9px;
 }
 #subtab-diagnostic .dx-cat-actions button {
     min-height:30px;
@@ -8568,9 +8618,9 @@ a.psych-page-btn:hover {
 #subtab-diagnostic .dx-category-items {
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:8px;
-    padding:12px;
-    border-top:1px solid #edf1f5;
-    background:#fbfcfe;
+    padding:0;
+    border:0;
+    background:transparent;
 }
 #subtab-diagnostic .dx-check-item {
     min-height:40px;
@@ -8632,14 +8682,458 @@ a.psych-page-btn:hover {
     }
     #subtab-diagnostic .dx-category-items {
         grid-template-columns:minmax(0,1fr);
-        padding:10px;
     }
-    #subtab-diagnostic .dx-cat-label {
-        align-items:flex-start;
-        flex-direction:column;
-        gap:6px;
+    #subtab-diagnostic .dx-category-tabs {
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        padding:2px 2px 10px;
     }
     #subtab-diagnostic .dx-cat-actions {
-        padding-left:23px;
+        justify-content:flex-start;
+    }
+}
+
+/* Exercise and nutrition: use the same distinct form cards as medication Rx. */
+#subtab-exercise .en-sheet,
+#subtab-nutrition .en-sheet {
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+}
+#subtab-exercise .en-section,
+#subtab-nutrition .en-section {
+    padding:22px 24px;
+    border:1px solid #e9edf2;
+    border-radius:16px;
+    background:var(--white);
+    box-shadow:0 1px 2px rgba(15,23,42,.08);
+    scroll-margin-top:calc(var(--topbar-h) + 18px);
+}
+#subtab-exercise .en-section:last-child,
+#subtab-nutrition .en-section:last-child {
+    border-bottom:1px solid #e9edf2;
+}
+#subtab-exercise .en-section h2,
+#subtab-nutrition .en-section h2 {
+    margin-bottom:18px;
+    padding-bottom:14px;
+    border-bottom:1px solid #edf1f5;
+}
+#subtab-exercise .en-section h2 > span,
+#subtab-nutrition .en-section h2 > span {
+    background:#eff5ff;
+}
+#subtab-exercise .en-fields,
+#subtab-nutrition .en-fields {
+    gap:16px;
+}
+#subtab-exercise .en-note,
+#subtab-nutrition .en-note {
+    padding:12px 14px;
+}
+#subtab-exercise .en-table-wrap,
+#subtab-nutrition .en-table-wrap {
+    border-radius:10px;
+}
+#subtab-exercise .en-header-actions .en-save-button,
+#subtab-nutrition .en-header-actions .en-save-button {
+    border-color:#d7e1ef;
+    background:#fff;
+    color:#52657e;
+}
+#subtab-exercise .en-header-actions .en-save-button:hover,
+#subtab-nutrition .en-header-actions .en-save-button:hover {
+    border-color:#93b4e8;
+    background:#f5f8ff;
+    color:var(--blue-700);
+}
+@media(max-width:760px) {
+    #subtab-exercise .en-section,
+    #subtab-nutrition .en-section {
+        padding:18px;
+        border-radius:13px;
+    }
+}
+@media(max-width:520px) {
+    #subtab-exercise .en-header-actions .en-save-status,
+    #subtab-nutrition .en-header-actions .en-save-status {
+        grid-column:1 / -1;
+        min-height:18px;
+    }
+    #subtab-exercise .en-section,
+    #subtab-nutrition .en-section {
+        padding:16px;
+        border-radius:12px;
+    }
+    #subtab-exercise .en-section h2,
+    #subtab-nutrition .en-section h2 {
+        margin-bottom:14px;
+        padding-bottom:12px;
+    }
+}
+
+/* Bring both long-form prescription headers and navigation in line with Rx. */
+#subtab-exercise .en-rx-doctor-block,
+#subtab-nutrition .en-rx-doctor-block {
+    position:relative;
+    margin:-22px -23px 18px;
+    padding:16px 24px;
+    border-radius:14px 14px 0 0;
+}
+#subtab-exercise .en-patient-date-row,
+#subtab-nutrition .en-patient-date-row {
+    grid-template-columns:minmax(0,1fr) 80px 130px;
+    gap:16px;
+    margin:0 0 18px;
+    padding:0 0 14px;
+    border-bottom:1px solid var(--border);
+}
+#subtab-exercise .en-patient-date-row .field-group,
+#subtab-nutrition .en-patient-date-row .field-group {
+    min-width:0;
+}
+#subtab-exercise .en-patient-date-row .field-label,
+#subtab-nutrition .en-patient-date-row .field-label {
+    display:block;
+    margin:0 0 6px;
+    color:#64748b;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+}
+#subtab-exercise .en-patient-date-row .field-input,
+#subtab-nutrition .en-patient-date-row .field-input {
+    width:100%;
+    min-height:40px;
+    padding:8px 12px;
+    border:1px solid #dce5ef;
+    border-radius:9px;
+    background:#fff;
+    color:var(--text-800);
+    font:inherit;
+}
+#subtab-exercise .en-patient-date-row .field-input:focus,
+#subtab-nutrition .en-patient-date-row .field-input:focus {
+    border-color:var(--blue-500);
+    outline:0;
+    box-shadow:0 0 0 3px rgba(59,130,246,.12);
+}
+#subtab-exercise .en-patient-date-row .en-typeahead,
+#subtab-nutrition .en-patient-date-row .en-typeahead {
+    position:relative;
+}
+#subtab-exercise .en-patient-date-row .en-suggestions,
+#subtab-nutrition .en-patient-date-row .en-suggestions {
+    z-index:40;
+}
+@media(max-width:520px) {
+    #subtab-exercise .en-patient-date-row,
+    #subtab-nutrition .en-patient-date-row {
+        grid-template-columns:minmax(0,1fr) minmax(72px,.45fr);
+        gap:10px;
+    }
+    #subtab-exercise .en-patient-date-row .field-group:first-child,
+    #subtab-nutrition .en-patient-date-row .field-group:first-child {
+        grid-column:1 / -1;
+    }
+}
+.rx-reset-icon {
+    display:inline-grid;
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    place-items:center;
+    margin-left:auto;
+    padding:0;
+    border:1px solid transparent;
+    border-radius:8px;
+    background:transparent;
+    color:var(--text-500);
+    cursor:pointer;
+    transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.rx-reset-icon:hover {
+    border-color:#dbe5f1;
+    background:#fff;
+    color:var(--blue-700);
+}
+.rx-reset-icon:focus-visible {
+    outline:3px solid rgba(59,130,246,.3);
+    outline-offset:2px;
+}
+.rx-reset-icon svg {
+    width:16px;
+    height:16px;
+}
+#subtab-exercise .en-rx-stamp,
+#subtab-nutrition .en-rx-stamp {
+    display:grid;
+    width:40px;
+    height:40px;
+    flex:0 0 40px;
+    place-items:center;
+    border-radius:11px;
+    background:#eff5ff;
+    color:var(--blue-600);
+    font-size:22px;
+    font-weight:900;
+    font-style:italic;
+    line-height:1;
+}
+.prescription-reset-modal-icon {
+    display:flex;
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    align-items:center;
+    justify-content:center;
+    border-radius:9px;
+    background:#fff1f2;
+    color:var(--red-600);
+}
+.prescription-reset-modal-icon svg {
+    width:16px;
+    height:16px;
+}
+#prescription-reset-modal .modal-body p {
+    color:var(--text-600);
+    line-height:1.55;
+}
+#prescription-reset-modal .btn-red-sm {
+    min-height:36px;
+    padding:8px 14px;
+}
+#subtab-exercise .en-rx-doctor-block .rx-doctor-name,
+#subtab-nutrition .en-rx-doctor-block .rx-doctor-name {
+    font-size:14px;
+}
+#subtab-exercise .en-rx-doctor-block .rx-doctor-role,
+#subtab-exercise .en-rx-doctor-block .rx-doctor-lic,
+#subtab-nutrition .en-rx-doctor-block .rx-doctor-role,
+#subtab-nutrition .en-rx-doctor-block .rx-doctor-lic {
+    font-size:12px;
+}
+#subtab-exercise .en-section:first-child h2,
+#subtab-nutrition .en-section:first-child h2 {
+    margin-top:0;
+}
+#subtab-exercise .en-action-button.en-primary,
+#subtab-nutrition .en-action-button.en-primary {
+    border-color:#171d30;
+    background:#171d30;
+    color:#fff;
+}
+#subtab-exercise .en-action-button.en-primary:hover,
+#subtab-nutrition .en-action-button.en-primary:hover {
+    border-color:#252e46;
+    background:#252e46;
+}
+#subtab-exercise .en-form-actions,
+#subtab-nutrition .en-form-actions {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin:10px -24px -18px;
+    padding:16px 24px;
+    border-top:1px solid #e8edf3;
+    background:#fff;
+}
+#subtab-exercise .en-form-actions .en-save-status,
+#subtab-nutrition .en-form-actions .en-save-status {
+    grid-column:1 / -1;
+    min-height:0;
+}
+#subtab-exercise .en-form-actions .en-save-status:empty,
+#subtab-nutrition .en-form-actions .en-save-status:empty {
+    display:none;
+}
+#subtab-exercise .en-form-actions .en-action-button,
+#subtab-nutrition .en-form-actions .en-action-button {
+    display:flex;
+    min-width:0;
+    min-height:44px;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin:0;
+    padding:10px 12px;
+    border-radius:9px;
+    font-weight:600;
+}
+#subtab-exercise .en-form-actions .en-action-button svg,
+#subtab-nutrition .en-form-actions .en-action-button svg {
+    width:15px;
+    height:15px;
+}
+#subtab-exercise .en-form-actions .en-print-button,
+#subtab-nutrition .en-form-actions .en-print-button {
+    border-color:#171d30;
+    background:#171d30;
+    color:#fff;
+}
+#subtab-exercise .en-form-actions .en-print-button:hover,
+#subtab-nutrition .en-form-actions .en-print-button:hover {
+    border-color:#252e46;
+    background:#252e46;
+}
+#subtab-exercise .en-form-actions .en-save-button,
+#subtab-nutrition .en-form-actions .en-save-button {
+    border:1px dashed #cbd8e8;
+    background:#fff;
+    color:#52657e;
+}
+#subtab-exercise .en-form-actions .en-save-button:hover,
+#subtab-nutrition .en-form-actions .en-save-button:hover {
+    border-color:#93b4e8;
+    background:#f5f8ff;
+    color:var(--blue-700);
+}
+#subtab-exercise .en-toc,
+#subtab-nutrition .en-toc {
+    padding:14px;
+    border:1px solid #e3eaf2;
+    border-radius:12px;
+    background:#fff;
+    box-shadow:0 2px 8px rgba(15,23,42,.04);
+}
+#subtab-exercise .en-toc strong,
+#subtab-nutrition .en-toc strong {
+    margin-bottom:8px;
+    padding-bottom:10px;
+    border-bottom:1px solid #edf1f5;
+}
+#subtab-exercise .en-toc a,
+#subtab-nutrition .en-toc a {
+    padding:7px 8px;
+    border-radius:7px;
+    line-height:1.35;
+    transition:background .15s ease,color .15s ease;
+}
+#subtab-exercise .en-toc a:hover,
+#subtab-nutrition .en-toc a:hover {
+    background:#f1f6ff;
+    color:var(--blue-700);
+}
+@media(max-width:760px) {
+    #subtab-exercise .en-form-actions,
+    #subtab-nutrition .en-form-actions {
+        margin-right:-20px;
+        margin-left:-20px;
+        padding-right:20px;
+        padding-left:20px;
+    }
+    #subtab-exercise .en-toc,
+    #subtab-nutrition .en-toc {
+        padding:8px 0 10px;
+        border:0;
+        border-bottom:1px solid #e3eaf2;
+        border-radius:0;
+        background:#fff;
+        box-shadow:none;
+    }
+    #subtab-exercise .en-toc strong,
+    #subtab-nutrition .en-toc strong {
+        padding:5px 4px;
+        border:0;
+    }
+    #subtab-exercise .en-toc a,
+    #subtab-nutrition .en-toc a {
+        padding:6px 9px;
+        border:1px solid #dce5ef;
+        background:#fff;
+        white-space:nowrap;
+    }
+}
+@media(max-width:520px) {
+    #subtab-exercise .en-form-actions,
+    #subtab-nutrition .en-form-actions {
+        gap:8px;
+        margin-right:-14px;
+        margin-left:-14px;
+        padding:13px 14px;
+    }
+    #subtab-exercise .en-form-actions .en-action-button,
+    #subtab-nutrition .en-form-actions .en-action-button {
+        padding-right:6px;
+        padding-left:6px;
+        font-size:12px;
+    }
+    #subtab-exercise .en-rx-doctor-block,
+    #subtab-nutrition .en-rx-doctor-block {
+        margin:-16px -15px 14px;
+        padding:14px 16px;
+    }
+}
+
+/* Give the long-form prescriptions the same full-width workspace as Rx. */
+#subtab-exercise .en-prescription-layout,
+#subtab-nutrition .en-prescription-layout {
+    width:100%;
+    max-width:none;
+    grid-template-columns:minmax(0,1fr) clamp(210px,20cqw,260px);
+    gap:16px;
+    margin:0;
+    padding:18px 0;
+}
+
+@media(max-width:760px) {
+    #subtab-exercise .en-prescription-layout,
+    #subtab-nutrition .en-prescription-layout {
+        grid-template-columns:minmax(0,1fr);
+        padding:14px 0 0;
+    }
+}
+
+@media(max-width:520px) {
+    #subtab-exercise .en-prescription-layout,
+    #subtab-nutrition .en-prescription-layout {
+        padding:10px 0 0;
+    }
+}
+
+/* Fade the reset confirmation in and out, including its dialog surface. */
+#prescription-reset-modal:not(.hidden):not(.is-closing) {
+    animation:prescription-reset-overlay-in 180ms ease-out both;
+}
+#prescription-reset-modal:not(.hidden):not(.is-closing) .modal-box {
+    animation:prescription-reset-dialog-in 200ms cubic-bezier(.2,.8,.2,1) both;
+}
+#prescription-reset-modal.is-closing {
+    pointer-events:none;
+    animation:prescription-reset-overlay-out 170ms ease-in both;
+}
+#prescription-reset-modal.is-closing .modal-box {
+    animation:prescription-reset-dialog-out 170ms ease-in both;
+}
+
+@keyframes prescription-reset-overlay-in {
+    from { opacity:0; }
+    to { opacity:1; }
+}
+@keyframes prescription-reset-dialog-in {
+    from { opacity:0; transform:translateY(8px) scale(.985); }
+    to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes prescription-reset-overlay-out {
+    from { opacity:1; }
+    to { opacity:0; }
+}
+@keyframes prescription-reset-dialog-out {
+    from { opacity:1; transform:translateY(0) scale(1); }
+    to { opacity:0; transform:translateY(5px) scale(.99); }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    #prescription-reset-modal:not(.hidden):not(.is-closing),
+    #prescription-reset-modal:not(.hidden):not(.is-closing) .modal-box,
+    #prescription-reset-modal.is-closing,
+    #prescription-reset-modal.is-closing .modal-box {
+        animation-duration:.01ms;
     }
 }

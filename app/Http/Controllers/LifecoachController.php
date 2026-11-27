@@ -196,6 +196,59 @@ class LifecoachController extends Controller
         ]);
     }
 
+    public function storeJournalEntry(Request $request, int $id): JsonResponse
+    {
+        $data = $request->validate([
+            'kind' => ['required', 'in:setup,review'],
+            'cadence' => ['nullable', 'in:weekly,per_session,monthly'],
+            'entry_date' => ['nullable', 'date'],
+            'content' => ['required', 'array', 'max:12'],
+            'content.intentions' => ['sometimes', 'array', 'max:3'],
+            'content.intentions.*' => ['nullable', 'string', 'max:500'],
+            'content.why' => ['nullable', 'string', 'max:1500'],
+            'content.success' => ['nullable', 'string', 'max:1500'],
+            'content.pillars' => ['sometimes', 'array', 'max:6'],
+            'content.pillars.*' => ['sometimes', 'array', 'max:3'],
+            'content.pillars.*.now' => ['nullable', 'string', 'max:500'],
+            'content.pillars.*.wish' => ['nullable', 'string', 'max:500'],
+            'content.pillars.*.step' => ['nullable', 'string', 'max:500'],
+            'content.recovery' => ['sometimes', 'array', 'max:8'],
+            'content.recovery.vision' => ['nullable', 'string', 'max:1500'],
+            'content.recovery.areas' => ['sometimes', 'array', 'max:5'],
+            'content.recovery.areas.*' => ['sometimes', 'array', 'max:2'],
+            'content.recovery.areas.*.goal' => ['nullable', 'string', 'max:500'],
+            'content.recovery.areas.*.sign' => ['nullable', 'string', 'max:500'],
+            'content.challenge' => ['sometimes', 'array', 'max:8'],
+            'content.challenge.habit' => ['nullable', 'string', 'max:500'],
+            'content.challenge.why' => ['nullable', 'string', 'max:1500'],
+            'content.challenge.strengths' => ['nullable', 'string', 'max:500'],
+            'content.challenge.barriers' => ['nullable', 'string', 'max:500'],
+            'content.challenge.reward' => ['nullable', 'string', 'max:500'],
+            'content.challenge.days_practiced' => ['nullable', 'integer', 'min:0', 'max:30'],
+            'content.challenge.daily_status' => ['sometimes', 'array', 'size:30'],
+            'content.challenge.daily_status.*' => ['nullable', 'in:met,not_met'],
+            'content.challenge.rating' => ['nullable', 'integer', 'min:1', 'max:5'],
+            'content.challenge.learned' => ['nullable', 'string', 'max:1500'],
+            'content.reflection' => ['sometimes', 'array', 'max:8'],
+            'content.reflection.went_well' => ['nullable', 'string', 'max:1500'],
+            'content.reflection.hard' => ['nullable', 'string', 'max:1500'],
+            'content.reflection.learned' => ['nullable', 'string', 'max:1500'],
+            'content.reflection.next_step' => ['nullable', 'string', 'max:1500'],
+            'content.goal_checkins' => ['sometimes', 'array', 'max:50'],
+            'content.goal_checkins.*' => ['required', 'array'],
+            'content.goal_checkins.*.goal_id' => ['required', 'integer', 'distinct'],
+            'content.goal_checkins.*.weekly_checkins' => ['required', 'array', 'size:7'],
+            'content.goal_checkins.*.weekly_checkins.*' => ['required', 'boolean'],
+        ]);
+
+        $entry = $this->lifeCoachService->createJournalEntry($id, $data);
+
+        return response()->json([
+            'message' => $data['kind'] === 'setup' ? 'Journey setup saved.' : 'Journal reflection saved.',
+            'entry' => $this->lifeCoachService->journalEntryToArray($entry),
+        ], 201);
+    }
+
     public function storeNote(Request $request): JsonResponse
     {
         $data = $request->validate([

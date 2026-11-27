@@ -16,6 +16,7 @@ $lcRoutes = [
 'updatesDismiss' => url('/lifecoach/updates/__ID__'),
 'logout' => route('auth.logout'),
 'patientsShow' => url('/lifecoach/patients/__ID__'),
+'journalEntriesStore' => url('/lifecoach/patients/__ID__/journal-entries'),
 'notesStore' => route('lifecoach.notes.store'),
 'notesDestroy' => url('/lifecoach/notes/__ID__'),
 'tasksStore' => route('lifecoach.tasks.store'),
